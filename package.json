@@ -1,0 +1,21 @@
+{
+  "name": "lunar-mod-manager",
+  "version": "0.0.1",
+  "description": "An unofficial mod manager for Factorio",
+  "main": "main.js",
+  "scripts": {
+	"start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Factorio",
+	"mod",
+	"manager"
+  ],
+  "author": "Alyx DeLunar",
+  "license": "ISC",
+  "devDependencies": {
+	"electron-prebuilt": "^1.2.0"
+  }
+  
+}
