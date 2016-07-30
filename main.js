@@ -3,13 +3,27 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
 let mainWindow;
+
+function log(data) {
+    file = require('fs');
+    file.appendFileSync('./log.txt', data + '\n');
+}
+
 function createWindow () {
+    screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
+
     windowOptions = {
-        width: 800,
-        height: 600,
+        minWidth: screenSize.width / 2,
+        minHeight: screenSize.height,
+        width: screenSize.width / 2,
+        height: screenSize.height,
+        x: 0,
+        y: 0,
+        resizable: true,
         icon: 'img/favicon.ico'
     };
     mainWindow = new BrowserWindow(windowOptions);
+    mainWindow.setMenu(null);
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
 
@@ -17,6 +31,8 @@ function createWindow () {
         mainWindow.webContents.openDevTools();
         mainWindow.webContents.send('ping', "All done loading!");
     });
+
+    log('Successfully loaded the browser!');
 
     mainWindow.on('closed', function () {
         mainWindow = null;
