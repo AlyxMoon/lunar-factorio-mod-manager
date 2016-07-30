@@ -1,4 +1,8 @@
 /* Bootstrap overrides */
+hr {
+    margin: 0;
+}
+
 .container-fluid {
     padding: 5px;
 }
@@ -14,7 +18,7 @@ body {
     height: 100%;
 }
 .main-view {
-    height: 90%;
+    height: 95%;
 }
 
 .profile-buttons {
