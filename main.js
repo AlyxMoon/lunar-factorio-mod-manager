@@ -13,6 +13,11 @@ function createWindow () {
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
 
+    mainWindow.webContents.on('did-finish-load', function() {
+        mainWindow.webContents.openDevTools();
+        mainWindow.webContents.send('ping', "All done loading!");
+    });
+
     mainWindow.on('closed', function () {
         mainWindow = null;
     })
