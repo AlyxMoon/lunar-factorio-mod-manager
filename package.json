@@ -12,6 +12,10 @@
 	"mod",
 	"manager"
   ],
+  "repository" : {
+    "type": "git",
+    "url": "https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager.git"
+  }
   "author": "Alyx DeLunar",
   "license": "ISC",
   "devDependencies": {
