@@ -1,3 +1,4 @@
 node_modules
 /.idea
-*.log
+*log.txt
+profiles.json
