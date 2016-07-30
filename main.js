@@ -4,8 +4,12 @@ const BrowserWindow = electron.BrowserWindow;
 
 let mainWindow;
 function createWindow () {
-    mainWindow = new BrowserWindow({width: 800, height: 600});
-    mainWindow.setMenu(null);
+    windowOptions = {
+        width: 800,
+        height: 600,
+        icon: 'img/favicon.ico'
+    };
+    mainWindow = new BrowserWindow(windowOptions);
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
 
