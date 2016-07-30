@@ -10,8 +10,11 @@
 html {
     height: 95%;
 }
-body, .main-view {
+body {
     height: 100%;
+}
+.main-view {
+    height: 90%;
 }
 
 .profile-buttons {
