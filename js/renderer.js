@@ -37,3 +37,10 @@ $(document).on('dblclick', '.tbl-profile-mod', function(event) {
     electron.ipcRenderer.send('modToggle', data);
 
 });
+
+$('button').click(function(event) {
+   if($(this).text() === "Start Factorio") {
+        electron.ipcRenderer.send('startGame');
+   }
+
+});

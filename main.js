@@ -167,3 +167,15 @@ electron.ipcMain.on('modToggle', function(event, message) {
         file.writeFile(path, JSON.stringify(data));
     });
 });
+
+electron.ipcMain.on('startGame', function(event, message) {
+    let spawn = require('child_process').spawn;
+    // TODO: Don't make game directory hardcoded
+    spawn('factorio.exe', [], {
+        'stdio': 'ignore',
+        'detached': true,
+        'cwd': 'C:/Games/SteamLibrary/SteamApps/common/Factorio/bin/x64'
+    }).unref();
+    app.quit();
+
+});
