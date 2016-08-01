@@ -6,8 +6,21 @@ let mainWindow;
 function log(data) {
     var file = require('fs');
     file.appendFileSync('lunarsModManager_log.txt', data + '\n');
-
+    mainWindow.webContents.openDevTools();
     mainWindow.webContents.send('ping', data);
+}
+
+function showCurrentModList() {
+    var file = require('fs');
+    var path = app.getPath('appData') + '/Factorio/mods/mod-list.json';
+    log("Checking for mod list at path: " + path);
+
+    var data = file.readFileSync(path, 'utf8');
+    var profile = [{
+        'mods': JSON.parse(data)['mods'],
+        'name': 'Current Profile'
+    }];
+    mainWindow.webContents.send('data', profile);
 }
 
 function createWindow () {
@@ -28,13 +41,7 @@ function createWindow () {
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
 
-    mainWindow.webContents.on('did-finish-load', function() {
-        mainWindow.webContents.openDevTools();
-        mainWindow.webContents.send('ping', "All done loading!");
-    });
-
-    log('Successfully loaded the browser!');
-
+    mainWindow.webContents.on('did-finish-load', showCurrentModList);
     mainWindow.on('closed', function () {
         mainWindow = null;
     });
