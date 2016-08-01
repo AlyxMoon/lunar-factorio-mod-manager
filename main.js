@@ -99,7 +99,16 @@ function showProfiles() {
     let path = './lmm_profiles.json';
 
     let data = file.readFileSync(path, 'utf8');
-    mainWindow.webContents.send('data', JSON.parse(data));
+    mainWindow.webContents.send('dataProfiles', JSON.parse(data));
+}
+
+function showMods() {
+    let file = require('fs');
+    let path = config['mod-path'];
+
+    let data = file.readdirSync(path, 'utf8');
+    mainWindow.webContents.send('dataMods', data);
+
 }
 
 
@@ -122,6 +131,7 @@ function createWindow () {
 
     mainWindow.webContents.openDevTools();
     mainWindow.webContents.on('did-finish-load', showProfiles);
+    mainWindow.webContents.on('did-finish-load', showMods);
     mainWindow.on('closed', function () {
         mainWindow = null;
     });

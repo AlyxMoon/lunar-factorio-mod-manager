@@ -3,15 +3,18 @@
 // All of the Node.js APIs are available in this process.
 const electron = require('electron');
 
-electron.ipcRenderer.on('data', function(event, message) {
+electron.ipcRenderer.on('dataProfiles', function(event, message) {
     listProfiles(message);
+});
+electron.ipcRenderer.on('dataMods', function(event, message) {
+    listMods(message);
 });
 
 electron.ipcRenderer.on('ping', function(event, message) {
     console.log(message);
 });
 
-$(document).on('dblclick', '.tbl-mod', function(event) {
+$(document).on('dblclick', '.tbl-profile-mod', function(event) {
     event.stopPropagation();
     $(this).toggleClass('danger');
 

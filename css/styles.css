@@ -21,7 +21,7 @@ body {
     height: 95%;
 }
 
-#profile-section {
+#profile-section, #mod-section {
     overflow: scroll;
 }
 
