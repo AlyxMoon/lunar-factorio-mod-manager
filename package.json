@@ -4,18 +4,21 @@
   "description": "An unofficial mod manager for Factorio",
   "main": "main.js",
   "scripts": {
-	"start": "electron .",
+    "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "Factorio",
-	"mod",
-	"manager"
+    "mod",
+    "manager"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager.git"
+  },
   "author": "Alyx DeLunar",
   "license": "ISC",
   "devDependencies": {
-	"electron-prebuilt": "^1.2.0"
+    "electron-prebuilt": "^1.2.0"
   }
-  
 }

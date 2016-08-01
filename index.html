@@ -1,16 +1,57 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Factorio - Lunar's Mod Manager</title>
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    <head>
+        <meta charset="UTF-8">
+        <title>Factorio - Lunar's Mod Manager</title>
 
-  </body>
+        <link rel="stylesheet" href="./css/bootstrap.min.css">
+        <link rel="stylesheet" href="./css/styles.css">
+    </head>
+    <body>
+        <!-- Main view buttons -->
+        <div class="btn-group profile-buttons" role="group" aria-label="...">
+            <!-- TODO: Start Factorio from app -->
+            <button type="button" class="btn btn-danger">Start Factorio</button>
+            <button type="button" class="btn btn-default btn-active">Profiles</button>
+            <!-- TODO: Implement the following views -->
+            <button type="button" class="btn btn-danger">Installed Mods</button>
+            <button type="button" class="btn btn-danger">Search Mods</button>
+            <button type="button" class="btn btn-danger">Search Servers</button>
+        </div>
+        <hr>
 
-  <script>
-      require('./renderer.js')
-  </script>
+        <div class="main-view">
+            <!-- Current view viewport -->
+            <div class="col-xs-8 height-100"><div id="profile-section" class="view-section height-100">
+                <table id="profiles-table" class="table table-condensed table-hover"></table>
+            </div></div>
+            <!-- Current view options -->
+            <div class="col-xs-4 height-100">
+                <div class="view-section height-35">
+                    <!-- TODO: Implement the following actions -->
+                    <button type="button" class="btn btn-danger btn-block">Activate Profile</button>
+                    <button type="button" class="btn btn-danger btn-block">New Profile</button>
+                    <button type="button" class="btn btn-danger btn-block">Delete Profile</button>
+                    <button type="button" class="btn btn-danger btn-block">Rename Profile</button>
+                    <button type="button" class="btn btn-danger btn-block">Toggle Mod</button>
+                </div>
+                <div class="view-section height-65">
+                    <!-- TODO: Show currently active mods on app start -->
+                    <h1>Mod List:</h1>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </body>
+
+    <!-- Required for script imports  -->
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+    <script src="./js/jquery-3.1.0.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/script.js"></script>
+    <script> require('./js/renderer.js') </script>
 </html>

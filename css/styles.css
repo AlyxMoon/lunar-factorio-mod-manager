@@ -1,0 +1,52 @@
+/* Bootstrap overrides */
+hr {
+    margin: 0;
+}
+
+.container-fluid {
+    padding: 5px;
+}
+.col-* {
+    height: 100%;
+}
+
+/*--------------------*/
+html {
+    height: 95%;
+}
+body {
+    height: 100%;
+}
+.main-view {
+    height: 95%;
+}
+
+#profile-section {
+    overflow: scroll;
+}
+
+.profile-buttons {
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.view-section {
+
+    margin: 2px;
+    padding: 1px;
+    border: 2px solid black;
+}
+
+.height-100 {
+    height: 100%;
+}
+.height-65 {
+    height: 65%;
+}
+.height-50 {
+    height: 50%;
+}
+.height-35 {
+    height: 35%;
+}
