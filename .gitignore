@@ -1,4 +1,6 @@
 node_modules
 /.idea
-*log.txt
-profiles.json
+
+lmm_log.txt
+lmm_config.json
+lmm_profiles.json
