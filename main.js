@@ -4,6 +4,7 @@ const BrowserWindow = electron.BrowserWindow;
 let mainWindow;
 
 function log(data) {
+<<<<<<< HEAD
     var file = require('fs');
     file.appendFileSync('lunarsModManager_log.txt', data + '\n');
 
@@ -53,8 +54,36 @@ function saveProfile(profile) {
 
 function createWindow () {
     mainWindow = new BrowserWindow({width: 800, height: 600});
+=======
+    file = require('fs');
+    file.appendFileSync('./log.txt', data + '\n');
+}
+
+function createWindow () {
+    screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
+
+    windowOptions = {
+        minWidth: screenSize.width / 2,
+        minHeight: screenSize.height,
+        width: screenSize.width / 2,
+        height: screenSize.height,
+        x: 0,
+        y: 0,
+        resizable: true,
+        icon: 'img/favicon.ico'
+    };
+    mainWindow = new BrowserWindow(windowOptions);
+    mainWindow.setMenu(null);
+>>>>>>> refs/remotes/origin/master
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
+
+    mainWindow.webContents.on('did-finish-load', function() {
+        mainWindow.webContents.openDevTools();
+        mainWindow.webContents.send('ping', "All done loading!");
+    });
+
+    log('Successfully loaded the browser!');
 
     mainWindow.on('closed', function () {
         mainWindow = null;
