@@ -1,5 +1,6 @@
 $(document).ready(function() {
 
+
 });
 
 /* The input 'profiles' needs to look like this:
@@ -22,12 +23,12 @@ function listProfiles(profiles) {
     table.append("<tbody>");
 
     for(var i = 0; i < profiles.length; i++) {
-        table.append("<tr><th>" + profiles[i]['name'] + "</th></tr>");
+        table.append("<tr class='tbl-profile'><th>" + profiles[i]['name'] + "</th></tr>");
 
         numMods = profiles[i]['mods'].length;
         for(var j = 0; j < numMods - 1; j++) {
             mod = profiles[i]['mods'][j];
-            table.append('<tr><th scope="row">' + mod['name'] + '</th><td>' + mod['enabled'] + '</td></tr>');
+            table.append('<tr class="tbl-mod"><td scope="row">' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
 
             if(mod['enabled'] === 'false') {
                 $('#profiles-table tr').last().addClass('danger');

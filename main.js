@@ -61,3 +61,20 @@ app.on('activate', function () {
         createWindow();
     }
 });
+
+electron.ipcMain.on('modToggle', function(event, message) {
+    var file = require('fs');
+    var path = app.getPath('appData') + '/Factorio/mods/mod-list.json';
+    log("Checking for mod list at path: " + path);
+
+    file.readFile(path, 'utf8', function(error, data) {
+        data = JSON.parse(data);
+        for(var i = 0; i < data['mods'].length; i++) {
+            if(data['mods'][i]['name'] === message['mod']) {
+                data['mods'][i]['enabled'] = message['enabled'];
+            }
+        }
+
+        file.writeFile(path, JSON.stringify(data));
+    });
+});
