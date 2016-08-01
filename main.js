@@ -4,7 +4,6 @@ const BrowserWindow = electron.BrowserWindow;
 let mainWindow;
 
 function log(data) {
-<<<<<<< HEAD
     var file = require('fs');
     file.appendFileSync('lunarsModManager_log.txt', data + '\n');
 
@@ -18,7 +17,13 @@ function getCurrentModConfig() {
     mainWindow.webContents.openDevTools();
     try {
         var data = file.readFileSync(filepath, 'utf8');
-        saveProfile(JSON.parse(data));
+        profiles = [{
+            'mods': JSON.parse(data)['mods'],
+            'name': 'Current Profile'
+        }];
+
+        mainWindow.webContents.send('data', profiles);
+        //saveProfile(JSON.parse(data));
     }
     catch(error) {
         if (error.code === 'ENOENT') {
@@ -47,16 +52,8 @@ function saveProfile(profile) {
     }
 
 
-    obj['profiles'].push({'current': profile});
-    file.appendFileSync('profiles.json', JSON.stringify(obj));
-}
-
-
-function createWindow () {
-    mainWindow = new BrowserWindow({width: 800, height: 600});
-=======
-    file = require('fs');
-    file.appendFileSync('./log.txt', data + '\n');
+    //obj['profiles'].push({'current': profile});
+    //file.appendFileSync('profiles.json', JSON.stringify(obj));
 }
 
 function createWindow () {
@@ -74,7 +71,6 @@ function createWindow () {
     };
     mainWindow = new BrowserWindow(windowOptions);
     mainWindow.setMenu(null);
->>>>>>> refs/remotes/origin/master
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
 
@@ -89,7 +85,7 @@ function createWindow () {
         mainWindow = null;
     });
 
-    mainWindow.webContents.on('did-finish-load', getCurrentModConfig);
+    //mainWindow.webContents.on('did-finish-load', getCurrentModConfig);
 
 }
 
