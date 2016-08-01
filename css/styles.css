@@ -21,6 +21,10 @@ body {
     height: 95%;
 }
 
+#profile-section {
+    overflow: scroll;
+}
+
 .profile-buttons {
     margin-left: 10px;
     margin-top: 10px;

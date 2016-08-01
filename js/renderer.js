@@ -3,6 +3,10 @@
 // All of the Node.js APIs are available in this process.
 const electron = require('electron');
 
+electron.ipcRenderer.on('data', function(event, message) {
+    listProfiles(message);
+});
+
 electron.ipcRenderer.on('ping', function(event, message) {
     console.log(message);
 });
