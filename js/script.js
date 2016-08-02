@@ -16,23 +16,37 @@ $(document).ready(function() {
     }
 ]
  */
-function listProfiles(profiles) {
+
+function listActiveProfile(profile) {
+    console.log(profile);
+    var table = $('table#active-profile');
+    table.css("height", table.parent().height());
+    table.append("<thead><tr><th colspan='2'>" + profile['name'] + "</th></tr></thead>");
+    table.append("<tbody>");
+
+    numMods = profile['mods'].length;
+    for(var i = 0; i < numMods; i++) {
+        mod = profile['mods'][i];
+        table.append('<tr class="tbl-profile-mod"><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
+
+        if(mod['enabled'] === "false") {
+            $('table#active-profile tbody tr').last().addClass('danger');
+        }
+    }
+    table.append('</tbody>');
+}
+
+function listAllProfiles(profiles) {
     console.log(profiles);
-    var table = $('#profiles-table');
+    var table = $('table#all-profiles');
     table.css("height", table.parent().height());
     table.append("<tbody>");
 
     for(var i = 0; i < profiles.length; i++) {
-        table.append("<tr class='tbl-profile'><th>" + profiles[i]['name'] + "</th></tr>");
+        table.append("<tr class='tbl-profile'><td>" + profiles[i]['name'] + "</td></tr>");
 
-        numMods = profiles[i]['mods'].length;
-        for(var j = 0; j < numMods - 1; j++) {
-            mod = profiles[i]['mods'][j];
-            table.append('<tr class="tbl-profile-mod"><td scope="row">' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
-
-            if(mod['enabled'] === 'false') {
-                $('#profiles-table tr').last().addClass('danger');
-            }
+        if(profiles[i]['enabled'] === 'true') {
+            $('table#all-profiles tbody tr').last().addClass('info');
         }
     }
     table.append('</tbody>');

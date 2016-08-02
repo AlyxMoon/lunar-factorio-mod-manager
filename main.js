@@ -94,12 +94,26 @@ function showCurrentModList() {
     mainWindow.webContents.send('data', profile);
 }
 
-function showProfiles() {
+function showAllProfiles() {
     let file = require('fs');
     let path = './lmm_profiles.json';
 
-    let data = file.readFileSync(path, 'utf8');
-    mainWindow.webContents.send('dataProfiles', JSON.parse(data));
+    let profiles = JSON.parse(file.readFileSync(path, 'utf8'));
+    mainWindow.webContents.send('dataAllProfiles', profiles);
+}
+
+function showActiveProfile() {
+    let file = require('fs');
+    let path = './lmm_profiles.json';
+
+    let profiles = JSON.parse(file.readFileSync(path, 'utf8'));
+    for(var i = 0; i < profiles.length; i++) {
+        if(profiles[i]['enabled']) {
+            mainWindow.webContents.send('dataActiveProfile', profiles[i]);
+            break;
+        }
+    }
+
 }
 
 function showMods() {
@@ -130,8 +144,9 @@ function createWindow () {
     mainWindow.loadURL(`file://${__dirname}/index.html`);
 
     mainWindow.webContents.openDevTools();
-    mainWindow.webContents.on('did-finish-load', showProfiles);
-    mainWindow.webContents.on('did-finish-load', showMods);
+    mainWindow.webContents.on('did-finish-load', showActiveProfile);
+    mainWindow.webContents.on('did-finish-load', showAllProfiles);
+    //mainWindow.webContents.on('did-finish-load', showMods);
     mainWindow.on('closed', function () {
         mainWindow = null;
     });
@@ -152,20 +167,44 @@ app.on('activate', function () {
 });
 
 electron.ipcMain.on('modToggle', function(event, message) {
-    var file = require('fs');
-    var path = app.getPath('appData') + '/Factorio/mods/mod-list.json';
+    let file = require('fs');
+
+    // Save to Factorio mod list
+    let path = app.getPath('appData') + '/Factorio/mods/mod-list.json';
     log("Checking for mod list at path (for rewrite): " + path);
+    log("Mod to change: " + message['mod']);
 
-    file.readFile(path, 'utf8', function(error, data) {
-        data = JSON.parse(data);
-        for(var i = 0; i < data['mods'].length; i++) {
-            if(data['mods'][i]['name'] === message['mod']) {
-                data['mods'][i]['enabled'] = message['enabled'];
-            }
+    let data = file.readFileSync(path, 'utf8');
+    data = JSON.parse(data);
+    for(var i = 0; i < data['mods'].length; i++) {
+        log("Current Mod being checked: " + data['mods'][i]['name']);
+        if(data['mods'][i]['name'] === message['mod']) {
+            data['mods'][i]['enabled'] = message['enabled'];
+            break;
         }
+    }
+    log('About to write file');
+    log('Mod: ' + data['mods'][i]['name'] + ', Enabled: ' + data['mods'][i]['enabled']);
+    file.writeFileSync(path, JSON.stringify(data));
 
-        file.writeFile(path, JSON.stringify(data));
-    });
+    // Save to manager profile list
+    path = './lmm_profiles.json';
+    log("Saving profile changes");
+
+    data = file.readFileSync(path, 'utf8');
+    data = JSON.parse(data);
+    for(var i = 0; i < data.length; i++) {
+        if(data[i]['name'] === message['profile']) {
+            for (var j = 0; j < data[i]['mods'].length; j++) {
+                if (data[i]['mods'][j]['name'] === message['mod']) {
+                    data[i]['mods'][j]['enabled'] = message['enabled'];
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    file.writeFileSync(path, JSON.stringify(data));
 });
 
 electron.ipcMain.on('startGame', function(event, message) {

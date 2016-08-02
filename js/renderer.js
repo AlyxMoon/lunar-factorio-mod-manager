@@ -3,8 +3,11 @@
 // All of the Node.js APIs are available in this process.
 const electron = require('electron');
 
-electron.ipcRenderer.on('dataProfiles', function(event, message) {
-    listProfiles(message);
+electron.ipcRenderer.on('dataActiveProfile', function(event, message) {
+    listActiveProfile(message);
+});
+electron.ipcRenderer.on('dataAllProfiles', function(event, message) {
+    listAllProfiles(message);
 });
 electron.ipcRenderer.on('dataMods', function(event, message) {
     listMods(message);
@@ -19,17 +22,17 @@ $(document).on('dblclick', '.tbl-profile-mod', function(event) {
     $(this).toggleClass('danger');
 
     var data = {};
-    data['profile'] = $(this).prevAll(".tbl-profile:first").text();
+    // TODO: Improve JQuery selectors
+    data['profile'] = $(this).parent().prev().text();
     data['mod'] = $(this).children().first().text();
-    // TODO: Get better JQuery selector than this
     data['enabled'] = $(this).children().first().next().text();
 
     if(data['enabled'] === 'true') {
-        data['enabled'] = false;
+        data['enabled'] = "false";
         $(this).children().first().next().text('false')
     }
     else {
-        data['enabled'] = true;
+        data['enabled'] = "true";
         $(this).children().first().next().text('true')
     }
 

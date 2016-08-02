@@ -17,6 +17,15 @@ html {
 body {
     height: 100%;
 }
+
+table {
+    font-size: 12px;
+}
+
+th {
+    text-align: center;
+}
+
 .main-view {
     height: 95%;
 }
