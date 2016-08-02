@@ -10,7 +10,8 @@ electron.ipcRenderer.on('dataAllProfiles', function(event, message) {
     listAllProfiles(message);
 });
 electron.ipcRenderer.on('dataMods', function(event, message) {
-    listMods(message);
+    console.log(message);
+    //listMods(message);
 });
 
 electron.ipcRenderer.on('ping', function(event, message) {
@@ -42,8 +43,13 @@ $(document).on('dblclick', '.tbl-profile-mod', function(event) {
 });
 
 $('button').click(function(event) {
-   if($(this).text() === "Start Factorio") {
+    if($(this).text() === "Start Factorio") {
         electron.ipcRenderer.send('startGame');
-   }
+    }
+    else if($(this).text() === "New Profile") {
+        console.log("New profile!");
+        electron.ipcRenderer.send('newProfile');
+    }
+
 
 });

@@ -116,11 +116,25 @@ function showActiveProfile() {
 
 }
 
-function showMods() {
+function getInstalledMods() {
     let file = require('fs');
     let path = config['mod-path'];
 
     let data = file.readdirSync(path, 'utf8');
+    for(var i = data.length - 1; i >= 0; i--) {
+        if(data[i] === 'mod-list.json') {
+            data.splice(i, 1);
+        }
+        else {
+            data[i] = data[i].substr(0, data[i].lastIndexOf('_'));
+        }
+
+    }
+    return data;
+}
+
+function showMods() {
+    let data = getInstalledMods();
     mainWindow.webContents.send('dataMods', data);
 
 }
@@ -146,7 +160,7 @@ function createWindow () {
     mainWindow.webContents.openDevTools();
     mainWindow.webContents.on('did-finish-load', showActiveProfile);
     mainWindow.webContents.on('did-finish-load', showAllProfiles);
-    //mainWindow.webContents.on('did-finish-load', showMods);
+    mainWindow.webContents.on('did-finish-load', showMods);
     mainWindow.on('closed', function () {
         mainWindow = null;
     });
@@ -205,6 +219,43 @@ electron.ipcMain.on('modToggle', function(event, message) {
         }
     }
     file.writeFileSync(path, JSON.stringify(data));
+});
+
+electron.ipcMain.on('newProfile', function(event,message) {
+    log('Attempting to create new profile');
+    let mods = getInstalledMods();
+    let profile = {
+        'name': 'New Profile',
+        'enabled': false,
+        'mods': []
+    };
+    for(var i = 0; i < mods.length; i++) {
+        profile['mods'].push({
+            'name': mods[i],
+            'enabled': 'true'
+        });
+    }
+
+    let file = require('fs');
+    let data = JSON.parse(file.readFileSync('./lmm_profiles.json', 'utf8'));
+    let n = 1;
+    while(true) {
+        let nameExists = false;
+        for(var j = 0; j < data.length; j++) {
+            if(data[j]['name'] === profile['name'] + ' ' + n) {
+                nameExists = true;
+                n++;
+                break;
+            }
+        }
+        if(!nameExists) {
+            profile['name'] = profile['name'] + ' ' + n;
+            break;
+        }
+    }
+    data.push(profile);
+    file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
+    showAllProfiles();
 });
 
 electron.ipcMain.on('startGame', function(event, message) {

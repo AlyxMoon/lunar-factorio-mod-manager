@@ -1,3 +1,5 @@
+var lastClicked = null;
+
 $(document).ready(function() {
 
 
@@ -18,9 +20,12 @@ $(document).ready(function() {
  */
 
 function listActiveProfile(profile) {
+
     console.log(profile);
     var table = $('table#active-profile');
-    table.css("height", table.parent().height());
+    table.css("max-height", table.parent().height());
+    table.children().remove();
+
     table.append("<thead><tr><th colspan='2'>" + profile['name'] + "</th></tr></thead>");
     table.append("<tbody>");
 
@@ -39,7 +44,10 @@ function listActiveProfile(profile) {
 function listAllProfiles(profiles) {
     console.log(profiles);
     var table = $('table#all-profiles');
-    table.css("height", table.parent().height());
+    table.css("max-height", table.parent().height());
+    table.children().remove();
+
+    table.append('<thead><tr><th>Profiles:</th></tr></thead>');
     table.append("<tbody>");
 
     for(var i = 0; i < profiles.length; i++) {
