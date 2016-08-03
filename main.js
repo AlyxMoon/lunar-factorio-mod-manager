@@ -191,7 +191,6 @@ electron.ipcMain.on('modToggle', function(event, message) {
     let data = file.readFileSync(path, 'utf8');
     data = JSON.parse(data);
     for(var i = 0; i < data['mods'].length; i++) {
-        log("Current Mod being checked: " + data['mods'][i]['name']);
         if(data['mods'][i]['name'] === message['mod']) {
             data['mods'][i]['enabled'] = message['enabled'];
             break;
@@ -265,6 +264,35 @@ electron.ipcMain.on('activateProfile', function(event,name) {
     for(var i = 0; i < data.length; i++) {
         data[i]['enabled'] = (data[i]['name'] === name);
     }
+    file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
+    showAllProfiles();
+    showActiveProfile();
+
+});
+
+electron.ipcMain.on('deleteProfile', function(event) {
+    let file = require('fs');
+    let data = JSON.parse(file.readFileSync('./lmm_profiles.json', 'utf8'));
+
+    for(var i = 0; i < data.length; i++) {
+        if(data[i]['enabled']) {
+            log(data[i]['name']);
+            data.splice(i, 1);
+            break;
+        }
+    }
+    if(data.length === 0) {
+        data = [{
+            'name': 'Current Profile',
+            'enabled': true,
+            'mods': getFactorioModList()
+
+        }];
+    }
+    else {
+        data[0]['enabled'] = true;
+    }
+
     file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
     showAllProfiles();
     showActiveProfile();

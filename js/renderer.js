@@ -58,6 +58,10 @@ $('button').click(function(event) {
         console.log("New profile!");
         electron.ipcRenderer.send('newProfile');
     }
+    else if($(this).text() === "Delete Profile") {
+        console.log("New profile!");
+        electron.ipcRenderer.send('deleteProfile');
+    }
 
 
 });
