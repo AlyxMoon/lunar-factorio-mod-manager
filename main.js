@@ -258,6 +258,19 @@ electron.ipcMain.on('newProfile', function(event,message) {
     showAllProfiles();
 });
 
+electron.ipcMain.on('activateProfile', function(event,name) {
+    let file = require('fs');
+    let data = JSON.parse(file.readFileSync('./lmm_profiles.json', 'utf8'));
+
+    for(var i = 0; i < data.length; i++) {
+        data[i]['enabled'] = (data[i]['name'] === name);
+    }
+    file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
+    showAllProfiles();
+    showActiveProfile();
+
+});
+
 electron.ipcMain.on('startGame', function(event, message) {
     let spawn = require('child_process').spawn;
     // TODO: Don't make game directory hardcoded

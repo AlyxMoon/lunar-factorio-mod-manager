@@ -1,5 +1,3 @@
-var lastClicked = null;
-
 $(document).ready(function() {
 
 
@@ -26,13 +24,13 @@ function listActiveProfile(profile) {
     table.css("max-height", table.parent().height());
     table.children().remove();
 
-    table.append("<thead><tr><th colspan='2'>" + profile['name'] + "</th></tr></thead>");
+    table.append("<thead><tr class='info'><th colspan='2'>" + profile['name'] + "</th></tr></thead>");
     table.append("<tbody>");
 
     numMods = profile['mods'].length;
     for(var i = 0; i < numMods; i++) {
         mod = profile['mods'][i];
-        table.append('<tr class="tbl-profile-mod"><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
+        table.append('<tr class="tbl-mod"><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
 
         if(mod['enabled'] === "false") {
             $('table#active-profile tbody tr').last().addClass('danger');
@@ -53,7 +51,7 @@ function listAllProfiles(profiles) {
     for(var i = 0; i < profiles.length; i++) {
         table.append("<tr class='tbl-profile'><td>" + profiles[i]['name'] + "</td></tr>");
 
-        if(profiles[i]['enabled'] === 'true') {
+        if(profiles[i]['enabled']) {
             $('table#all-profiles tbody tr').last().addClass('info');
         }
     }
