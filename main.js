@@ -130,6 +130,7 @@ function getInstalledMods() {
         }
 
     }
+    data.unshift('base');
     return data;
 }
 
@@ -261,10 +262,16 @@ electron.ipcMain.on('activateProfile', function(event,name) {
     let file = require('fs');
     let data = JSON.parse(file.readFileSync('./lmm_profiles.json', 'utf8'));
 
+    let modList = {'mods': []};
     for(var i = 0; i < data.length; i++) {
-        data[i]['enabled'] = (data[i]['name'] === name);
+        if(data[i]['name'] === name) {
+            data[i]['enabled'] = true;
+            modList['mods'] = data[i]['mods'];
+        }
+        else data[i]['enabled'] = false;
     }
     file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
+    file.writeFileSync(config['mod-path'] + '/mod-list.json', JSON.stringify(modList));
     showAllProfiles();
     showActiveProfile();
 
@@ -274,6 +281,7 @@ electron.ipcMain.on('deleteProfile', function(event) {
     let file = require('fs');
     let data = JSON.parse(file.readFileSync('./lmm_profiles.json', 'utf8'));
 
+    let modList = {'mods': []};
     for(var i = 0; i < data.length; i++) {
         if(data[i]['enabled']) {
             log(data[i]['name']);
@@ -281,6 +289,7 @@ electron.ipcMain.on('deleteProfile', function(event) {
             break;
         }
     }
+
     if(data.length === 0) {
         data = [{
             'name': 'Current Profile',
@@ -292,8 +301,11 @@ electron.ipcMain.on('deleteProfile', function(event) {
     else {
         data[0]['enabled'] = true;
     }
+    modList['mods'] = data[0]['mods'];
 
     file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
+    file.writeFileSync(config['mod-path'] + '/mod-list.json', JSON.stringify(modList));
+
     showAllProfiles();
     showActiveProfile();
 
