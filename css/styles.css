@@ -16,6 +16,7 @@ html {
 }
 body {
     height: 100%;
+    color: #333;
 }
 
 table {
@@ -47,7 +48,9 @@ td {
 
     margin: 2px;
     padding: 1px;
-    border: 2px solid black;
+    border: 2px solid #191E27;
+    border-radius: 3px;
+    box-shadow: 2px 1px;
 }
 
 .height-100 {

@@ -70,6 +70,7 @@ $('button').click(function(event) {
         console.log("Delete profile!");
         electron.ipcRenderer.send('deleteProfile');
     }
+    $(this).blur();
 
 });
 
