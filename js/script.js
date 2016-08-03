@@ -24,7 +24,7 @@ function listActiveProfile(profile) {
     table.css("max-height", table.parent().height());
     table.children().remove();
 
-    table.append("<thead><tr class='info'><th colspan='2'>" + profile['name'] + "</th></tr></thead>");
+    table.append("<thead><tr id='active-profile-name' class='info'><th colspan='2'>" + profile['name'] + "</th></tr></thead>");
     table.append("<tbody>");
 
     numMods = profile['mods'].length;

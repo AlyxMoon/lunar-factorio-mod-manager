@@ -50,6 +50,10 @@ $(document).on('dblclick', '.tbl-profile', function(event) {
 
 });
 
+$(document).on('click', '#rename-submit', function(event) {
+    electron.ipcRenderer.send('renameProfile', $('textarea').val());
+});
+
 $('button').click(function(event) {
     if($(this).text() === "Start Factorio") {
         electron.ipcRenderer.send('startGame');
@@ -58,10 +62,25 @@ $('button').click(function(event) {
         console.log("New profile!");
         electron.ipcRenderer.send('newProfile');
     }
+    else if($(this).text() === "Rename Profile") {
+        console.log("Rename profile!");
+        startRename();
+    }
     else if($(this).text() === "Delete Profile") {
-        console.log("New profile!");
+        console.log("Delete profile!");
         electron.ipcRenderer.send('deleteProfile');
     }
 
-
 });
+
+function startRename() {
+    if($('#active-profile-name').length) {
+        let tableHead = $('table#active-profile thead');
+        let profileName = tableHead.children().text();
+        tableHead.children().remove();
+        tableHead.append("<tr class='info'><th><textarea rows='1'>" + profileName + "</textarea></th></tr>");
+        $('table#active-profile thead tr').append('<th><button id="rename-submit" type="button" class="btn btn-default">Save Name</button></th>');
+    }
+
+
+}

@@ -277,6 +277,21 @@ electron.ipcMain.on('activateProfile', function(event,name) {
 
 });
 
+electron.ipcMain.on('renameProfile', function(event, newName) {
+    let file = require('fs');
+    let data = JSON.parse(file.readFileSync('./lmm_profiles.json', 'utf8'));
+
+    for(var i = 0; i < data.length; i++) {
+        if(data[i]['enabled']) {
+            data[i]['name'] = newName;
+            break;
+        }
+    }
+    file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
+    showAllProfiles();
+    showActiveProfile();
+});
+
 electron.ipcMain.on('deleteProfile', function(event) {
     let file = require('fs');
     let data = JSON.parse(file.readFileSync('./lmm_profiles.json', 'utf8'));
