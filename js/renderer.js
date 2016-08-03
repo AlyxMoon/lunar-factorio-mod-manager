@@ -18,7 +18,7 @@ electron.ipcRenderer.on('ping', function(event, message) {
     console.log(message);
 });
 
-$(document).on('dblclick', '.tbl-mod', function(event) {
+$(document).on('click', '.tbl-mod', function(event) {
     event.stopPropagation();
     $(this).toggleClass('danger');
 
@@ -42,7 +42,7 @@ $(document).on('dblclick', '.tbl-mod', function(event) {
 
 });
 
-$(document).on('dblclick', '.tbl-profile', function(event) {
+$(document).on('click', '.tbl-profile', function(event) {
     event.stopPropagation();
     console.log($(this).text());
     electron.ipcRenderer.send('activateProfile', $(this).text());

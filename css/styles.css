@@ -25,6 +25,9 @@ table {
 th {
     text-align: center;
 }
+td {
+    cursor: pointer;
+}
 
 .main-view {
     height: 95%;
