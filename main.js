@@ -5,8 +5,10 @@ let mainWindow;
 let config;
 
 function log(data) {
-    var file = require('fs');
-    file.appendFileSync('./lmm_log.txt', data + '\n');
+    // TODO: More thorough logging through entire app
+    // Disabled for first release, as logging is not consistent or helpful enough yet.
+    //var file = require('fs');
+    //file.appendFileSync('./lmm_log.txt', data + '\n');
 }
 
 function init() {
@@ -18,17 +20,13 @@ function init() {
     try {
         data = file.readFileSync(path, 'utf8');
         config = JSON.parse(data);
+        createWindow();
     }
     catch(error) {
         if(error.code === 'ENOENT') {
             firstTimeRun();
-            data = file.readFileSync(path, 'utf8');
         }
     }
-    log("Successfully loaded the config file");
-
-
-    createWindow();
 }
 
 function firstTimeRun() {
@@ -44,41 +42,54 @@ function firstTimeRun() {
         'height': screenSize.height,
         'x-loc': 0,
         'y-loc': 0,
-        'mod-path': app.getPath('appData') + '/Factorio/mods'
+        'mod-path': app.getPath('appData') + '/Factorio/mods',
+        'modlist-path': '',
+        'game-path': ''
     };
+    log(data['mod-path']);
+    electron.dialog.showOpenDialog({'title': 'Find mod-list directory', 'properties': ['openFile']}, function(modPath) {
+        log('User selected mod list at:' + modPath[0]);
+        data['modlist-path'] = modPath[0];
 
-    try {
-        file.writeFileSync(path, JSON.stringify(data));
-        config = data;
-    }
-    catch(error) {
-        log("Failed to write config on first time initialization, error: " + error.code);
-        app.quit();
-    }
+        electron.dialog.showOpenDialog({'title': 'Find Factorio.exe directory', 'properties': ['openFile']}, function(gamePath) {
+            log('User selected Factorio.exe:' + gamePath);
+            data['game-path'] = gamePath[0];
 
-    log("Successfully created config file, now creating profile");
-    path = "./lmm_profiles.json";
+            try {
+                file.writeFileSync(path, JSON.stringify(data));
+                config = data;
+            }
+            catch(error) {
+                log("Failed to write config on first time initialization, error: " + error.code);
+                app.quit();
+            }
 
-    try {
-        let data = [{
-            'name': 'Current Profile',
-            'enabled': true,
-            'mods': getFactorioModList()
+            log("Successfully created config file, now creating profile");
+            path = "./lmm_profiles.json";
 
-        }];
-        file.writeFileSync(path, JSON.stringify(data));
-    }
-    catch(error) {
-        log("Failed to write profile file on first time initialization, error: " + error.code);
-        app.quit();
-    }
-    log("Successfully created first profile");
+            try {
+                let data = [{
+                    'name': 'Current Profile',
+                    'enabled': true,
+                    'mods': getFactorioModList()
+
+                }];
+                file.writeFileSync(path, JSON.stringify(data));
+            }
+            catch(error) {
+                log("Failed to write profile file on first time initialization, error: " + error.code);
+                app.quit();
+            }
+            log("Successfully created first profile");
+            createWindow();
+        });
+    });
 
 }
 
 function getFactorioModList() {
     var file = require('fs');
-    var path = config['mod-path'] + '/mod-list.json';
+    var path = config['modlist-path'];
     log("Checking for mod list at path: " + path);
 
     var data = file.readFileSync(path, 'utf8');
@@ -158,7 +169,6 @@ function createWindow () {
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
 
-    mainWindow.webContents.openDevTools();
     mainWindow.webContents.on('did-finish-load', showActiveProfile);
     mainWindow.webContents.on('did-finish-load', showAllProfiles);
     mainWindow.webContents.on('did-finish-load', showMods);
@@ -271,7 +281,7 @@ electron.ipcMain.on('activateProfile', function(event,name) {
         else data[i]['enabled'] = false;
     }
     file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
-    file.writeFileSync(config['mod-path'] + '/mod-list.json', JSON.stringify(modList));
+    file.writeFileSync(config['modlist-path'], JSON.stringify(modList));
     showAllProfiles();
     showActiveProfile();
 
@@ -319,7 +329,7 @@ electron.ipcMain.on('deleteProfile', function(event) {
     modList['mods'] = data[0]['mods'];
 
     file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
-    file.writeFileSync(config['mod-path'] + '/mod-list.json', JSON.stringify(modList));
+    file.writeFileSync(config['modlist-path'], JSON.stringify(modList));
 
     showAllProfiles();
     showActiveProfile();
