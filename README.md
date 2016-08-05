@@ -9,3 +9,7 @@ This will be a cross-platform application, created in [Electron](http://electron
 * Download mods from the online mod portal
 * Browse servers and save files
 * Automatically create and activate profiles based on server/saves user wishes to play on
+
+[Video Showcase](https://youtu.be/LAqLl_JsL_M)  
+Picture of application in action:
+![Application Running](http://i.imgur.com/XHC6qNG.png)
