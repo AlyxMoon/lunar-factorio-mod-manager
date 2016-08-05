@@ -22,7 +22,7 @@ $(document).on('click', '.tbl-mod', function(event) {
     event.stopPropagation();
     $(this).toggleClass('danger');
 
-    var data = {};
+    let data = {};
     data['profile'] = $(this).parent().prev().text();
     data['mod'] = $(this).children().first().text();
     data['enabled'] = $(this).children().first().next().text();

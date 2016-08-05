@@ -5,17 +5,17 @@ let mainWindow;
 let config;
 
 function log(data) {
-    var file = require('fs');
+    let file = require('fs');
     file.appendFileSync(__dirname + '/lmm_log.txt', data + '\n');
 }
 
 function init() {
     log("Starting up the app");
-    var file = require('fs');
-    var path = __dirname + "/lmm_config.json";
+    let file = require('fs');
+    let path = __dirname + "/lmm_config.json";
     log(path);
 
-    var data;
+    let data;
     try {
         data = file.readFileSync(path, 'utf8');
         config = JSON.parse(data);
@@ -88,11 +88,11 @@ function firstTimeRun() {
 }
 
 function getFactorioModList() {
-    var file = require('fs');
-    var path = config['modlist-path'];
+    let file = require('fs');
+    let path = config['modlist-path'];
     log("Checking for mod list at path: " + path);
 
-    var data = file.readFileSync(path, 'utf8');
+    let data = file.readFileSync(path, 'utf8');
     return JSON.parse(data)['mods'];
 }
 
@@ -118,7 +118,7 @@ function showActiveProfile() {
     let path = __dirname + '/lmm_profiles.json';
 
     let profiles = JSON.parse(file.readFileSync(path, 'utf8'));
-    for(var i = 0; i < profiles.length; i++) {
+    for(let i = 0; i < profiles.length; i++) {
         if(profiles[i]['enabled']) {
             mainWindow.webContents.send('dataActiveProfile', profiles[i]);
             break;
@@ -132,7 +132,7 @@ function getInstalledMods() {
     let path = config['mod-path'];
 
     let data = file.readdirSync(path, 'utf8');
-    for(var i = data.length - 1; i >= 0; i--) {
+    for(let i = data.length - 1; i >= 0; i--) {
         if(data[i] === 'mod-list.json') {
             data.splice(i, 1);
         }
@@ -201,14 +201,13 @@ electron.ipcMain.on('modToggle', function(event, message) {
 
     let data = file.readFileSync(path, 'utf8');
     data = JSON.parse(data);
-    for(var i = 0; i < data['mods'].length; i++) {
+    for(let i = 0; i < data['mods'].length; i++) {
         if(data['mods'][i]['name'] === message['mod']) {
             data['mods'][i]['enabled'] = message['enabled'];
             break;
         }
     }
     log('About to write file');
-    log('Mod: ' + data['mods'][i]['name'] + ', Enabled: ' + data['mods'][i]['enabled']);
     file.writeFileSync(path, JSON.stringify(data));
 
     // Save to manager profile list
@@ -217,9 +216,9 @@ electron.ipcMain.on('modToggle', function(event, message) {
 
     data = file.readFileSync(path, 'utf8');
     data = JSON.parse(data);
-    for(var i = 0; i < data.length; i++) {
+    for(let i = 0; i < data.length; i++) {
         if(data[i]['name'] === message['profile']) {
-            for (var j = 0; j < data[i]['mods'].length; j++) {
+            for (let j = 0; j < data[i]['mods'].length; j++) {
                 if (data[i]['mods'][j]['name'] === message['mod']) {
                     data[i]['mods'][j]['enabled'] = message['enabled'];
                     break;
@@ -239,7 +238,7 @@ electron.ipcMain.on('newProfile', function(event,message) {
         'enabled': false,
         'mods': []
     };
-    for(var i = 0; i < mods.length; i++) {
+    for(let i = 0; i < mods.length; i++) {
         profile['mods'].push({
             'name': mods[i],
             'enabled': 'true'
@@ -251,7 +250,7 @@ electron.ipcMain.on('newProfile', function(event,message) {
     let n = 1;
     while(true) {
         let nameExists = false;
-        for(var j = 0; j < data.length; j++) {
+        for(let j = 0; j < data.length; j++) {
             if(data[j]['name'] === profile['name'] + ' ' + n) {
                 nameExists = true;
                 n++;
@@ -273,7 +272,7 @@ electron.ipcMain.on('activateProfile', function(event,name) {
     let data = JSON.parse(file.readFileSync(__dirname + '/lmm_profiles.json', 'utf8'));
 
     let modList = {'mods': []};
-    for(var i = 0; i < data.length; i++) {
+    for(let i = 0; i < data.length; i++) {
         if(data[i]['name'] === name) {
             data[i]['enabled'] = true;
             modList['mods'] = data[i]['mods'];
@@ -291,7 +290,7 @@ electron.ipcMain.on('renameProfile', function(event, newName) {
     let file = require('fs');
     let data = JSON.parse(file.readFileSync(__dirname + '/lmm_profiles.json', 'utf8'));
 
-    for(var i = 0; i < data.length; i++) {
+    for(let i = 0; i < data.length; i++) {
         if(data[i]['enabled']) {
             data[i]['name'] = newName;
             break;
@@ -307,7 +306,7 @@ electron.ipcMain.on('deleteProfile', function(event) {
     let data = JSON.parse(file.readFileSync(__dirname + '/lmm_profiles.json', 'utf8'));
 
     let modList = {'mods': []};
-    for(var i = 0; i < data.length; i++) {
+    for(let i = 0; i < data.length; i++) {
         if(data[i]['enabled']) {
             log(data[i]['name']);
             data.splice(i, 1);

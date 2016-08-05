@@ -20,7 +20,7 @@ $(document).ready(function() {
 function listActiveProfile(profile) {
 
     console.log(profile);
-    var table = $('table#active-profile');
+    let table = $('table#active-profile');
     table.css("max-height", table.parent().height());
     table.children().remove();
 
@@ -28,7 +28,7 @@ function listActiveProfile(profile) {
     table.append("<tbody>");
 
     numMods = profile['mods'].length;
-    for(var i = 0; i < numMods; i++) {
+    for(let i = 0; i < numMods; i++) {
         mod = profile['mods'][i];
         table.append('<tr class="tbl-mod"><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
 
@@ -41,14 +41,14 @@ function listActiveProfile(profile) {
 
 function listAllProfiles(profiles) {
     console.log(profiles);
-    var table = $('table#all-profiles');
+    let table = $('table#all-profiles');
     table.css("max-height", table.parent().height());
     table.children().remove();
 
     table.append('<thead><tr><th>Profiles:</th></tr></thead>');
     table.append("<tbody>");
 
-    for(var i = 0; i < profiles.length; i++) {
+    for(let i = 0; i < profiles.length; i++) {
         table.append("<tr class='tbl-profile'><td>" + profiles[i]['name'] + "</td></tr>");
 
         if(profiles[i]['enabled']) {
@@ -61,11 +61,11 @@ function listAllProfiles(profiles) {
 
 function listMods(mods) {
     console.log(mods);
-    var table = $('#mods-table');
+    let table = $('#mods-table');
     table.css("height", table.parent().height());
     table.append("<tbody>");
 
-    for(var i = 0; i < mods.length; i++) {
+    for(let i = 0; i < mods.length; i++) {
         table.append("<tr class='tbl-profile'><td>" + mods[i] + "</td></tr>");
     }
     table.append('</tbody>');
