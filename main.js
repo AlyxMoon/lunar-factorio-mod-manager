@@ -6,7 +6,11 @@ let config;
 
 function log(data) {
     let file = require('fs');
-    file.appendFileSync(__dirname + '/lmm_log.txt', data + '\n');
+    let logPath = `${__dirname}/lmm_log.txt`;
+    let dateTime = new Date();
+    dateTime = dateTime.toLocaleString();
+
+    file.appendFileSync(logPath,`${dateTime} | ${data}\n`);
 }
 
 function init() {
