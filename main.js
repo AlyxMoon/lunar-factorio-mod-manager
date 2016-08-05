@@ -247,7 +247,7 @@ electron.ipcMain.on('newProfile', function(event,message) {
     }
 
     let file = require('fs');
-    let data = JSON.parse(file.readFileSync('./lmm_profiles.json', 'utf8'));
+    let data = JSON.parse(file.readFileSync(__dirname + '/lmm_profiles.json', 'utf8'));
     let n = 1;
     while(true) {
         let nameExists = false;
@@ -264,13 +264,13 @@ electron.ipcMain.on('newProfile', function(event,message) {
         }
     }
     data.push(profile);
-    file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
+    file.writeFileSync(__dirname + '/lmm_profiles.json', JSON.stringify(data));
     showAllProfiles();
 });
 
 electron.ipcMain.on('activateProfile', function(event,name) {
     let file = require('fs');
-    let data = JSON.parse(file.readFileSync('./lmm_profiles.json', 'utf8'));
+    let data = JSON.parse(file.readFileSync(__dirname + '/lmm_profiles.json', 'utf8'));
 
     let modList = {'mods': []};
     for(var i = 0; i < data.length; i++) {
@@ -280,7 +280,7 @@ electron.ipcMain.on('activateProfile', function(event,name) {
         }
         else data[i]['enabled'] = false;
     }
-    file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
+    file.writeFileSync(__dirname + '/lmm_profiles.json', JSON.stringify(data));
     file.writeFileSync(config['modlist-path'], JSON.stringify(modList));
     showAllProfiles();
     showActiveProfile();
@@ -289,7 +289,7 @@ electron.ipcMain.on('activateProfile', function(event,name) {
 
 electron.ipcMain.on('renameProfile', function(event, newName) {
     let file = require('fs');
-    let data = JSON.parse(file.readFileSync('./lmm_profiles.json', 'utf8'));
+    let data = JSON.parse(file.readFileSync(__dirname + '/lmm_profiles.json', 'utf8'));
 
     for(var i = 0; i < data.length; i++) {
         if(data[i]['enabled']) {
@@ -297,14 +297,14 @@ electron.ipcMain.on('renameProfile', function(event, newName) {
             break;
         }
     }
-    file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
+    file.writeFileSync(__dirname + '/lmm_profiles.json', JSON.stringify(data));
     showAllProfiles();
     showActiveProfile();
 });
 
 electron.ipcMain.on('deleteProfile', function(event) {
     let file = require('fs');
-    let data = JSON.parse(file.readFileSync('./lmm_profiles.json', 'utf8'));
+    let data = JSON.parse(file.readFileSync(__dirname + '/lmm_profiles.json', 'utf8'));
 
     let modList = {'mods': []};
     for(var i = 0; i < data.length; i++) {
@@ -328,7 +328,7 @@ electron.ipcMain.on('deleteProfile', function(event) {
     }
     modList['mods'] = data[0]['mods'];
 
-    file.writeFileSync('./lmm_profiles.json', JSON.stringify(data));
+    file.writeFileSync(__dirname + '/lmm_profiles.json', JSON.stringify(data));
     file.writeFileSync(config['modlist-path'], JSON.stringify(modList));
 
     showAllProfiles();
@@ -342,7 +342,7 @@ electron.ipcMain.on('startGame', function(event, message) {
     spawn('factorio.exe', [], {
         'stdio': 'ignore',
         'detached': true,
-        'cwd': 'C:/Games/SteamLibrary/SteamApps/common/Factorio/bin/x64'
+        'cwd': config['game-path'].slice(0, config['game-path'].indexOf('factorio.exe'))
     }).unref();
     app.quit();
 
