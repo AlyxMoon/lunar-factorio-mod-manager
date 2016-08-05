@@ -5,16 +5,15 @@ let mainWindow;
 let config;
 
 function log(data) {
-    // TODO: More thorough logging through entire app
-    // Disabled for first release, as logging is not consistent or helpful enough yet.
-    //var file = require('fs');
-    //file.appendFileSync('./lmm_log.txt', data + '\n');
+    var file = require('fs');
+    file.appendFileSync(__dirname + '/lmm_log.txt', data + '\n');
 }
 
 function init() {
     log("Starting up the app");
     var file = require('fs');
-    var path = "./lmm_config.json";
+    var path = __dirname + "/lmm_config.json";
+    log(path);
 
     var data;
     try {
@@ -32,7 +31,7 @@ function init() {
 function firstTimeRun() {
     log("Beginning first time initialization of the app");
     let file = require('fs');
-    let path = "./lmm_config.json";
+    let path = __dirname + "/lmm_config.json";
 
     let screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
     let data = {
@@ -42,7 +41,7 @@ function firstTimeRun() {
         'height': screenSize.height,
         'x-loc': 0,
         'y-loc': 0,
-        'mod-path': app.getPath('appData') + '/Factorio/mods',
+        'mod-path': '',
         'modlist-path': '',
         'game-path': ''
     };
@@ -50,6 +49,7 @@ function firstTimeRun() {
     electron.dialog.showOpenDialog({'title': 'Find mod-list directory', 'properties': ['openFile']}, function(modPath) {
         log('User selected mod list at:' + modPath[0]);
         data['modlist-path'] = modPath[0];
+        data['mod-path'] = modPath[0].slice(0,modPath[0].indexOf('mod-list.json'));
 
         electron.dialog.showOpenDialog({'title': 'Find Factorio.exe directory', 'properties': ['openFile']}, function(gamePath) {
             log('User selected Factorio.exe:' + gamePath);
@@ -65,7 +65,7 @@ function firstTimeRun() {
             }
 
             log("Successfully created config file, now creating profile");
-            path = "./lmm_profiles.json";
+            path = __dirname + "/lmm_profiles.json";
 
             try {
                 let data = [{
@@ -107,7 +107,7 @@ function showCurrentModList() {
 
 function showAllProfiles() {
     let file = require('fs');
-    let path = './lmm_profiles.json';
+    let path = __dirname + '/lmm_profiles.json';
 
     let profiles = JSON.parse(file.readFileSync(path, 'utf8'));
     mainWindow.webContents.send('dataAllProfiles', profiles);
@@ -115,7 +115,7 @@ function showAllProfiles() {
 
 function showActiveProfile() {
     let file = require('fs');
-    let path = './lmm_profiles.json';
+    let path = __dirname + '/lmm_profiles.json';
 
     let profiles = JSON.parse(file.readFileSync(path, 'utf8'));
     for(var i = 0; i < profiles.length; i++) {
@@ -162,7 +162,7 @@ function createWindow () {
         x: config['x-loc'],
         y: config['y-loc'],
         resizable: true,
-        icon: 'img/favicon.ico'
+        icon: __dirname + '/img/favicon.ico'
     };
     mainWindow = new BrowserWindow(windowOptions);
     mainWindow.setMenu(null);
@@ -195,7 +195,7 @@ electron.ipcMain.on('modToggle', function(event, message) {
     let file = require('fs');
 
     // Save to Factorio mod list
-    let path = app.getPath('appData') + '/Factorio/mods/mod-list.json';
+    let path = config['modlist-path'];
     log("Checking for mod list at path (for rewrite): " + path);
     log("Mod to change: " + message['mod']);
 
@@ -212,7 +212,7 @@ electron.ipcMain.on('modToggle', function(event, message) {
     file.writeFileSync(path, JSON.stringify(data));
 
     // Save to manager profile list
-    path = './lmm_profiles.json';
+    path = __dirname + '/lmm_profiles.json';
     log("Saving profile changes");
 
     data = file.readFileSync(path, 'utf8');

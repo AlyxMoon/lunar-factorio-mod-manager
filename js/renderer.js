@@ -23,7 +23,6 @@ $(document).on('click', '.tbl-mod', function(event) {
     $(this).toggleClass('danger');
 
     var data = {};
-    // TODO: Improve JQuery selectors
     data['profile'] = $(this).parent().prev().text();
     data['mod'] = $(this).children().first().text();
     data['enabled'] = $(this).children().first().next().text();
