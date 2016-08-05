@@ -10,14 +10,13 @@ function log(data) {
 }
 
 function init() {
-    log("Starting up the app");
     let file = require('fs');
-    let path = __dirname + "/lmm_config.json";
-    log(path);
+    let configPath = __dirname + '/lmm_config.json';
+    
 
     let data;
     try {
-        data = file.readFileSync(path, 'utf8');
+        data = file.readFileSync(configPath, 'utf8');
         config = JSON.parse(data);
         createWindow();
     }
@@ -29,9 +28,9 @@ function init() {
 }
 
 function firstTimeRun() {
-    log("Beginning first time initialization of the app");
+    log('Beginning first time initialization of the app');
     let file = require('fs');
-    let path = __dirname + "/lmm_config.json";
+    let path = __dirname + '/lmm_config.json';
 
     let screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
     let data = {
@@ -60,12 +59,12 @@ function firstTimeRun() {
                 config = data;
             }
             catch(error) {
-                log("Failed to write config on first time initialization, error: " + error.code);
+                log('Failed to write config on first time initialization, error: ' + error.code);
                 app.quit();
             }
 
-            log("Successfully created config file, now creating profile");
-            path = __dirname + "/lmm_profiles.json";
+            log('Successfully created config file, now creating profile');
+            path = __dirname + '/lmm_profiles.json';
 
             try {
                 let data = [{
@@ -77,10 +76,10 @@ function firstTimeRun() {
                 file.writeFileSync(path, JSON.stringify(data));
             }
             catch(error) {
-                log("Failed to write profile file on first time initialization, error: " + error.code);
+                log('Failed to write profile file on first time initialization, error: ' + error.code);
                 app.quit();
             }
-            log("Successfully created first profile");
+            log('Successfully created first profile');
             createWindow();
         });
     });
@@ -90,7 +89,7 @@ function firstTimeRun() {
 function getFactorioModList() {
     let file = require('fs');
     let path = config['modlist-path'];
-    log("Checking for mod list at path: " + path);
+    log('Checking for mod list at path: ' + path);
 
     let data = file.readFileSync(path, 'utf8');
     return JSON.parse(data)['mods'];
@@ -196,8 +195,8 @@ electron.ipcMain.on('modToggle', function(event, message) {
 
     // Save to Factorio mod list
     let path = config['modlist-path'];
-    log("Checking for mod list at path (for rewrite): " + path);
-    log("Mod to change: " + message['mod']);
+    log('Checking for mod list at path (for rewrite): ' + path);
+    log('Mod to change: ' + message['mod']);
 
     let data = file.readFileSync(path, 'utf8');
     data = JSON.parse(data);
@@ -212,7 +211,7 @@ electron.ipcMain.on('modToggle', function(event, message) {
 
     // Save to manager profile list
     path = __dirname + '/lmm_profiles.json';
-    log("Saving profile changes");
+    log('Saving profile changes');
 
     data = file.readFileSync(path, 'utf8');
     data = JSON.parse(data);
