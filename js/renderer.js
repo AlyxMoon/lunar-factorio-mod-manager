@@ -37,7 +37,7 @@ $(document).on('click', '.tbl-mod', function(event) {
     }
 
     console.log(data);
-    electron.ipcRenderer.send('modToggle', data);
+    electron.ipcRenderer.send('toggleMod', data);
 
 });
 

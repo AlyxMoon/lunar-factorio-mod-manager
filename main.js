@@ -4,6 +4,25 @@ const BrowserWindow = electron.BrowserWindow;
 let mainWindow;
 let config;
 
+app.on('ready', init);
+app.on('window-all-closed', function () {
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
+});
+app.on('activate', function () {
+    if (mainWindow === null) {
+        createWindow();
+    }
+});
+electron.ipcMain.on('newProfile', createProfile);
+electron.ipcMain.on('activateProfile', activateProfile);
+electron.ipcMain.on('renameProfile', renameProfile);
+electron.ipcMain.on('deleteProfile', deleteProfile);
+electron.ipcMain.on('toggleMod', toggleMod);
+electron.ipcMain.on('startGame', startGame);
+
+
 function log(data) {
     let file = require('fs');
     let logPath = `${__dirname}/lmm_log.txt`;
@@ -160,86 +179,9 @@ function showMods() {
 
 }
 
-
-function createWindow () {
-
-    windowOptions = {
-        minWidth: config['minWidth'],
-        minHeight: config['minHeight'],
-        width: config['width'],
-        height: config['height'],
-        x: config['x-loc'],
-        y: config['y-loc'],
-        resizable: true,
-        icon: __dirname + '/img/favicon.ico'
-    };
-    mainWindow = new BrowserWindow(windowOptions);
-    mainWindow.setMenu(null);
-
-    mainWindow.loadURL(`file://${__dirname}/index.html`);
-
-    mainWindow.webContents.on('did-finish-load', showActiveProfile);
-    mainWindow.webContents.on('did-finish-load', showAllProfiles);
-    mainWindow.webContents.on('did-finish-load', showMods);
-    mainWindow.on('closed', function () {
-        mainWindow = null;
-    });
-
-}
-app.on('ready', init);
-
-app.on('window-all-closed', function () {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
-});
-
-app.on('activate', function () {
-    if (mainWindow === null) {
-        createWindow();
-    }
-});
-
-electron.ipcMain.on('modToggle', function(event, message) {
-    let file = require('fs');
-    let modlistPath = config['modlist-path'];
-    let profilesPath = config['profiles-path'];
-
-    // Save to Factorio mod list
-    log('Checking for mod list at path (for rewrite): ' + modlistPath);
-    log('Mod to change: ' + message['mod']);
-
-    let data = file.readFileSync(modlistPath, 'utf8');
-    data = JSON.parse(data);
-    for(let i = 0; i < data['mods'].length; i++) {
-        if(data['mods'][i]['name'] === message['mod']) {
-            data['mods'][i]['enabled'] = message['enabled'];
-            break;
-        }
-    }
-    log('About to write file');
-    file.writeFileSync(modlistPath, JSON.stringify(data));
-
-    // Save to manager profile list
-    log('Saving profile changes');
-
-    data = file.readFileSync(profilesPath, 'utf8');
-    data = JSON.parse(data);
-    for(let i = 0; i < data.length; i++) {
-        if(data[i]['name'] === message['profile']) {
-            for (let j = 0; j < data[i]['mods'].length; j++) {
-                if (data[i]['mods'][j]['name'] === message['mod']) {
-                    data[i]['mods'][j]['enabled'] = message['enabled'];
-                    break;
-                }
-            }
-            break;
-        }
-    }
-    file.writeFileSync(profilesPath, JSON.stringify(data));
-});
-
-electron.ipcMain.on('newProfile', function(event,message) {
+// Used as callback method
+// No message is expected, will potentially provide ability to choose a profile name on creation
+function createProfile(event) {
     let file = require('fs');
     let profilesPath = config['profiles-path'];
 
@@ -278,9 +220,11 @@ electron.ipcMain.on('newProfile', function(event,message) {
     data.push(profile);
     file.writeFileSync(profilesPath, JSON.stringify(data));
     showAllProfiles();
-});
+}
 
-electron.ipcMain.on('activateProfile', function(event,name) {
+// Used as callback method
+// "message" expected to be a string representing the name of an existing profile
+function activateProfile(event, message) {
     let file = require('fs');
     let profilesPath = config['profiles-path'];
 
@@ -288,7 +232,7 @@ electron.ipcMain.on('activateProfile', function(event,name) {
 
     let modList = {'mods': []};
     for(let i = 0; i < data.length; i++) {
-        if(data[i]['name'] === name) {
+        if(data[i]['name'] === message) {
             data[i]['enabled'] = true;
             modList['mods'] = data[i]['mods'];
         }
@@ -298,10 +242,11 @@ electron.ipcMain.on('activateProfile', function(event,name) {
     file.writeFileSync(config['modlist-path'], JSON.stringify(modList));
     showAllProfiles();
     showActiveProfile();
+}
 
-});
-
-electron.ipcMain.on('renameProfile', function(event, newName) {
+// Used as callback method
+// "message" expected to be a string containing the new name for the active profile
+function renameProfile(event, message) {
     let file = require('fs');
     let profilesPath = config['profiles-path'];
 
@@ -309,16 +254,18 @@ electron.ipcMain.on('renameProfile', function(event, newName) {
 
     for(let i = 0; i < data.length; i++) {
         if(data[i]['enabled']) {
-            data[i]['name'] = newName;
+            data[i]['name'] = message;
             break;
         }
     }
     file.writeFileSync(profilesPath, JSON.stringify(data));
     showAllProfiles();
     showActiveProfile();
-});
+}
 
-electron.ipcMain.on('deleteProfile', function(event) {
+// Used as callback method
+// Currently only removes active profile, not any given profile
+function deleteProfile(event) {
     let file = require('fs');
     let profilesPath = config['profiles-path'];
 
@@ -351,18 +298,85 @@ electron.ipcMain.on('deleteProfile', function(event) {
 
     showAllProfiles();
     showActiveProfile();
+}
 
-});
+// Used as callback method
+// "message" is an object containing the profile mod applies to, mod name, and current mod enable status
+// message['profile'], message['mod'], message['enabled']
+function toggleMod(event, message) {
+    let file = require('fs');
+    let modlistPath = config['modlist-path'];
+    let profilesPath = config['profiles-path'];
 
-electron.ipcMain.on('startGame', function(event, message) {
+    // Save to Factorio mod list
+    log('Checking for mod list at path (for rewrite): ' + modlistPath);
+    log('Mod to change: ' + message['mod']);
+
+    let data = file.readFileSync(modlistPath, 'utf8');
+    data = JSON.parse(data);
+    for(let i = 0; i < data['mods'].length; i++) {
+        if(data['mods'][i]['name'] === message['mod']) {
+            data['mods'][i]['enabled'] = message['enabled'];
+            break;
+        }
+    }
+    log('About to write file');
+    file.writeFileSync(modlistPath, JSON.stringify(data));
+
+    // Save to manager profile list
+    log('Saving profile changes');
+
+    data = file.readFileSync(profilesPath, 'utf8');
+    data = JSON.parse(data);
+    for(let i = 0; i < data.length; i++) {
+        if(data[i]['name'] === message['profile']) {
+            for (let j = 0; j < data[i]['mods'].length; j++) {
+                if (data[i]['mods'][j]['name'] === message['mod']) {
+                    data[i]['mods'][j]['enabled'] = message['enabled'];
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    file.writeFileSync(profilesPath, JSON.stringify(data));
+}
+
+// Used as callback method
+// Does not expect any data to be passed in
+function startGame(event) {
     let spawn = require('child_process').spawn;
     let factorioPath = config['game-path'].slice(0, config['game-path'].indexOf('factorio.exe'));
-    // TODO: Don't make game directory hardcoded
     spawn('factorio.exe', [], {
         'stdio': 'ignore',
         'detached': true,
         'cwd': factorioPath
     }).unref();
     app.quit();
+}
 
-});
+function createWindow () {
+
+    windowOptions = {
+        minWidth: config['minWidth'],
+        minHeight: config['minHeight'],
+        width: config['width'],
+        height: config['height'],
+        x: config['x-loc'],
+        y: config['y-loc'],
+        resizable: true,
+        icon: __dirname + '/img/favicon.ico'
+    };
+    mainWindow = new BrowserWindow(windowOptions);
+    mainWindow.setMenu(null);
+
+    mainWindow.loadURL(`file://${__dirname}/index.html`);
+
+    mainWindow.webContents.on('did-finish-load', showActiveProfile);
+    mainWindow.webContents.on('did-finish-load', showAllProfiles);
+    mainWindow.webContents.on('did-finish-load', showMods);
+    mainWindow.on('closed', function () {
+        mainWindow = null;
+    });
+
+}
