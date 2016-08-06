@@ -282,14 +282,23 @@ function createConfigFile() {
         'modlist-path': '',
         'game-path': ''
     };
-    log(data['mod-path']);
-    electron.dialog.showOpenDialog({'title': 'Find mod-list directory', 'properties': ['openFile']}, function(modPath) {
+
+    let options = {
+        'title': 'Find location of mod-list.json file',
+        'properties': ['openFile'],
+        'filters': [{'name': 'Factorio Mod List', 'extensions': ['json']}]
+    };
+    electron.dialog.showOpenDialog(options, function(modPath) {
         log('User selected mod list at:' + modPath[0]);
         data['modlist-path'] = modPath[0];
         data['mod-path'] = modPath[0].slice(0,modPath[0].indexOf('mod-list.json'));
 
-        electron.dialog.showOpenDialog({'title': 'Find Factorio.exe directory', 'properties': ['openFile']}, function(gamePath) {
-            log('User selected Factorio.exe:' + gamePath);
+        options = {
+            'title': 'Find location of Factorio.exe file',
+            'properties': ['openFile'],
+            'filters': [{'name': 'Factorio Executable', 'extensions': ['exe']}]
+        };
+        electron.dialog.showOpenDialog(options, function(gamePath) {
             data['game-path'] = gamePath[0];
 
             try {
