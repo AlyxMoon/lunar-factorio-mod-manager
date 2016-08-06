@@ -29,6 +29,9 @@ th {
 td {
     cursor: pointer;
 }
+tr {
+    -webkit-user-select: none;
+}
 
 .main-view {
     height: 95%;
