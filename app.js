@@ -248,21 +248,23 @@ function init() {
     try {
         data = file.readFileSync(configPath, 'utf8');
         config = JSON.parse(data);
+        file.readFileSync(profilesPath, 'utf8');
+
+        config['config-path'] = configPath;
+        config['profiles-path'] = profilesPath;
         createWindow();
     }
     catch(error) {
         if(error.code === 'ENOENT') {
-            firstTimeRun();
+            createConfigFile();
         }
     }
 
-    // Just in case we want them later
-    config['config-path'] = configPath;
-    config['profiles-path'] = profilesPath;
+
 
 }
 
-function firstTimeRun() {
+function createConfigFile() {
     log('Beginning first time initialization of the app');
     let file = require('fs');
     let configPath = `${__dirname}/lmm_config.json`;
@@ -293,30 +295,32 @@ function firstTimeRun() {
             try {
                 file.writeFileSync(configPath, JSON.stringify(data));
                 config = data;
+
+                log('Successfully created config file, now creating profile');
+                try {
+                    let profile = [{
+                        'name': 'Current Profile',
+                        'enabled': true,
+                        'mods': getFactorioModList()
+
+                    }];
+                    log('About to write new profiles file');
+                    file.writeFileSync(profilesPath, JSON.stringify(profile));
+                }
+                catch(error) {
+                    log('Failed to write profile file on first time initialization, error: ' + error.code);
+                    app.quit();
+                }
+                log('Successfully created first profile');
+                config['config-path'] = configPath;
+                config['profiles-path'] = profilesPath;
+                createWindow();
             }
             catch(error) {
                 log('Failed to write config on first time initialization, error: ' + error.code);
                 app.quit();
             }
 
-            log('Successfully created config file, now creating profile');
-
-
-            try {
-                let data = [{
-                    'name': 'Current Profile',
-                    'enabled': true,
-                    'mods': getFactorioModList()
-
-                }];
-                file.writeFileSync(profilesPath, JSON.stringify(data));
-            }
-            catch(error) {
-                log('Failed to write profile file on first time initialization, error: ' + error.code);
-                app.quit();
-            }
-            log('Successfully created first profile');
-            createWindow();
         });
     });
 
@@ -351,9 +355,10 @@ function createWindow () {
 
 
 function getFactorioModList() {
+    log('Checking for mod list at path: ' + config['modlist-path']);
     let file = require('fs');
     let modlistPath = config['modlist-path'];
-    log('Checking for mod list at path: ' + path);
+
 
     let data = file.readFileSync(modlistPath, 'utf8');
     return JSON.parse(data)['mods'];
