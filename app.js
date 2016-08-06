@@ -252,6 +252,7 @@ function init() {
 
         config['config-path'] = configPath;
         config['profiles-path'] = profilesPath;
+        checkForNewMods();
         createWindow();
     }
     catch(error) {
@@ -323,6 +324,7 @@ function createConfigFile() {
                 log('Successfully created first profile');
                 config['config-path'] = configPath;
                 config['profiles-path'] = profilesPath;
+                checkForNewMods();
                 createWindow();
             }
             catch(error) {
@@ -374,6 +376,7 @@ function getFactorioModList() {
 }
 
 function getInstalledMods() {
+    log('Beginning to get list of currently installed mods.');
     let file = require('fs');
     let modsPath = config['mod-path'];
 
@@ -388,9 +391,9 @@ function getInstalledMods() {
 
     }
     data.unshift('base');
+    log('Successfully got the list of currently installed mods.');
     return data;
 }
-
 
 function showCurrentModList() {
     let profile = [{
@@ -423,8 +426,59 @@ function showAllProfiles() {
     mainWindow.webContents.send('dataAllProfiles', profiles);
 }
 
+function checkForNewMods() {
+    log('Checking for newly installed mods.');
+
+    let file = require('fs');
+    let mods = getInstalledMods();
+    let profiles = JSON.parse(file.readFileSync(config['profiles-path'], 'utf8'));
+    let modList = {'mods': []};
+    for(let i = 0; i < profiles.length; i++) {
+        log(`Updating profile: ${profiles[i]['name']}`);
+        if(profiles[i]['enabled']) {
+            modList['mods'] = profiles[i]['mods'];
+            log(`Active profile: ${profiles[i]['name']}`);
+        }
+        let profileMods = profiles[i]['mods'];
+        for(let j = 0; j < mods.length; j++) {
+            log(`Checking if mod "${mods[j]}" is in profile.`);
+
+            let index = -1;
+            for(let k = 0; k < profileMods.length; k++) {
+                if(profileMods[k]['name'] === mods[j]) {
+                    index = k;
+                    break;
+                }
+            }
+
+            if(index === -1) {
+                log(`Found new mod: ${mods[j]}, Adding to profile: ${profiles[i]['name']}`);
+                profileMods.splice(index, 0, {'name': mods[j], 'enabled': 'false'});
+            }
+        }
+        profileMods = sortMods(profileMods);
+    }
+    log('Finished looking for newly installed mods.');
+    file.writeFileSync(config['profiles-path'], JSON.stringify(profiles));
+    file.writeFileSync(config['modlist-path'], JSON.stringify(modList));
+}
+
 function showMods() {
     let data = getInstalledMods();
     mainWindow.webContents.send('dataMods', data);
 
+}
+
+function sortMods(arr) {
+    let prop = "name".split('.');
+    let len = prop.length;
+
+    arr.sort(function (a, b) {
+        let i = 0;
+        while( i < len ) { a = a[prop[i]].toLowerCase(); b = b[prop[i]].toLowerCase(); i++; }
+            if (a < b) return -1;
+            else if (a > b) return 1;
+            else  return 0;
+    });
+    return arr;
 }
