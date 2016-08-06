@@ -347,6 +347,7 @@ function createWindow () {
         x: config['x-loc'],
         y: config['y-loc'],
         resizable: true,
+        title: 'Lunar\'s [Factorio] Mod Manager',
         icon: __dirname + '/img/favicon.ico'
     };
     mainWindow = new BrowserWindow(windowOptions);
