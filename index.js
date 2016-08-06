@@ -15,7 +15,11 @@ $(document).on('click', '.tbl-profile', activateProfile);
 $('button').click(handleButtons);
 
 $(document).ready(function() {
+    let activeProfileTable = $('table#active-profile');
+    let allProfilesTable = $('table#all-profiles');
 
+    activeProfileTable.css('max-height', activeProfileTable.parent().height());
+    allProfilesTable.css('max-height', allProfilesTable.parent().height());
 
 });
 
@@ -26,10 +30,9 @@ function listActiveProfile(event, profile) {
 
     console.log(profile);
     let table = $('table#active-profile');
-    table.css('max-height', table.parent().height());
     table.children().remove();
 
-    table.append('<thead><tr id="active-profile-name" class="info"><th colspan="2">' + profile['name'] + '</th></tr></thead>');
+    table.append('<thead><tr id="active-profile-name" class="bg-info"><th colspan="2">' + profile['name'] + '</th></tr></thead>');
     table.append('<tbody>');
 
     let numMods = profile['mods'].length;
@@ -38,7 +41,7 @@ function listActiveProfile(event, profile) {
         table.append('<tr class="tbl-mod"><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
 
         if(mod['enabled'] === 'false') {
-            $('table#active-profile tbody tr').last().addClass('danger');
+            $('table#active-profile tbody tr').last().addClass('bg-danger');
         }
     }
     table.append('</tbody>');
@@ -49,22 +52,16 @@ function listActiveProfile(event, profile) {
 //      The Factorio mod list with key "mods", a bool with key "enabled", and a string with key "name"
 function listAllProfiles(event, profiles) {
     console.log(profiles);
-    let table = $('table#all-profiles');
-    table.css('max-height', table.parent().height());
-    table.children().remove();
-
-    table.append('<thead><tr><th>Profiles:</th></tr></thead>');
-    table.append('<tbody>');
+    let tableBody = $('table#all-profiles tbody');
+    tableBody.children().remove();
 
     for(let i = 0; i < profiles.length; i++) {
-        table.append('<tr class="tbl-profile"><td>' + profiles[i]['name'] + '</td></tr>');
+        tableBody.append('<tr class="tbl-profile"><td>' + profiles[i]['name'] + '</td></tr>');
 
         if(profiles[i]['enabled']) {
             $('table#all-profiles tbody tr').last().addClass('info');
         }
     }
-    table.append('</tbody>');
-
 }
 
 // Used as callback function
@@ -136,6 +133,12 @@ function handleButtons(event) {
     }
     else if($(this).text() === 'Delete Profile') {
         electron.ipcRenderer.send('deleteProfile');
+    }
+    else if($(this).attr('id') === 'profile-up') {
+        electron.ipcRenderer.send('sortProfile', 'up');
+    }
+    else if($(this).attr('id') === 'profile-down') {
+        electron.ipcRenderer.send('sortProfile', 'down');
     }
     $(this).blur();
 }

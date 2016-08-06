@@ -19,6 +19,7 @@ electron.ipcMain.on('newProfile', createProfile);
 electron.ipcMain.on('activateProfile', activateProfile);
 electron.ipcMain.on('renameProfile', renameProfile);
 electron.ipcMain.on('deleteProfile', deleteProfile);
+electron.ipcMain.on('sortProfile', sortProfile);
 electron.ipcMain.on('toggleMod', toggleMod);
 electron.ipcMain.on('startGame', startGame);
 
@@ -142,6 +143,35 @@ function deleteProfile(event) {
 
     showAllProfiles();
     showActiveProfile();
+}
+
+// Used as callback method
+// Take one argument, a string representing which direction to move the active profile
+function sortProfile(event, direction) {
+    let file = require('fs');
+    let profilesPath = config['profiles-path'];
+
+    let data = JSON.parse(file.readFileSync(profilesPath, 'utf8'));
+    let index = 0;
+    for(let i = 0; i < data.length; i++) {
+        if(data[i]['enabled']) {
+            index = i;
+            break;
+        }
+    }
+
+    if(direction === 'up' && index > 0) {
+        let tempProfile = data[index - 1];
+        data[index - 1] = data[index];
+        data[index] = tempProfile;
+    }
+    else if(direction === 'down' && index < data.length - 1) {
+        let tempProfile = data[index + 1];
+        data[index + 1] = data[index];
+        data[index] = tempProfile;
+    }
+    file.writeFileSync(profilesPath, JSON.stringify(data));
+    showAllProfiles();
 }
 
 // Used as callback method
@@ -308,6 +338,7 @@ function createWindow () {
     mainWindow.setMenu(null);
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
+    mainWindow.webContents.openDevTools();
 
     mainWindow.webContents.on('did-finish-load', showActiveProfile);
     mainWindow.webContents.on('did-finish-load', showAllProfiles);
