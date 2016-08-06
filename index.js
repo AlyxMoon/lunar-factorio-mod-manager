@@ -3,26 +3,26 @@
 // All of the Node.js APIs are available in this process.
 const electron = require('electron');
 
+electron.ipcRenderer.on('ping', function(event, message) {
+    console.log(message);
+});
+electron.ipcRenderer.on('dataActiveProfile', listActiveProfile);
+electron.ipcRenderer.on('dataAllProfiles', listAllProfiles);
+electron.ipcRenderer.on('dataMods', listMods);
+
+$(document).on('click', '.tbl-mod', toggleMod);
+$(document).on('click', '.tbl-profile', activateProfile);
+$('button').click(handleButtons);
+
 $(document).ready(function() {
 
 
 });
 
-/* The input 'profiles' needs to look like this:
- [
- {
- 'mods': [
- {
- 'name': 'Factorio Mod Name'
- 'enabled': 'true' or 'false'
- }
- ]
- 'name': 'Name of Profile'
- }
- ]
- */
-
-function listActiveProfile(profile) {
+// Used as callback function
+// One argument, an array of a single object containing:
+//      The Factorio mod list with key "mods", a bool with key "enabled", and a string with key "name"
+function listActiveProfile(event, profile) {
 
     console.log(profile);
     let table = $('table#active-profile');
@@ -32,7 +32,7 @@ function listActiveProfile(profile) {
     table.append('<thead><tr id="active-profile-name" class="info"><th colspan="2">' + profile['name'] + '</th></tr></thead>');
     table.append('<tbody>');
 
-    numMods = profile['mods'].length;
+    let numMods = profile['mods'].length;
     for(let i = 0; i < numMods; i++) {
         mod = profile['mods'][i];
         table.append('<tr class="tbl-mod"><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
@@ -44,7 +44,10 @@ function listActiveProfile(profile) {
     table.append('</tbody>');
 }
 
-function listAllProfiles(profiles) {
+// Used as callback function
+// One argument, an array of a objects, each containing:
+//      The Factorio mod list with key "mods", a bool with key "enabled", and a string with key "name"
+function listAllProfiles(event, profiles) {
     console.log(profiles);
     let table = $('table#all-profiles');
     table.css('max-height', table.parent().height());
@@ -64,7 +67,9 @@ function listAllProfiles(profiles) {
 
 }
 
-function listMods(mods) {
+// Used as callback function
+// One argument, an array of strings, representing the names of mods installed:
+function listMods(event, mods) {
     console.log(mods);
     let table = $('#mods-table');
     table.css('height', table.parent().height());
@@ -77,22 +82,9 @@ function listMods(mods) {
 
 }
 
-electron.ipcRenderer.on('dataActiveProfile', function(event, message) {
-    listActiveProfile(message);
-});
-electron.ipcRenderer.on('dataAllProfiles', function(event, message) {
-    listAllProfiles(message);
-});
-electron.ipcRenderer.on('dataMods', function(event, message) {
-    console.log(message);
-    //listMods(message);
-});
-
-electron.ipcRenderer.on('ping', function(event, message) {
-    console.log(message);
-});
-
-$(document).on('click', '.tbl-mod', function(event) {
+// Used as callback function
+// Takes no extra arguments
+function toggleMod(event) {
     event.stopPropagation();
     $(this).toggleClass('danger');
 
@@ -112,49 +104,48 @@ $(document).on('click', '.tbl-mod', function(event) {
 
     console.log(data);
     electron.ipcRenderer.send('toggleMod', data);
+}
 
-});
-
-$(document).on('click', '.tbl-profile', function(event) {
+// Used as callback function
+// Takes no extra arguments
+function activateProfile(event) {
     event.stopPropagation();
     console.log($(this).text());
     electron.ipcRenderer.send('activateProfile', $(this).text());
 
 
-});
+}
 
-$(document).on('click', '#rename-submit', function(event) {
+// Used as callback function
+// Takes no extra arguments
+function renameProfile(event) {
     electron.ipcRenderer.send('renameProfile', $('textarea').val());
-});
+}
 
-$('button').click(function(event) {
+// Used as callback function
+// Takes no extra arguments
+function handleButtons(event) {
     if($(this).text() === 'Start Factorio') {
         electron.ipcRenderer.send('startGame');
     }
     else if($(this).text() === 'New Profile') {
-        console.log('New profile!');
         electron.ipcRenderer.send('newProfile');
     }
     else if($(this).text() === 'Rename Profile') {
-        console.log('Rename profile!');
         startRename();
     }
     else if($(this).text() === 'Delete Profile') {
-        console.log('Delete profile!');
         electron.ipcRenderer.send('deleteProfile');
     }
     $(this).blur();
+}
 
-});
 
 function startRename() {
-    if($('#active-profile-name').length) {
-        let tableHead = $('table#active-profile thead');
-        let profileName = tableHead.children().text();
-        tableHead.children().remove();
-        tableHead.append('<tr class="info"><th><textarea rows="1">' + profileName + '</textarea></th></tr>');
-        $('table#active-profile thead tr').append('<th><button id="rename-submit" type="button" class="btn btn-default">Save Name</button></th>');
-    }
-
-
+    let tableHead = $('table#active-profile thead');
+    let profileName = tableHead.children().text();
+    tableHead.children().remove();
+    tableHead.append('<tr class="info"><th><textarea rows="1">' + profileName + '</textarea></th></tr>');
+    $('table#active-profile thead tr').append('<th><button id="rename-submit" type="button" class="btn btn-default">Save Name</button></th>')
+    $('#rename-submit').on('click', renameProfile);
 }

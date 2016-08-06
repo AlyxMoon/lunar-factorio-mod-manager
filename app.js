@@ -374,7 +374,7 @@ function createWindow () {
 
     mainWindow.webContents.on('did-finish-load', showActiveProfile);
     mainWindow.webContents.on('did-finish-load', showAllProfiles);
-    mainWindow.webContents.on('did-finish-load', showMods);
+    //mainWindow.webContents.on('did-finish-load', showMods);
     mainWindow.on('closed', function () {
         mainWindow = null;
     });
