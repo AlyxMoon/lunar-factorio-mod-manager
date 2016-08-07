@@ -83,7 +83,7 @@ function listMods(event, mods) {
 // Takes no extra arguments
 function toggleMod(event) {
     event.stopPropagation();
-    $(this).toggleClass('danger');
+    $(this).toggleClass('bg-danger');
 
     let data = {};
     data['profile'] = $(this).parent().prev().text();
