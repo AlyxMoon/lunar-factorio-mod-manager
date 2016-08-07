@@ -354,7 +354,6 @@ function createWindow () {
     mainWindow.setMenu(null);
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
-    mainWindow.webContents.openDevTools();
 
     mainWindow.webContents.on('did-finish-load', showActiveProfile);
     mainWindow.webContents.on('did-finish-load', showAllProfiles);

@@ -23,6 +23,7 @@
   "author": "Alyx DeLunar",
   "license": "ISC",
   "devDependencies": {
+    "electron-packager": "^7.5.1",
     "electron-prebuilt": "^1.2.0"
   }
 }
