@@ -14,7 +14,7 @@ let fileCache = {
 app.on('ready', init);
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
-        app.quit();
+        closeProgram();
     }
 });
 app.on('activate', function () {
@@ -66,7 +66,6 @@ function createProfile(event) {
         }
     }
     data.push(profile);
-    saveProfiles();
     showAllProfiles();
 }
 
@@ -83,8 +82,6 @@ function activateProfile(event, message) {
         }
         else data[i]['enabled'] = false;
     }
-    saveProfiles();
-    saveMods();
     showAllProfiles();
     showActiveProfile();
 }
@@ -93,7 +90,6 @@ function activateProfile(event, message) {
 // "message" expected to be a string containing the new name for the active profile
 function renameProfile(event, name) {
     fileCache['active-profile']['name'] = name;
-    saveProfiles();
     showAllProfiles();
     showActiveProfile();
 }
@@ -120,8 +116,6 @@ function deleteProfile(event) {
     }
     data[0]['enabled'] = true;
     fileCache['active-profile'] = data[0];
-    saveProfiles();
-    saveMods();
     showAllProfiles();
     showActiveProfile();
 }
@@ -149,7 +143,6 @@ function sortProfile(event, direction) {
         data[index + 1] = data[index];
         data[index] = tempProfile;
     }
-    saveProfiles();
     showAllProfiles();
 }
 
@@ -172,9 +165,6 @@ function toggleMod(event, message) {
             break;
         }
     }
-    saveProfiles();
-    saveMods();
-
 }
 
 // Used as callback method
@@ -182,12 +172,14 @@ function toggleMod(event, message) {
 function startGame(event) {
     let spawn = require('child_process').spawn;
     let factorioPath = config['game-path'].slice(0, config['game-path'].indexOf('factorio.exe'));
+
+    saveMods();
     spawn('factorio.exe', [], {
         'stdio': 'ignore',
         'detached': true,
         'cwd': factorioPath
     }).unref();
-    app.quit();
+    closeProgram();
 }
 
 
@@ -233,6 +225,21 @@ function startProgram() {
 
     checkForNewMods();
     createWindow();
+}
+
+// Will save data and close app
+// If called with inError, won't save data but will log info and close
+function closeProgram(inError = false) {
+
+    if(inError) {
+        log('There was an error. Not saving app data, closing app.');
+    }
+    else {
+        log('Beginning application shutdown.');
+        saveProfiles();
+        saveMods();
+    }
+    app.quit();
 }
 
 function createConfigFile() {
@@ -289,7 +296,7 @@ function createConfigFile() {
                 }
                 catch(error) {
                     log('Failed to write profile file on first time initialization, error: ' + error.code);
-                    app.quit();
+                    closeProgram();
                 }
                 log('Successfully created first profile');
                 config['config-path'] = configPath;
@@ -298,7 +305,7 @@ function createConfigFile() {
             }
             catch(error) {
                 log('Failed to write config on first time initialization, error: ' + error.code);
-                app.quit();
+                closeProgram();
             }
 
         });
@@ -326,7 +333,6 @@ function createWindow () {
 
     mainWindow.webContents.on('did-finish-load', showActiveProfile);
     mainWindow.webContents.on('did-finish-load', showAllProfiles);
-    //mainWindow.webContents.on('did-finish-load', showMods);
     mainWindow.on('closed', function () {
         mainWindow = null;
     });
