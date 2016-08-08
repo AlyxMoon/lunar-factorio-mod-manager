@@ -41,7 +41,7 @@ function listActiveProfile(event, profile) {
         table.append('<tr class="tbl-mod"><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
 
         if(mod['enabled'] === 'false') {
-            $('table#active-profile tbody tr').last().addClass('bg-danger');
+            $('table#active-profile tbody tr').last().addClass('danger');
         }
     }
     table.append('</tbody>');
@@ -83,7 +83,7 @@ function listMods(event, mods) {
 // Takes no extra arguments
 function toggleMod(event) {
     event.stopPropagation();
-    $(this).toggleClass('bg-danger');
+    $(this).toggleClass('danger');
 
     let data = {};
     data['profile'] = $(this).parent().prev().text();
