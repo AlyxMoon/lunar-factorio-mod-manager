@@ -259,15 +259,16 @@ function closeProgram(inError = false) {
 
     if(inError) {
         log('There was an error. Not saving app data, closing app.');
+        app.exit(-1);
     }
     else {
         log('Beginning application shutdown.');
         saveProfiles();
         saveMods();
         log('Everything taken care of, closing app now.');
+        app.quit();
     }
 
-    app.quit();
 }
 
 function createAppFiles() {
@@ -289,59 +290,84 @@ function createAppFiles() {
         'game-path': ''
     };
 
+
     let options = {
         'title': 'Find location of mod-list.json file',
         'properties': ['openFile'],
         'filters': [{'name': 'Factorio Mod List', 'extensions': ['json']}]
     };
+
     log('Prompting user for Factorio modlist.json file.');
-    electron.dialog.showOpenDialog(options, function(modPath) {
-        log(`User selected mod list at: ${modPath[0]}`);
+    let modPath = electron.dialog.showOpenDialog(options);
+    if(modPath === undefined) {
+        log('User cancelled the dialog search.');
+        closeProgram(true);
+    }
 
-        data['modlist-path'] = modPath[0];
-        data['mod-path'] = modPath[0].slice(0,modPath[0].indexOf('mod-list.json'));
+    modPath = modPath[0];
+    log(`User selected mod list at: ${modPath}`);
+    if(modPath.indexOf('mod-list.json') === -1) {
+        log('The selected file was not correct. Closing app.');
+        closeProgram(true);
+    }
 
-        options = {
-            'title': 'Find location of Factorio.exe file',
-            'properties': ['openFile'],
-            'filters': [{'name': 'Factorio Executable', 'extensions': ['exe']}]
-        };
-        log('Prompting user for Factorio.exe file.');
-        electron.dialog.showOpenDialog(options, function(gamePath) {
-            log(`User selected Factorio executable at: ${gamePath[0]}`);
-            data['game-path'] = gamePath[0];
 
-            try {
-                file.writeFileSync(configPath, JSON.stringify(data));
-                config = data;
+    data['modlist-path'] = modPath;
+    data['mod-path'] = modPath.slice(0,modPath.indexOf('mod-list.json'));
 
-                log('Successfully created config file, now creating profile');
-                try {
-                    let profile = [{
-                        'name': 'Current Profile',
-                        'enabled': true,
-                        'mods': getFactorioModList()
+    options = {
+        'title': 'Find location of Factorio.exe file',
+        'properties': ['openFile'],
+        'filters': [{'name': 'Factorio Executable', 'extensions': ['exe']}]
+    };
 
-                    }];
-                    log('About to write new profiles file');
-                    file.writeFileSync(profilesPath, JSON.stringify(profile));
-                }
-                catch(error) {
-                    log('Failed to write profile file on first time initialization, error: ' + error.code);
-                    closeProgram(true);
-                }
-                log('Successfully created first profile');
-                config['config-path'] = configPath;
-                config['profiles-path'] = profilesPath;
-                startProgram();
-            }
-            catch(error) {
-                log('Failed to write config on first time initialization, error: ' + error.code);
-                closeProgram(true);
-            }
+    log('Prompting user for Factorio.exe file.');
+    let gamePath = electron.dialog.showOpenDialog(options);
+    log(`User selected Factorio executable at: ${gamePath}`);
 
-        });
-    });
+    if(gamePath === undefined) {
+        log('User cancelled the dialog search.');
+        closeProgram(true);
+    }
+    gamePath = gamePath[0];
+    if(gamePath.indexOf('factorio.exe') === -1) {
+        log('The selected file was not correct. Closing app.');
+        closeProgram(true);
+    }
+
+    data['game-path'] = gamePath;
+
+    try {
+        file.writeFileSync(configPath, JSON.stringify(data));
+        config = data;
+
+        log('Successfully created config file, now creating profile');
+        try {
+            let profile = [{
+                'name': 'Current Profile',
+                'enabled': true,
+                'mods': getFactorioModList()
+
+            }];
+            log('About to write new profiles file');
+            file.writeFileSync(profilesPath, JSON.stringify(profile));
+        }
+        catch(error) {
+            log('Failed to write profile file on first time initialization, error: ' + error.code);
+            closeProgram(true);
+        }
+        log('Successfully created first profile');
+        config['config-path'] = configPath;
+        config['profiles-path'] = profilesPath;
+        startProgram();
+    }
+    catch(error) {
+        log('Failed to write config on first time initialization, error: ' + error.code);
+        closeProgram(true);
+    }
+
+
+
 
 }
 
