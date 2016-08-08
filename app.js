@@ -10,7 +10,6 @@ let fileCache = {
     'mods': []
 };
 
-
 app.on('ready', init);
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
@@ -34,7 +33,7 @@ electron.ipcMain.on('startGame', startGame);
 // Used as callback method
 // No message is expected, will potentially provide ability to choose a profile name on creation
 function createProfile(event) {
-    log('Attempting to create new profile');
+    log('Attempting to create a new profile');
     let mods = fileCache['mods'];
     let profile = {
         'name': 'New Profile',
@@ -47,7 +46,6 @@ function createProfile(event) {
             'enabled': 'true'
         });
     }
-
 
     let data = fileCache['profiles'];
     let n = 1;
@@ -65,6 +63,7 @@ function createProfile(event) {
             break;
         }
     }
+    log(`Successfully created new profile: ${profile['name']}`);
     data.push(profile);
     showAllProfiles();
 }
@@ -72,7 +71,7 @@ function createProfile(event) {
 // Used as callback method
 // "message" expected to be a string representing the name of an existing profile
 function activateProfile(event, message) {
-    let file = require('fs');
+    log('Attempting to change active profile.');
     let data = fileCache['profiles'];
 
     for(let i = 0; i < data.length; i++) {
@@ -82,6 +81,7 @@ function activateProfile(event, message) {
         }
         else data[i]['enabled'] = false;
     }
+    log(`Active profile changed, new active profile: ${fileCache['active-profile']['name']}`);
     showAllProfiles();
     showActiveProfile();
 }
@@ -89,7 +89,10 @@ function activateProfile(event, message) {
 // Used as callback method
 // "message" expected to be a string containing the new name for the active profile
 function renameProfile(event, name) {
+    log('Attempting to rename active profile.');
     fileCache['active-profile']['name'] = name;
+
+    log(`Active profile name changed to: ${fileCache['active-profile']['name']}`);
     showAllProfiles();
     showActiveProfile();
 }
@@ -97,6 +100,7 @@ function renameProfile(event, name) {
 // Used as callback method
 // Currently only removes active profile, not any given profile
 function deleteProfile(event) {
+    log(`Attempting to delete active profile: '${fileCache['active-profile']['name']}'`);
     let data = fileCache['profiles'];
 
     for(let i = 0; i < data.length; i++) {
@@ -116,6 +120,7 @@ function deleteProfile(event) {
     }
     data[0]['enabled'] = true;
     fileCache['active-profile'] = data[0];
+    log(`Successfully deleted profile. New active profile: ${fileCache['active-profile']['name']}`);
     showAllProfiles();
     showActiveProfile();
 }
@@ -123,6 +128,7 @@ function deleteProfile(event) {
 // Used as callback method
 // Take one argument, a string representing which direction to move the active profile
 function sortProfile(event, direction) {
+    log(`Attempting to move profile '${fileCache['active-profile']['name']}' ${direction}`);
 
     let data = fileCache['profiles'];
     let index = 0;
@@ -133,16 +139,30 @@ function sortProfile(event, direction) {
         }
     }
 
-    if(direction === 'up' && index > 0) {
-        let tempProfile = data[index - 1];
-        data[index - 1] = data[index];
-        data[index] = tempProfile;
+    if(direction === 'up') {
+        if(index > 0) {
+            let tempProfile = data[index - 1];
+            data[index - 1] = data[index];
+            data[index] = tempProfile;
+            log('Profile has been moved up the list.');
+        }
+        else {
+            log('No need to move profile up the list, already on top.');
+        }
     }
-    else if(direction === 'down' && index < data.length - 1) {
-        let tempProfile = data[index + 1];
-        data[index + 1] = data[index];
-        data[index] = tempProfile;
+    else if(direction === 'down') {
+        if(index < data.length - 1) {
+            let tempProfile = data[index + 1];
+            data[index + 1] = data[index];
+            data[index] = tempProfile;
+            log('Profile has been moved down the list.');
+        }
+        else {
+            log('No need to move profile down the list, already on bottom.');
+        }
     }
+
+    log(`Successfully moved profile '${fileCache['active-profile']['name']}' to index ${index}`);
     showAllProfiles();
 }
 
@@ -150,6 +170,7 @@ function sortProfile(event, direction) {
 // "message" is an object containing the profile mod applies to, mod name, and current mod enable status
 // message['profile'], message['mod'], message['enabled']
 function toggleMod(event, message) {
+    log(`Attempting to change mod '${message['mod']}' from '${message['enabled']}' in profile: ${message['profile']}`);
 
     let profiles = fileCache['profiles'];
     let profile = {};
@@ -165,11 +186,14 @@ function toggleMod(event, message) {
             break;
         }
     }
+    log('Successfully changed mod status.');
 }
 
 // Used as callback method
 // Does not expect any data to be passed in
 function startGame(event) {
+    log('Starting Factorio and shutting down app.');
+
     let spawn = require('child_process').spawn;
     let factorioPath = config['game-path'].slice(0, config['game-path'].indexOf('factorio.exe'));
 
@@ -181,7 +205,6 @@ function startGame(event) {
     }).unref();
     closeProgram();
 }
-
 
 function log(data) {
     let file = require('fs');
@@ -206,11 +229,14 @@ function init() {
 
         config['config-path'] = configPath;
         config['profiles-path'] = profilesPath;
+
+        log('Found config and profiles file, loaded successfully.');
         startProgram();
     }
     catch(error) {
         if(error.code === 'ENOENT') {
-            createConfigFile();
+            log('Wasn not able to find config or profiles file.');
+            createAppFiles();
         }
     }
 
@@ -238,12 +264,14 @@ function closeProgram(inError = false) {
         log('Beginning application shutdown.');
         saveProfiles();
         saveMods();
+        log('Everything taken care of, closing app now.');
     }
+
     app.quit();
 }
 
-function createConfigFile() {
-    log('Beginning first time initialization of the app');
+function createAppFiles() {
+    log('Beginning to create config and profiles files.');
     let file = require('fs');
     let configPath = `${__dirname}/lmm_config.json`;
     let profilesPath = `${__dirname}/lmm_profiles.json`;
@@ -266,8 +294,10 @@ function createConfigFile() {
         'properties': ['openFile'],
         'filters': [{'name': 'Factorio Mod List', 'extensions': ['json']}]
     };
+    log('Prompting user for Factorio modlist.json file.');
     electron.dialog.showOpenDialog(options, function(modPath) {
-        log('User selected mod list at:' + modPath[0]);
+        log(`User selected mod list at: ${modPath[0]}`);
+
         data['modlist-path'] = modPath[0];
         data['mod-path'] = modPath[0].slice(0,modPath[0].indexOf('mod-list.json'));
 
@@ -276,7 +306,9 @@ function createConfigFile() {
             'properties': ['openFile'],
             'filters': [{'name': 'Factorio Executable', 'extensions': ['exe']}]
         };
+        log('Prompting user for Factorio.exe file.');
         electron.dialog.showOpenDialog(options, function(gamePath) {
+            log(`User selected Factorio executable at: ${gamePath[0]}`);
             data['game-path'] = gamePath[0];
 
             try {
@@ -296,7 +328,7 @@ function createConfigFile() {
                 }
                 catch(error) {
                     log('Failed to write profile file on first time initialization, error: ' + error.code);
-                    closeProgram();
+                    closeProgram(true);
                 }
                 log('Successfully created first profile');
                 config['config-path'] = configPath;
@@ -305,7 +337,7 @@ function createConfigFile() {
             }
             catch(error) {
                 log('Failed to write config on first time initialization, error: ' + error.code);
-                closeProgram();
+                closeProgram(true);
             }
 
         });
@@ -314,6 +346,7 @@ function createConfigFile() {
 }
 
 function createWindow () {
+    log('Creating the application window');
 
     windowOptions = {
         minWidth: config['minWidth'],
@@ -336,7 +369,7 @@ function createWindow () {
     mainWindow.on('closed', function () {
         mainWindow = null;
     });
-
+    log('Window created successfully, event registered');
 }
 
 
@@ -366,14 +399,11 @@ function checkForNewMods() {
     let profiles = fileCache['profiles'];
     let modList = {'mods': []};
     for(let i = 0; i < profiles.length; i++) {
-        log(`Updating profile: ${profiles[i]['name']}`);
         if(profiles[i]['enabled']) {
             modList['mods'] = profiles[i]['mods'];
-            log(`Active profile: ${profiles[i]['name']}`);
         }
         let profileMods = profiles[i]['mods'];
         for(let j = 0; j < mods.length; j++) {
-            log(`Checking if mod "${mods[j]}" is in profile.`);
 
             let index = -1;
             for(let k = 0; k < profileMods.length; k++) {
@@ -384,7 +414,7 @@ function checkForNewMods() {
             }
 
             if(index === -1) {
-                log(`Found new mod: ${mods[j]}, Adding to profile: ${profiles[i]['name']}`);
+                log(`Found new mod: ${mods[j]} -- Adding to profile: ${profiles[i]['name']}`);
                 profileMods.splice(index, 0, {'name': mods[j], 'enabled': 'false'});
             }
         }
