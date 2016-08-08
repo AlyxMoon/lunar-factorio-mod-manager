@@ -151,4 +151,5 @@ function startRename() {
     tableHead.append('<tr class="info"><th><textarea rows="1">' + profileName + '</textarea></th></tr>');
     $('table#active-profile thead tr').append('<th><button id="rename-submit" type="button" class="btn btn-default">Save Name</button></th>');
     $('#rename-submit').on('click', renameProfile);
+    $('textarea').focus().select();
 }
