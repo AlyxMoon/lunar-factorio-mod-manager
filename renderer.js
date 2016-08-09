@@ -8,7 +8,7 @@ electron.ipcRenderer.on('ping', function(event, message) {
 });
 electron.ipcRenderer.on('dataActiveProfile', listActiveProfile);
 electron.ipcRenderer.on('dataAllProfiles', listAllProfiles);
-electron.ipcRenderer.on('dataMods', listMods);
+electron.ipcRenderer.on('dataInstalledMods', listInstalledMods);
 
 $(document).on('click', '.tbl-mod', toggleMod);
 $(document).on('click', '.tbl-profile', activateProfile);
@@ -30,10 +30,10 @@ $(document).ready(function() {
 function listActiveProfile(event, profile) {
 
     console.log(profile);
-    let table = $('table#active-profile');
+    let table = $('table#primary-table');
     table.children().remove();
 
-    table.append('<thead><tr id="active-profile-name" class="bg-info"><th colspan="2">' + profile['name'] + '</th></tr></thead>');
+    table.append('<thead><tr id="primary-table-name" class="bg-info"><th colspan="2">' + profile['name'] + '</th></tr></thead>');
     table.append('<tbody>');
 
     let numMods = profile['mods'].length;
@@ -42,7 +42,7 @@ function listActiveProfile(event, profile) {
         table.append('<tr class="tbl-mod"><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
 
         if(mod['enabled'] === 'false') {
-            $('table#active-profile tbody tr').last().addClass('danger');
+            $('table#primary-table tbody tr').last().addClass('danger');
         }
     }
     table.append('</tbody>');
@@ -67,14 +67,16 @@ function listAllProfiles(event, profiles) {
 
 // Used as callback function
 // One argument, an array of strings, representing the names of mods installed:
-function listMods(event, mods) {
+function listInstalledMods(event, mods) {
     console.log(mods);
-    let table = $('#mods-table');
-    table.css('height', table.parent().height());
+    let table = $('table#primary-table');
+    table.children().remove();
+
+    table.append('<thead><tr id="primary-table-name" class="bg-info"><th colspan="2">All Installed Mods</th></tr></thead>');
     table.append('<tbody>');
 
     for(let i = 0; i < mods.length; i++) {
-        table.append('<tr class="tbl-profile"><td>' + mods[i] + '</td></tr>');
+        table.append('<tr class="tbl-installedMod"><td>' + mods[i] + '</td></tr>');
     }
     table.append('</tbody>');
 
@@ -157,11 +159,11 @@ function handleButtons(event) {
 
 
 function startRename() {
-    let tableHead = $('table#active-profile thead');
+    let tableHead = $('table#primary-table thead');
     let profileName = tableHead.children().text();
     tableHead.children().remove();
     tableHead.append('<tr class="info"><th><textarea rows="1">' + profileName + '</textarea></th></tr>');
-    $('table#active-profile thead tr').append('<th><button id="rename-submit" type="button" class="btn btn-default">Save Name</button></th>');
+    $('table#primary-table thead tr').append('<th><button id="rename-submit" type="button" class="btn btn-default">Save Name</button></th>');
     $('#rename-submit').on('click', renameProfile);
     $('textarea').focus().select();
 }

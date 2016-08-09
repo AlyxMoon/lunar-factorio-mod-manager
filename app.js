@@ -210,7 +210,24 @@ function startGame(event) {
 // Used as callback method
 // Expects one argument, a string containing name of new page to switch to
 function changePage(event, newPage) {
-    mainWindow.loadURL(`file://${__dirname}/${newPage}.html`);
+    log(`Attempting to change the page to ${newPage}`);
+
+    if(newPage === 'page_profiles') {
+        mainWindow.loadURL(`file://${__dirname}/${newPage}.html`);
+        mainWindow.webContents.on('did-finish-load', showActiveProfile);
+        mainWindow.webContents.on('did-finish-load', showAllProfiles);
+    }
+    else if(newPage === 'page_localMods') {
+        mainWindow.loadURL(`file://${__dirname}/${newPage}.html`);
+        mainWindow.webContents.on('did-finish-load', showInstalledMods);
+    }
+    else if(newPage === 'page_onlineMods') {
+        mainWindow.loadURL(`file://${__dirname}/${newPage}.html`);
+    }
+    else {
+        log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');
+    }
+
 }
 
 
@@ -397,7 +414,6 @@ function createWindow () {
     mainWindow.setMenu(null);
 
     mainWindow.loadURL(`file://${__dirname}/page_profiles.html`);
-    mainWindow.webContents.openDevTools();
 
     mainWindow.webContents.on('did-finish-load', showActiveProfile);
     mainWindow.webContents.on('did-finish-load', showAllProfiles);
@@ -424,6 +440,10 @@ function showActiveProfile() {
 
 function showAllProfiles() {
     mainWindow.webContents.send('dataAllProfiles', fileCache['profiles']);
+}
+
+function showInstalledMods() {
+    mainWindow.webContents.send('dataInstalledMods', fileCache['mods']);
 }
 
 function checkForNewMods() {

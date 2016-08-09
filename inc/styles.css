@@ -33,6 +33,10 @@ tr {
     -webkit-user-select: none;
 }
 
+h1,h2,h3,h4 {
+    text-align: center;
+}
+
 .main-view {
     height: 95%;
 }
@@ -43,7 +47,7 @@ tr {
     margin-bottom: 10px;
 }
 
-#active-profile-section, #all-profiles {
+#primary-table-section, #all-profiles {
     overflow: scroll;
 }
 
