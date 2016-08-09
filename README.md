@@ -12,4 +12,4 @@ This will be a cross-platform application, created in [Electron](http://electron
 
 [Video Showcase](https://youtu.be/LAqLl_JsL_M)  
 Picture of application in action:
-![Application Running](http://i.imgur.com/XHC6qNG.png)
+![Application Running](http://i.imgur.com/hWeQNJx.png)
