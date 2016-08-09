@@ -15,6 +15,7 @@ $(document).on('click', '.tbl-profile', activateProfile);
 $('button').click(handleButtons);
 
 $(document).ready(function() {
+
     let activeProfileTable = $('table#active-profile');
     let allProfilesTable = $('table#all-profiles');
 
@@ -140,6 +141,17 @@ function handleButtons(event) {
     else if($(this).attr('id') === 'profile-down') {
         electron.ipcRenderer.send('sortProfile', 'down');
     }
+
+    else if($(this).attr('id') === 'page_profiles') {
+        electron.ipcRenderer.send('changePage', $(this).attr('id'));
+    }
+    else if($(this).attr('id') === 'page_localMods') {
+        electron.ipcRenderer.send('changePage', $(this).attr('id'));
+    }
+    else if($(this).attr('id') === 'page_onlineMods') {
+        electron.ipcRenderer.send('changePage', $(this).attr('id'));
+    }
+
     $(this).blur();
 }
 

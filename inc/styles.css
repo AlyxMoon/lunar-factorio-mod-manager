@@ -56,6 +56,11 @@ tr {
     box-shadow: 2px 1px;
 }
 
+#pageButtons {
+    margin: 10px 5px;
+}
+
+
 .height-100 {
     height: 100%;
 }

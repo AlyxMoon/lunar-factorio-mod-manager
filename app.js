@@ -28,6 +28,7 @@ electron.ipcMain.on('deleteProfile', deleteProfile);
 electron.ipcMain.on('sortProfile', sortProfile);
 electron.ipcMain.on('toggleMod', toggleMod);
 electron.ipcMain.on('startGame', startGame);
+electron.ipcMain.on('changePage', changePage);
 
 
 // Used as callback method
@@ -205,6 +206,13 @@ function startGame(event) {
     }).unref();
     closeProgram();
 }
+
+// Used as callback method
+// Expects one argument, a string containing name of new page to switch to
+function changePage(event, newPage) {
+    mainWindow.loadURL(`file://${__dirname}/${newPage}.html`);
+}
+
 
 function log(data) {
     let file = require('fs');
@@ -388,7 +396,8 @@ function createWindow () {
     mainWindow = new BrowserWindow(windowOptions);
     mainWindow.setMenu(null);
 
-    mainWindow.loadURL(`file://${__dirname}/index.html`);
+    mainWindow.loadURL(`file://${__dirname}/page_profiles.html`);
+    mainWindow.webContents.openDevTools();
 
     mainWindow.webContents.on('did-finish-load', showActiveProfile);
     mainWindow.webContents.on('did-finish-load', showAllProfiles);
