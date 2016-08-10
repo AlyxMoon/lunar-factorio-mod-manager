@@ -9,8 +9,10 @@ electron.ipcRenderer.on('ping', function(event, message) {
 electron.ipcRenderer.on('dataActiveProfile', listActiveProfile);
 electron.ipcRenderer.on('dataAllProfiles', listAllProfiles);
 electron.ipcRenderer.on('dataInstalledMods', listInstalledMods);
+electron.ipcRenderer.on('dataModInfo', showModInfo);
 
 $(document).on('click', '.tbl-mod', toggleMod);
+$(document).on('click', '.tbl-installedMod', requestModInfo);
 $(document).on('click', '.tbl-profile', activateProfile);
 $('button').click(handleButtons);
 
@@ -72,13 +74,54 @@ function listInstalledMods(event, mods) {
     let table = $('table#primary-table');
     table.children().remove();
 
-    table.append('<thead><tr id="primary-table-name" class="bg-info"><th colspan="2">All Installed Mods</th></tr></thead>');
+    table.append('<thead><tr id="primary-table-name" class="bg-primary"><th colspan="2">All Installed Mods</th></tr></thead>');
     table.append('<tbody>');
 
     for(let i = 0; i < mods.length; i++) {
         table.append('<tr class="tbl-installedMod"><td>' + mods[i] + '</td></tr>');
     }
     table.append('</tbody>');
+
+}
+
+// Will return the info pulled from the info.json file of the selected mod
+function requestModInfo() {
+    $('.tbl-installedMod').removeClass('info');
+    $(this).addClass('info');
+
+    electron.ipcRenderer.send('requestModInfo', $(this).text());
+
+}
+function showModInfo(event, mod) {
+    console.log(mod);
+
+    let table = $('table#tbl-mod-info');
+    table.children().remove();
+
+    table.append(`<thead><tr class="bg-info"><th colspan="2">${mod['title']}</th></tr></thead>`);
+    table.append('<tbody>');
+    let tableBody = $('table#tbl-mod-info tbody');
+
+    if(mod['version']) {
+        tableBody.append(`<tr><td>Version</td><td>${mod['version']}</td></tr>`);
+    }
+    if(mod['author']) {
+        tableBody.append(`<tr><td>Author</td><td>${mod['author']}</td></tr>`);
+    }
+    if(mod['contact']) {
+        tableBody.append(`<tr><td>Contact</td><td>${mod['contact']}</td></tr>`);
+    }
+    if(mod['homepage']) {
+        tableBody.append(`<tr><td>Homepage</td><td>${mod['homepage']}</td></tr>`);
+    }
+    if(mod['factorio_version']) {
+        tableBody.append(`<tr><td>Factorio Version</td><td>${mod['factorio_version']}</td></tr>`);
+    }
+    if(mod['description']) {
+        tableBody.append(`<tr><td class="center" colspan="2">${mod['description']}</td></tr>`);
+    }
+
+    tableBody.append('</tbody>');
 
 }
 

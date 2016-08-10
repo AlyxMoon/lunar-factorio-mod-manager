@@ -30,6 +30,7 @@ electron.ipcMain.on('sortProfile', sortProfile);
 electron.ipcMain.on('toggleMod', toggleMod);
 electron.ipcMain.on('startGame', startGame);
 electron.ipcMain.on('changePage', changePage);
+electron.ipcMain.on('requestModInfo', requestModInfo);
 
 
 // Used as callback method
@@ -230,6 +231,19 @@ function changePage(event, newPage) {
     }
 }
 
+// Used as callback method
+// Expects one argument, a string containing the name of the mod to get info on
+function requestModInfo(event, modName) {
+
+    let mods = fileCache['mods'];
+    for(let i = fileCache['mods'].length - 1; i >= 0; i--) {
+        if(mods[i]['name'] === modName) {
+            mainWindow.webContents.send('dataModInfo', mods[i]);
+            break;
+        }
+    }
+
+}
 
 function log(data) {
     let file = require('fs');
@@ -405,6 +419,11 @@ function createWindow () {
     mainWindow.setMenu(null);
 
     mainWindow.loadURL(`file://${__dirname}/page_profiles.html`);
+    mainWindow.webContents.openDevTools();
+
+    mainWindow.webContents.on('did-finish-load', function() {
+        mainWindow.webContents.send('ping', fileCache['mods']);
+    });
 
     mainWindow.webContents.on('did-finish-load', showActiveProfile);
     mainWindow.webContents.on('did-finish-load', showAllProfiles);

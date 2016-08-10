@@ -47,7 +47,7 @@ h1,h2,h3,h4 {
     margin-bottom: 10px;
 }
 
-#primary-table-section, #all-profiles {
+.scroll {
     overflow: scroll;
 }
 
@@ -79,4 +79,7 @@ h1,h2,h3,h4 {
 }
 .height-80 {
     height: 80%;
+}
+.center {
+    text-align: center;
 }
