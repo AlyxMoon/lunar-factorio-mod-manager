@@ -7,7 +7,8 @@ let config;
 let fileCache = {
     'profiles': [],
     'active-profile': {},
-    'mods': []
+    'mods': [],
+    'modNames': []
 };
 
 app.on('ready', init);
@@ -35,7 +36,7 @@ electron.ipcMain.on('changePage', changePage);
 // No message is expected, will potentially provide ability to choose a profile name on creation
 function createProfile(event) {
     log('Attempting to create a new profile');
-    let mods = fileCache['mods'];
+    let mods = fileCache['modNames'];
     let profile = {
         'name': 'New Profile',
         'enabled': false,
@@ -227,7 +228,6 @@ function changePage(event, newPage) {
     else {
         log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');
     }
-
 }
 
 
@@ -260,13 +260,10 @@ function init() {
     }
     catch(error) {
         if(error.code === 'ENOENT') {
-            log('Wasn not able to find config or profiles file.');
+            log('Was not able to find config or profiles file.');
             createAppFiles();
         }
     }
-
-
-
 }
 
 function startProgram() {
@@ -274,7 +271,6 @@ function startProgram() {
     loadProfiles();
     loadInstalledMods();
 
-    checkForNewMods();
     createWindow();
 }
 
@@ -293,7 +289,6 @@ function closeProgram(inError = false) {
         log('Everything taken care of, closing app now.');
         app.quit();
     }
-
 }
 
 function createAppFiles() {
@@ -390,10 +385,6 @@ function createAppFiles() {
         log('Failed to write config on first time initialization, error: ' + error.code);
         closeProgram(true);
     }
-
-
-
-
 }
 
 function createWindow () {
@@ -443,14 +434,14 @@ function showAllProfiles() {
 }
 
 function showInstalledMods() {
-    mainWindow.webContents.send('dataInstalledMods', fileCache['mods']);
+    mainWindow.webContents.send('dataInstalledMods', fileCache['modNames']);
 }
 
 function checkForNewMods() {
     log('Checking for newly installed mods.');
 
     let file = require('fs');
-    let mods = fileCache['mods'];
+    let mods = fileCache['modNames'];
     let profiles = fileCache['profiles'];
     let modList = {'mods': []};
     for(let i = 0; i < profiles.length; i++) {
@@ -508,27 +499,6 @@ function loadProfiles() {
     log('Finished loading the profiles successfully.');
 }
 
-function loadInstalledMods() {
-    log('Beginning to get list of currently installed mods.');
-    let file = require('fs');
-    let mods = file.readdirSync(config['mod-path'], 'utf8');
-
-    for(let i = mods.length - 1; i >= 0; i--) {
-        if(mods[i] === 'mod-list.json') mods.splice(i, 1);
-        else mods[i] = mods[i].substr(0, mods[i].lastIndexOf('_'));
-    }
-    mods.push('base');
-    mods = mods.sort(function(a,b) {
-        a = a.toLowerCase();
-        b = b.toLowerCase();
-        if( a == b) return 0;
-        if( a > b) return 1;
-        return -1;
-    });
-
-    fileCache['mods'] = mods;
-    log('Successfully got the list of currently installed mods.');
-}
 
 function saveProfiles() {
     log('Beginning to save the profiles.');
@@ -536,6 +506,60 @@ function saveProfiles() {
     file.writeFileSync(config['profiles-path'], JSON.stringify(fileCache['profiles']));
     log('Finished saving the profiles.');
 }
+
+function loadInstalledMods() {
+    log('starting the mod hunt');
+    //mainWindow.webContents.openDevTools();
+    let file = require('fs');
+    let JSZip = require('jszip');
+
+    let modZipNames = file.readdirSync(config['mod-path'], 'utf8');
+    let mods = [];
+
+    // Add base mod
+    let gamePath = config['game-path'];
+    let baseInfo = `${gamePath.substr(0, gamePath.lastIndexOf('Factorio\\bin'))}Factorio/data/base/info.json`;
+    mods.push(JSON.parse(file.readFileSync(baseInfo, 'utf8')));
+
+    log('starting to parse the zips');
+
+    let counter = modZipNames.length - 1;
+    for(let i = 0; i < modZipNames.length; i++) {
+        // Exclude the not-zip-file that will be sitting in the directory
+        if(modZipNames[i] !== 'mod-list.json') {
+
+            // Open the zip file as a buffer
+            file.readFile(`${config['mod-path']}${modZipNames[i]}`, function(error, rawZipBuffer) {
+                if(error) throw error;
+
+                // Actually read the zip file
+                JSZip.loadAsync(rawZipBuffer).then(function(zip) {
+                    // Only open the mods info file in the zip
+                    return zip.file(/info\.json/)[0].async('text');
+
+                }).then(function(modData) {
+                    // Save the information
+                    mods.push(JSON.parse(modData));
+
+                    // Only show once all zip files have been read
+                    counter--;
+                    if(counter <= 0) {
+                        // Just send data to the console for now
+                        mods = sortMods(mods);
+                        fileCache['mods'] = mods;
+                        fileCache['modNames'] = mods.map(function(mod) {
+                           return mod['name']
+                        });
+
+                        checkForNewMods();
+                    }
+                });
+            });
+        }
+    }
+}
+
+
 
 function saveMods() {
     log('Beginning to save current mod configuration.');
