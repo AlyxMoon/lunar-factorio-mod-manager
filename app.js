@@ -11,7 +11,8 @@ let appData = {
     'profiles': [],
     'active-profile': {},
     'mods': [],
-    'modNames': []
+    'modNames': [],
+    'onlineMods': []
 };
 
 app.on('ready', init);
@@ -228,6 +229,7 @@ function changePage(event, newPage) {
     }
     else if(newPage === 'page_onlineMods') {
         mainWindow.loadURL(`file://${__dirname}/${newPage}.html`);
+        mainWindow.webContents.on('did-finish-load', showOnlineMods);
     }
     else {
         helpers.log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');
@@ -537,4 +539,41 @@ function loadInstalledMods() {
             });
         }
     }
+}
+
+// This will be the best method in the world!
+function showOnlineMods() {
+    let request = require('request');
+
+    let apiURL = 'https://mods.factorio.com/api/mods';
+    let options = '?page_size=20';
+
+    getOnlineModData(`${apiURL}${options}`, function() {
+        mainWindow.webContents.send('dataOnlineMods', appData['onlineMods']);
+    });
+
+    function getOnlineModData(url, callback) {
+
+        request(url ,function(error, response, data) {
+            if(!error && response.statusCode == 200) {
+                data = JSON.parse(data);
+
+                for(let i = 0; i < data['results'].length; i++) {
+                    appData['onlineMods'].push(data['results'][i]['name']);
+                }
+
+                if(data['pagination']['links']['next']) {
+                    getOnlineModData(data['pagination']['links']['next'], callback);
+                }
+                else {
+                    callback();
+                }
+            }
+            else {
+                throw error;
+            }
+
+        });
+    }
+
 }

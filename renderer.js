@@ -10,6 +10,7 @@ electron.ipcRenderer.on('dataActiveProfile', listActiveProfile);
 electron.ipcRenderer.on('dataAllProfiles', listAllProfiles);
 electron.ipcRenderer.on('dataInstalledMods', listInstalledMods);
 electron.ipcRenderer.on('dataModInfo', showModInfo);
+electron.ipcRenderer.on('dataOnlineMods', listOnlineMods);
 
 $(document).on('click', '.tbl-mod', toggleMod);
 $(document).on('click', '.tbl-installedMod', requestModInfo);
@@ -18,10 +19,11 @@ $('button').click(handleButtons);
 
 $(document).ready(function() {
 
-    let activeProfileTable = $('table#active-profile');
+    let primaryTable = $('table#primary-table');
     let allProfilesTable = $('table#all-profiles');
 
-    activeProfileTable.css('max-height', activeProfileTable.parent().height());
+    // Set a static value for the height of tables so overflow property works correctly
+    primaryTable.css('max-height', primaryTable.parent().height());
     allProfilesTable.css('max-height', allProfilesTable.parent().height());
 
 });
@@ -68,7 +70,7 @@ function listAllProfiles(event, profiles) {
 }
 
 // Used as callback function
-// One argument, an array of strings, representing the names of mods installed:
+// One argument, an array of strings, representing the names of mods installed
 function listInstalledMods(event, mods) {
     console.log(mods);
     let table = $('table#primary-table');
@@ -83,6 +85,23 @@ function listInstalledMods(event, mods) {
     table.append('</tbody>');
 
 }
+
+// Used as callback function
+// One argument, an array of strings, representing the names of online mods
+function listOnlineMods(event, mods) {
+    console.log(mods);
+    let table = $('table#primary-table');
+    table.children().remove();
+
+    table.append('<thead><tr id="primary-table-name" class="bg-primary"><th colspan="2">All Online Mods</th></tr></thead>');
+    table.append('<tbody>');
+
+    for(let i = 0; i < mods.length; i++) {
+        table.append('<tr class="tbl-onlineMod"><td>' + mods[i] + '</td></tr>');
+    }
+    table.append('</tbody>');
+}
+
 
 // Will return the info pulled from the info.json file of the selected mod
 function requestModInfo() {
