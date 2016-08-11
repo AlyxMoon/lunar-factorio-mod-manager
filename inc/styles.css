@@ -33,6 +33,10 @@ tr {
     -webkit-user-select: none;
 }
 
+h1,h2,h3,h4 {
+    text-align: center;
+}
+
 .main-view {
     height: 95%;
 }
@@ -43,7 +47,7 @@ tr {
     margin-bottom: 10px;
 }
 
-#active-profile-section, #all-profiles {
+.scroll {
     overflow: scroll;
 }
 
@@ -55,6 +59,11 @@ tr {
     border-radius: 3px;
     box-shadow: 2px 1px;
 }
+
+#pageButtons {
+    margin: 10px 5px;
+}
+
 
 .height-100 {
     height: 100%;
@@ -70,4 +79,12 @@ tr {
 }
 .height-80 {
     height: 80%;
+}
+.center {
+    text-align: center;
+}
+
+#tbl-mod-info td {
+    cursor: text;
+    -webkit-user-select: text;
 }
