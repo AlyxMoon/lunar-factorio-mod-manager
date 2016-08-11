@@ -105,20 +105,54 @@ function showModInfo(event, mod) {
     if(mod['version']) {
         tableBody.append(`<tr><td>Version</td><td>${mod['version']}</td></tr>`);
     }
+    else {
+        tableBody.append(`<tr><td>Version</td><td>Not found</td></tr>`);
+    }
+
     if(mod['author']) {
         tableBody.append(`<tr><td>Author</td><td>${mod['author']}</td></tr>`);
     }
+    else {
+        tableBody.append(`<tr><td>Author</td><td>Not found</td></tr>`);
+    }
+
     if(mod['contact']) {
         tableBody.append(`<tr><td>Contact</td><td>${mod['contact']}</td></tr>`);
+    }
+    else {
+        tableBody.append(`<tr><td>Contact</td><td>Not included</td></tr>`);
     }
     if(mod['homepage']) {
         tableBody.append(`<tr><td>Homepage</td><td>${mod['homepage']}</td></tr>`);
     }
+    else {
+        tableBody.append(`<tr><td>Homepage</td><td>Not included</td></tr>`);
+    }
+
     if(mod['factorio_version']) {
         tableBody.append(`<tr><td>Factorio Version</td><td>${mod['factorio_version']}</td></tr>`);
     }
+    else {
+        tableBody.append(`<tr><td>Factorio Version</td><td>Not found</td></tr>`);
+    }
+
+    if(mod['dependencies'] && mod['dependencies'].length > 0) {
+        let dependencies = mod['dependencies'];
+        tableBody.append(`<tr><td>Dependencies</td><td>${dependencies[0]}</td></tr>`);
+        for(let i = 1; i < dependencies.length; i++) {
+            tableBody.append(`<tr><td></td><td>${dependencies[i]}</td></tr>`);
+        }
+    }
+    else {
+        tableBody.append(`<tr><td>Dependencies</td><td>None specified</td></tr>`);
+    }
+
+    tableBody.append(`<tr><th class="center" colspan="2">Mod Description</th></tr>`);
     if(mod['description']) {
         tableBody.append(`<tr><td class="center" colspan="2">${mod['description']}</td></tr>`);
+    }
+    else {
+        tableBody.append(`<tr><td class="center" colspan="2">No description found</td></tr>`);
     }
 
     tableBody.append('</tbody>');
