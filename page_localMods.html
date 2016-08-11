@@ -16,21 +16,18 @@
     <hr>
 
     <div class="main-view">
-        <!-- Current view viewport -->
-        <div class="col-xs-8 height-100"><div class="view-section scroll height-100">
-            <table id="tbl-mod-info" class="table table-bordered"></table>
+        <!-- The list of installed mods -->
+        <div class="col-xs-4 height-100"><div class="view-section scroll height-100">
+            <table id="primary-table" class="table table-condensed table-hover"></table>
         </div></div>
-        <!-- Current view options -->
-        <div class="col-xs-4 height-100">
-            <div id="button-section" class="view-section height-20">
-                <h4>Click a mod for info</h4>
-            </div>
-            <div class="view-section scroll height-80">
-                <table id="primary-table" class="table table-condensed table-hover"></table>
-            </div>
-        </div>
-    </div>
 
+        <!-- Info on selected mod -->
+        <div class="col-xs-8 height-100"><div class="view-section scroll height-100">
+            <table id="tbl-mod-info" class="table table-bordered">
+                <thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead>
+            </table>
+        </div></div>
+    </div>
 </body>
 
     <!-- Required for script imports  -->
