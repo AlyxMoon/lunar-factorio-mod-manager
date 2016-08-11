@@ -17,8 +17,17 @@
 
     <div class="main-view">
         <!-- The list of online mods -->
-        <div class="col-xs-4 height-100"><div class="view-section scroll height-100">
-            <table id="primary-table" class="table table-condensed table-hover"></table>
+        <div class="col-xs-5 height-100"><div class="view-section scroll height-100">
+            <table id="primary-table" class="table table-condensed table-hover">
+                <tr><td>Currently polling the mod portal...</td></tr>
+            </table>
+        </div></div>
+
+        <!-- Info on selected mod -->
+        <div class="col-xs-7 height-100"><div class="view-section scroll height-100">
+            <table id="tbl-mod-info" class="table table-bordered">
+                <thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead>
+            </table>
         </div></div>
     </div>
 

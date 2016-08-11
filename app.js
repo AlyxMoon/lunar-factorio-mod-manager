@@ -220,16 +220,16 @@ function changePage(event, newPage) {
 
     if(newPage === 'page_profiles') {
         mainWindow.loadURL(`file://${__dirname}/${newPage}.html`);
-        mainWindow.webContents.on('did-finish-load', showActiveProfile);
-        mainWindow.webContents.on('did-finish-load', showAllProfiles);
+        mainWindow.webContents.once('did-finish-load', showActiveProfile);
+        mainWindow.webContents.once('did-finish-load', showAllProfiles);
     }
     else if(newPage === 'page_localMods') {
         mainWindow.loadURL(`file://${__dirname}/${newPage}.html`);
-        mainWindow.webContents.on('did-finish-load', showInstalledMods);
+        mainWindow.webContents.once('did-finish-load', showInstalledMods);
     }
     else if(newPage === 'page_onlineMods') {
         mainWindow.loadURL(`file://${__dirname}/${newPage}.html`);
-        mainWindow.webContents.on('did-finish-load', showOnlineMods);
+        mainWindow.webContents.once('did-finish-load', showOnlineMods);
     }
     else {
         helpers.log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');
@@ -425,8 +425,8 @@ function createWindow () {
         mainWindow.webContents.send('ping', appData['mods']);
     });
 
-    mainWindow.webContents.on('did-finish-load', showActiveProfile);
-    mainWindow.webContents.on('did-finish-load', showAllProfiles);
+    mainWindow.webContents.once('did-finish-load', showActiveProfile);
+    mainWindow.webContents.once('did-finish-load', showAllProfiles);
     mainWindow.on('closed', function () {
         mainWindow = null;
     });
