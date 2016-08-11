@@ -488,12 +488,14 @@ function checkForNewMods() {
 }
 
 function loadInstalledMods() {
-    helpers.log('starting the mod hunt');
+    helpers.log('Beginning to load installed mods.');
     //mainWindow.webContents.openDevTools();
     let file = require('fs');
     let JSZip = require('jszip');
 
     let modZipNames = file.readdirSync(config['mod-path'], 'utf8');
+    modZipNames.splice(modZipNames.indexOf('mod-list.json'), 1);
+
     let mods = [];
 
     // Add base mod
@@ -501,9 +503,7 @@ function loadInstalledMods() {
     let baseInfo = `${gamePath.substr(0, gamePath.lastIndexOf('Factorio\\bin'))}Factorio/data/base/info.json`;
     mods.push(JSON.parse(file.readFileSync(baseInfo, 'utf8')));
 
-    helpers.log('starting to parse the zips');
-
-    let counter = modZipNames.length - 1;
+    let counter = modZipNames.length;
     for(let i = 0; i < modZipNames.length; i++) {
         // Exclude the not-zip-file that will be sitting in the directory
         if(modZipNames[i] !== 'mod-list.json') {
