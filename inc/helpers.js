@@ -1,4 +1,5 @@
 module.exports = {
+
     sortArrayByProp: function(arr, property) {
         let prop = property.split('.');
         let len = prop.length;
@@ -12,6 +13,7 @@ module.exports = {
         });
         return arr;
     },
+
     log: function(data) {
         let file = require('fs');
         let logPath = `${__dirname}/../lmm_log.txt`;

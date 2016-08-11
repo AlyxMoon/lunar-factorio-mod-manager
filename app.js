@@ -5,8 +5,9 @@ let mainWindow;
 let config;
 
 const helpers = require('./inc/helpers.js');
+const fileHandlers = require('./inc/fileHandling.js');
 
-let fileCache = {
+let appData = {
     'profiles': [],
     'active-profile': {},
     'mods': [],
@@ -39,7 +40,7 @@ electron.ipcMain.on('requestModInfo', requestModInfo);
 // No message is expected, will potentially provide ability to choose a profile name on creation
 function createProfile(event) {
     helpers.log('Attempting to create a new profile');
-    let mods = fileCache['modNames'];
+    let mods = appData['modNames'];
     let profile = {
         'name': 'New Profile',
         'enabled': false,
@@ -52,7 +53,7 @@ function createProfile(event) {
         });
     }
 
-    let data = fileCache['profiles'];
+    let data = appData['profiles'];
     let n = 1;
     while(true) {
         let nameExists = false;
@@ -77,16 +78,16 @@ function createProfile(event) {
 // "message" expected to be a string representing the name of an existing profile
 function activateProfile(event, message) {
     helpers.log('Attempting to change active profile.');
-    let data = fileCache['profiles'];
+    let data = appData['profiles'];
 
     for(let i = 0; i < data.length; i++) {
         if(data[i]['name'] === message) {
             data[i]['enabled'] = true;
-            fileCache['active-profile'] = data[i];
+            appData['active-profile'] = data[i];
         }
         else data[i]['enabled'] = false;
     }
-    helpers.log(`Active profile changed, new active profile: ${fileCache['active-profile']['name']}`);
+    helpers.log(`Active profile changed, new active profile: ${appData['active-profile']['name']}`);
     showAllProfiles();
     showActiveProfile();
 }
@@ -95,9 +96,9 @@ function activateProfile(event, message) {
 // "message" expected to be a string containing the new name for the active profile
 function renameProfile(event, name) {
     helpers.log('Attempting to rename active profile.');
-    fileCache['active-profile']['name'] = name;
+    appData['active-profile']['name'] = name;
 
-    helpers.log(`Active profile name changed to: ${fileCache['active-profile']['name']}`);
+    helpers.log(`Active profile name changed to: ${appData['active-profile']['name']}`);
     showAllProfiles();
     showActiveProfile();
 }
@@ -105,8 +106,8 @@ function renameProfile(event, name) {
 // Used as callback method
 // Currently only removes active profile, not any given profile
 function deleteProfile(event) {
-    helpers.log(`Attempting to delete active profile: '${fileCache['active-profile']['name']}'`);
-    let data = fileCache['profiles'];
+    helpers.log(`Attempting to delete active profile: '${appData['active-profile']['name']}'`);
+    let data = appData['profiles'];
 
     for(let i = 0; i < data.length; i++) {
         if(data[i]['enabled']) {
@@ -124,8 +125,8 @@ function deleteProfile(event) {
         }];
     }
     data[0]['enabled'] = true;
-    fileCache['active-profile'] = data[0];
-    helpers.log(`Successfully deleted profile. New active profile: ${fileCache['active-profile']['name']}`);
+    appData['active-profile'] = data[0];
+    helpers.log(`Successfully deleted profile. New active profile: ${appData['active-profile']['name']}`);
     showAllProfiles();
     showActiveProfile();
 }
@@ -133,9 +134,9 @@ function deleteProfile(event) {
 // Used as callback method
 // Take one argument, a string representing which direction to move the active profile
 function sortProfile(event, direction) {
-    helpers.log(`Attempting to move profile '${fileCache['active-profile']['name']}' ${direction}`);
+    helpers.log(`Attempting to move profile '${appData['active-profile']['name']}' ${direction}`);
 
-    let data = fileCache['profiles'];
+    let data = appData['profiles'];
     let index = 0;
     for(let i = 0; i < data.length; i++) {
         if(data[i]['enabled']) {
@@ -167,7 +168,7 @@ function sortProfile(event, direction) {
         }
     }
 
-    helpers.log(`Successfully moved profile '${fileCache['active-profile']['name']}' to index ${index}`);
+    helpers.log(`Successfully moved profile '${appData['active-profile']['name']}' to index ${index}`);
     showAllProfiles();
 }
 
@@ -177,7 +178,7 @@ function sortProfile(event, direction) {
 function toggleMod(event, message) {
     helpers.log(`Attempting to change mod '${message['mod']}' from '${message['enabled']}' in profile: ${message['profile']}`);
 
-    let profiles = fileCache['profiles'];
+    let profiles = appData['profiles'];
     let profile = {};
     for(let i = profiles.length - 1; i >= 0; i--) {
         if(profiles[i]['name'] === message['profile']) {
@@ -202,7 +203,7 @@ function startGame(event) {
     let spawn = require('child_process').spawn;
     let factorioPath = config['game-path'].slice(0, config['game-path'].indexOf('factorio.exe'));
 
-    saveMods();
+    fileHandlers.setProfileAsModlist(config['modlist-path'], appData['active-profile']);
     spawn('factorio.exe', [], {
         'stdio': 'ignore',
         'detached': true,
@@ -237,8 +238,8 @@ function changePage(event, newPage) {
 // Expects one argument, a string containing the name of the mod to get info on
 function requestModInfo(event, modName) {
 
-    let mods = fileCache['mods'];
-    for(let i = fileCache['mods'].length - 1; i >= 0; i--) {
+    let mods = appData['mods'];
+    for(let i = appData['mods'].length - 1; i >= 0; i--) {
         if(mods[i]['name'] === modName) {
             mainWindow.webContents.send('dataModInfo', mods[i]);
             break;
@@ -275,7 +276,11 @@ function init() {
 
 function startProgram() {
     helpers.log('Starting the app now.');
-    loadProfiles();
+
+    let tempProfiles = fileHandlers.loadProfiles(config['profiles-path']);
+    appData['profiles'] = tempProfiles['profiles'];
+    appData['active-profile'] = tempProfiles['active-profile'];
+
     loadInstalledMods();
 
     createWindow();
@@ -291,8 +296,8 @@ function closeProgram(inError = false) {
     }
     else {
         helpers.log('Beginning application shutdown.');
-        saveProfiles();
-        saveMods();
+        fileHandlers.saveProfiles(config['profiles-path'], appData['profiles']);
+        fileHandlers.setProfileAsModlist(config['modlist-path'], appData['active-profile']);
         helpers.log('Everything taken care of, closing app now.');
         app.quit();
     }
@@ -415,7 +420,7 @@ function createWindow () {
     mainWindow.webContents.openDevTools();
 
     mainWindow.webContents.on('did-finish-load', function() {
-        mainWindow.webContents.send('ping', fileCache['mods']);
+        mainWindow.webContents.send('ping', appData['mods']);
     });
 
     mainWindow.webContents.on('did-finish-load', showActiveProfile);
@@ -425,7 +430,6 @@ function createWindow () {
     });
     helpers.log('Window created successfully, event registered');
 }
-
 
 function getFactorioModList() {
     helpers.log('Checking for mod list at path: ' + config['modlist-path']);
@@ -438,23 +442,23 @@ function getFactorioModList() {
 }
 
 function showActiveProfile() {
-    mainWindow.webContents.send('dataActiveProfile', fileCache['active-profile']);
+    mainWindow.webContents.send('dataActiveProfile', appData['active-profile']);
 }
 
 function showAllProfiles() {
-    mainWindow.webContents.send('dataAllProfiles', fileCache['profiles']);
+    mainWindow.webContents.send('dataAllProfiles', appData['profiles']);
 }
 
 function showInstalledMods() {
-    mainWindow.webContents.send('dataInstalledMods', fileCache['modNames']);
+    mainWindow.webContents.send('dataInstalledMods', appData['modNames']);
 }
 
 function checkForNewMods() {
     helpers.log('Checking for newly installed mods.');
 
     let file = require('fs');
-    let mods = fileCache['modNames'];
-    let profiles = fileCache['profiles'];
+    let mods = appData['modNames'];
+    let profiles = appData['profiles'];
     let modList = {'mods': []};
     for(let i = 0; i < profiles.length; i++) {
         if(profiles[i]['enabled']) {
@@ -481,30 +485,6 @@ function checkForNewMods() {
     helpers.log('Finished looking for newly installed mods.');
     file.writeFileSync(config['profiles-path'], JSON.stringify(profiles));
     file.writeFileSync(config['modlist-path'], JSON.stringify(modList));
-}
-
-
-
-function loadProfiles() {
-    helpers.log('Beginning to load the profiles list');
-    let file = require('fs');
-    fileCache['profiles'] = JSON.parse(file.readFileSync(config['profiles-path'], 'utf8'));
-
-    for(let i = fileCache['profiles'].length - 1; i >= 0; i--) {
-        if(fileCache['profiles'][i]['enabled']) {
-            fileCache['active-profile'] = fileCache['profiles'][i];
-            break;
-        }
-    }
-    helpers.log('Finished loading the profiles successfully.');
-}
-
-
-function saveProfiles() {
-    helpers.log('Beginning to save the profiles.');
-    let file = require('fs');
-    file.writeFileSync(config['profiles-path'], JSON.stringify(fileCache['profiles']));
-    helpers.log('Finished saving the profiles.');
 }
 
 function loadInstalledMods() {
@@ -546,8 +526,8 @@ function loadInstalledMods() {
                     if(counter <= 0) {
                         // Just send data to the console for now
                         mods = helpers.sortArrayByProp(mods, 'name');
-                        fileCache['mods'] = mods;
-                        fileCache['modNames'] = mods.map(function(mod) {
+                        appData['mods'] = mods;
+                        appData['modNames'] = mods.map(function(mod) {
                            return mod['name']
                         });
 
@@ -557,14 +537,4 @@ function loadInstalledMods() {
             });
         }
     }
-}
-
-function saveMods() {
-    helpers.log('Beginning to save current mod configuration.');
-    let file = require('fs');
-    let modList = {
-        'mods': fileCache['active-profile']['mods']
-    };
-    file.writeFileSync(config['modlist-path'], JSON.stringify(modList));
-    helpers.log('Finished saving current mod configuration.');
 }
