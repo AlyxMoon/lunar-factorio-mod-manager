@@ -34,7 +34,8 @@ electron.ipcMain.on('sortProfile', sortProfile);
 electron.ipcMain.on('toggleMod', toggleMod);
 electron.ipcMain.on('startGame', startGame);
 electron.ipcMain.on('changePage', changePage);
-electron.ipcMain.on('requestModInfo', requestModInfo);
+electron.ipcMain.on('requestInstalledModInfo', showInstalledModInfo);
+electron.ipcMain.on('requestOnlineModInfo', showOnlineModInfo);
 
 
 // Used as callback method
@@ -238,17 +239,32 @@ function changePage(event, newPage) {
 
 // Used as callback method
 // Expects one argument, a string containing the name of the mod to get info on
-function requestModInfo(event, modName) {
+function showInstalledModInfo(event, modName) {
 
     let mods = appData['mods'];
-    for(let i = appData['mods'].length - 1; i >= 0; i--) {
+    for(let i = mods.length - 1; i >= 0; i--) {
         if(mods[i]['name'] === modName) {
-            mainWindow.webContents.send('dataModInfo', mods[i]);
+            mainWindow.webContents.send('dataInstalledModInfo', mods[i]);
             break;
         }
     }
 
 }
+
+// Used as callback method
+// Expects one argument, a string containing the name of the mod to get info on
+function showOnlineModInfo(event, modName) {
+
+    let mods = appData['onlineMods'];
+    for(let i = mods.length - 1; i >= 0; i--) {
+        if(mods[i]['name'] === modName) {
+            mainWindow.webContents.send('dataOnlineModInfo', mods[i]);
+            break;
+        }
+    }
+
+}
+
 
 function init() {
     helpers.log('Beginning initialization of app.');
@@ -454,6 +470,17 @@ function showAllProfiles() {
 function showInstalledMods() {
     mainWindow.webContents.send('dataInstalledMods', appData['modNames']);
 }
+function showOnlineMods() {
+    if(appData['onlineMods'].length === 0) {
+        helpers.log('Getting online mods.');
+        loadOnlineMods();
+    }
+    else {
+        helpers.log('Already have online mods list, showing.');
+        mainWindow.webContents.send('dataOnlineMods', appData['onlineMods']);
+    }
+
+}
 
 function checkForNewMods() {
     helpers.log('Checking for newly installed mods.');
@@ -542,7 +569,7 @@ function loadInstalledMods() {
 }
 
 // This will be the best method in the world!
-function showOnlineMods() {
+function loadOnlineMods() {
     let request = require('request');
 
     let apiURL = 'https://mods.factorio.com/api/mods';
@@ -559,7 +586,7 @@ function showOnlineMods() {
                 data = JSON.parse(data);
 
                 for(let i = 0; i < data['results'].length; i++) {
-                    appData['onlineMods'].push(data['results'][i]['name']);
+                    appData['onlineMods'].push(data['results'][i]);
                 }
 
                 if(data['pagination']['links']['next']) {
@@ -575,5 +602,4 @@ function showOnlineMods() {
 
         });
     }
-
 }
