@@ -36,7 +36,7 @@ electron.ipcMain.on('startGame', startGame);
 electron.ipcMain.on('changePage', changePage);
 electron.ipcMain.on('requestInstalledModInfo', showInstalledModInfo);
 electron.ipcMain.on('requestOnlineModInfo', showOnlineModInfo);
-
+electron.ipcMain.on('requestDownload', initiateDownload);
 
 // Used as callback method
 // No message is expected, will potentially provide ability to choose a profile name on creation
@@ -265,6 +265,51 @@ function showOnlineModInfo(event, modName) {
 
 }
 
+// Used as callback method
+// Expects one argument, the id of the mod to download
+function initiateDownload(event, modID) {
+    let mods = appData['onlineMods'];
+    let modToDownload;
+
+    for(let i = mods.length - 1; i >= 0; i--) {
+        if(mods[i]['id'] == modID) {
+            mainWindow.webContents.send('ping', mods[i]);
+            modToDownload = mods[i];
+            break;
+        }
+    }
+    mainWindow.webContents.send('ping', modToDownload);
+
+    helpers.log(`Attempting to download mod: ${modToDownload['name']}`);
+    let downloadURL = `https://mods.factorio.com${modToDownload['latest_release']['download_url']}`;
+
+    mainWindow.webContents.downloadURL(downloadURL);
+}
+function manageDownload(event, item, webContents) {
+    // Set the save path, making Electron not to prompt a save dialog.
+    item.setSavePath(`${__dirname}/data/${item.getFilename()}`);
+
+    item.on('updated', (event, state) => {
+        if (state === 'interrupted') {
+            helpers.log('Download is interrupted but can be resumed');
+            item.resume();
+        } else if (state === 'progressing') {
+            if (item.isPaused()) {
+                helpers.log('Download is paused');
+            } else {
+                helpers.log(`Received bytes: ${item.getReceivedBytes()}`);
+            }
+        }
+    });
+    item.once('done', (event, state) => {
+        if (state === 'completed') {
+            helpers.log('Download successfully');
+        } else {
+            helpers.log(`Download failed: ${state}`);
+        }
+    });
+}
+
 
 function init() {
     helpers.log('Beginning initialization of app.');
@@ -446,6 +491,9 @@ function createWindow () {
     mainWindow.on('closed', function () {
         mainWindow = null;
     });
+
+    mainWindow.webContents.session.on('will-download', manageDownload);
+
     helpers.log('Window created successfully, event registered');
 }
 

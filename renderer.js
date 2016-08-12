@@ -16,6 +16,7 @@ electron.ipcRenderer.on('dataOnlineModInfo', showOnlineModInfo);
 $(document).on('click', '.tbl-mod', toggleMod);
 $(document).on('click', '.tbl-installedMod', requestInstalledModInfo);
 $(document).on('click', '.tbl-onlineMod', requestOnlineModInfo);
+$(document).on('click', '.download-mod', requestDownload);
 $(document).on('click', '.tbl-profile', activateProfile);
 $('button').click(handleButtons);
 
@@ -197,12 +198,12 @@ function showOnlineModInfo(event, mod) {
     let table = $('table#tbl-mod-info');
     table.children().remove();
 
-    table.append(`<thead><tr class="bg-info"><th colspan="2">${mod['title']}</th></tr></thead>`);
+    table.append(`<thead><tr class="bg-info"><th class="selected-mod" colspan="2">${mod['title']}</th></tr></thead>`);
     table.append('<tbody>');
     let tableBody = $('table#tbl-mod-info tbody');
 
     if(mod['latest_release']['download_url']) {
-        tableBody.append(`<tr><td class="center" colspan="2"><a href=${mod['latest_release']['download_url']}>Download Here</a></td></tr>`);
+        tableBody.append(`<tr><th id="${mod['id']}" class="center download-mod" colspan="2"><a href="#">Download Mod</a></th></tr>`);
     }
 
     if(modInfo['version']) {
@@ -260,6 +261,11 @@ function showOnlineModInfo(event, mod) {
 
     tableBody.append('</tbody>');
 
+}
+
+function requestDownload(event) {
+    let requestedMod = $(this).attr('id');
+    electron.ipcRenderer.send('requestDownload', requestedMod);
 }
 
 // Used as callback function
