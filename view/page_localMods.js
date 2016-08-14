@@ -1,14 +1,13 @@
-const electron = require('electron');
+const messager = require('electron').ipcRenderer;
 
 //---------------------------------------------------------
 // Event listeners for client and server events
 
-electron.ipcRenderer.on('dataInstalledMods', listInstalledMods);
-electron.ipcRenderer.on('dataInstalledModInfo', showInstalledModInfo);
+messager.on('dataInstalledMods', listInstalledMods);
+messager.on('dataInstalledModInfo', showInstalledModInfo);
 
 // Uses this way to assign events to elements as they will be dynamically generated
 $(document).on('click', '.tbl-installedMod', requestInstalledModInfo);
-
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -38,7 +37,7 @@ function requestInstalledModInfo() {
     $('.tbl-installedMod').removeClass('info');
     $(this).addClass('info');
 
-    electron.ipcRenderer.send('requestInstalledModInfo', $(this).text());
+    messager.send('requestInstalledModInfo', $(this).text());
 
 }
 function showInstalledModInfo(event, mod) {

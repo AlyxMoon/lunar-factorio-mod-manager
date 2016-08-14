@@ -1,10 +1,10 @@
-const electron = require('electron');
+const messager = require('electron').ipcRenderer;
 
 //---------------------------------------------------------
 // Event listeners for client and server events
 
-electron.ipcRenderer.on('dataActiveProfile', listActiveProfile);
-electron.ipcRenderer.on('dataAllProfiles', listAllProfiles);
+messager.on('dataActiveProfile', listActiveProfile);
+messager.on('dataAllProfiles', listAllProfiles);
 
 // Uses this way to assign events to elements as they will be dynamically generated
 $(document).on('click', '.tbl-mod', toggleMod);
@@ -85,7 +85,7 @@ function toggleMod(event) {
     }
 
     console.log(data);
-    electron.ipcRenderer.send('toggleMod', data);
+    messager.send('toggleMod', data);
 }
 
 // Used as callback function
@@ -93,7 +93,7 @@ function toggleMod(event) {
 function activateProfile(event) {
     event.stopPropagation();
     console.log($(this).text());
-    electron.ipcRenderer.send('activateProfile', $(this).text());
+    messager.send('activateProfile', $(this).text());
 
 }
 
@@ -101,7 +101,7 @@ function activateProfile(event) {
 // Button listeners for profile management
 
 function profileNew() {
-    electron.ipcRenderer.send('newProfile');
+    messager.send('newProfile');
 }
 function profileRename() {
     let tableHead = $('table#primary-table thead');
@@ -111,17 +111,17 @@ function profileRename() {
     tableHead.append('<tr class="info"><th><textarea rows="1">' + profileName + '</textarea></th></tr>');
     $('table#primary-table thead tr').append('<th><button id="rename-submit" type="button" class="btn btn-default">Save Name</button></th>');
 
-    $('#rename-submit').on('click', function() { electron.ipcRenderer.send('renameProfile', $('textarea').val()) });
+    $('#rename-submit').on('click', function() { messager.send('renameProfile', $('textarea').val()) });
     $('textarea').focus().select();
 }
 function profileDelete() {
-    electron.ipcRenderer.send('deleteProfile');
+    messager.send('deleteProfile');
 }
 function profileSortUp() {
-    electron.ipcRenderer.send('sortProfile', 'up');
+    messager.send('sortProfile', 'up');
 }
 function profileSortDown() {
-    electron.ipcRenderer.send('sortProfile', 'down');
+    messager.send('sortProfile', 'down');
 }
 
 //---------------------------------------------------------

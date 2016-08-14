@@ -1,15 +1,14 @@
-const electron = require('electron');
+const messager = require('electron').ipcRenderer;
 
 //---------------------------------------------------------
 // Event listeners for client and server events
 
-electron.ipcRenderer.on('dataOnlineMods', listOnlineMods);
-electron.ipcRenderer.on('dataOnlineModInfo', showOnlineModInfo);
+messager.on('dataOnlineMods', listOnlineMods);
+messager.on('dataOnlineModInfo', showOnlineModInfo);
 
 // Uses this way to assign events to elements as they will be dynamically generated
 $(document).on('click', '.tbl-onlineMod', requestOnlineModInfo);
 $(document).on('click', '.download-mod', requestDownload);
-
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -39,7 +38,7 @@ function requestOnlineModInfo() {
     $('.tbl-onlineMod').removeClass('info');
     $(this).addClass('info');
 
-    electron.ipcRenderer.send('requestOnlineModInfo', $(this).text());
+    messager.send('requestOnlineModInfo', $(this).text());
 
 }
 function showOnlineModInfo(event, mod) {
@@ -117,5 +116,5 @@ function showOnlineModInfo(event, mod) {
 
 function requestDownload(event) {
     let requestedMod = $(this).attr('id');
-    electron.ipcRenderer.send('requestDownload', requestedMod);
+    messager.send('requestDownload', requestedMod);
 }
