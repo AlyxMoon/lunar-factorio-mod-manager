@@ -9,13 +9,13 @@ electron.ipcRenderer.on('ping', function(event, message) {
 electron.ipcRenderer.on('dataInstalledMods', listInstalledMods);
 electron.ipcRenderer.on('dataInstalledModInfo', showInstalledModInfo);
 
+// Uses this way to assign events to elements as they will be dynamically generated
 $(document).on('click', '.tbl-installedMod', requestInstalledModInfo);
+
 $('button').click(handleButtons);
 
 //---------------------------------------------------------
 //---------------------------------------------------------
-
-
 $(document).ready(function() {
 
 });
