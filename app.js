@@ -54,7 +54,6 @@ electron.ipcMain.on('requestDownload', initiateDownload);
 //---------------------------------------------------------
 // Profile-related functions
 
-// Used as callback method
 // No message is expected, will potentially provide ability to choose a profile name on creation
 function createProfile(event) {
     helpers.log('Attempting to create a new profile');
@@ -92,7 +91,6 @@ function createProfile(event) {
     showAllProfiles();
 }
 
-// Used as callback method
 // "message" expected to be a string representing the name of an existing profile
 function activateProfile(event, message) {
     helpers.log('Attempting to change active profile.');
@@ -110,7 +108,6 @@ function activateProfile(event, message) {
     showActiveProfile();
 }
 
-// Used as callback method
 // "message" expected to be a string containing the new name for the active profile
 function renameProfile(event, name) {
     helpers.log('Attempting to rename active profile.');
@@ -121,7 +118,6 @@ function renameProfile(event, name) {
     showActiveProfile();
 }
 
-// Used as callback method
 // Currently only removes active profile, not any given profile
 function deleteProfile(event) {
     helpers.log(`Attempting to delete active profile: '${appData['active-profile']['name']}'`);
@@ -149,7 +145,6 @@ function deleteProfile(event) {
     showActiveProfile();
 }
 
-// Used as callback method
 // Take one argument, a string representing which direction to move the active profile
 function sortProfile(event, direction) {
     helpers.log(`Attempting to move profile '${appData['active-profile']['name']}' ${direction}`);
@@ -190,7 +185,6 @@ function sortProfile(event, direction) {
     showAllProfiles();
 }
 
-// Used as callback method
 // "message" is an object containing the profile mod applies to, mod name, and current mod enable status
 // message['profile'], message['mod'], message['enabled']
 function toggleMod(event, message) {
@@ -228,7 +222,6 @@ function showInstalledMods() {
     mainWindow.webContents.send('dataInstalledMods', appData['modNames']);
 }
 
-// Used as callback method
 // Expects one argument, a string containing the name of the mod to get info on
 function showInstalledModInfo(event, modName) {
 
@@ -354,7 +347,6 @@ function showOnlineMods() {
 
 }
 
-// Used as callback method
 // Expects one argument, a string containing the name of the mod to get info on
 function showOnlineModInfo(event, modName) {
 
@@ -368,7 +360,6 @@ function showOnlineModInfo(event, modName) {
 
 }
 
-// This will be the best method in the world!
 function loadOnlineMods() {
     let request = require('request');
 
@@ -404,7 +395,6 @@ function loadOnlineMods() {
     }
 }
 
-// Used as callback method
 // Expects one argument, the id of the mod to download
 function initiateDownload(event, modID) {
     let mods = appData['onlineMods'];
@@ -640,9 +630,8 @@ function createWindow () {
     helpers.log('Window created successfully, event registered');
 }
 
-// Used as callback method
 // Does not expect any data to be passed in
-function startGame(event) {
+function startGame() {
     helpers.log('Starting Factorio and shutting down app.');
 
     let spawn = require('child_process').spawn;
@@ -657,7 +646,6 @@ function startGame(event) {
     closeProgram();
 }
 
-// Used as callback method
 // Expects one argument, a string containing name of new page to switch to
 function changePage(event, newPage) {
     helpers.log(`Attempting to change the page to ${newPage}`);
