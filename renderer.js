@@ -1,6 +1,3 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// All of the Node.js APIs are available in this process.
 const electron = require('electron');
 
 electron.ipcRenderer.on('ping', function(event, message) {
@@ -21,13 +18,6 @@ $(document).on('click', '.tbl-profile', activateProfile);
 $('button').click(handleButtons);
 
 $(document).ready(function() {
-
-    let primaryTable = $('table#primary-table');
-    let allProfilesTable = $('table#all-profiles');
-
-    // Set a static value for the height of tables so overflow property works correctly
-    primaryTable.css('max-height', primaryTable.parent().height());
-    allProfilesTable.css('max-height', allProfilesTable.parent().height());
 
 });
 
