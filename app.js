@@ -220,16 +220,16 @@ function changePage(event, newPage) {
     helpers.log(`Attempting to change the page to ${newPage}`);
 
     if(newPage === 'page_profiles') {
-        mainWindow.loadURL(`file://${__dirname}/${newPage}.html`);
+        mainWindow.loadURL(`file://${__dirname}/view/${newPage}.html`);
         mainWindow.webContents.once('did-finish-load', showActiveProfile);
         mainWindow.webContents.once('did-finish-load', showAllProfiles);
     }
     else if(newPage === 'page_localMods') {
-        mainWindow.loadURL(`file://${__dirname}/${newPage}.html`);
+        mainWindow.loadURL(`file://${__dirname}/view/${newPage}.html`);
         mainWindow.webContents.once('did-finish-load', showInstalledMods);
     }
     else if(newPage === 'page_onlineMods') {
-        mainWindow.loadURL(`file://${__dirname}/${newPage}.html`);
+        mainWindow.loadURL(`file://${__dirname}/view/${newPage}.html`);
         mainWindow.webContents.once('did-finish-load', showOnlineMods);
     }
     else {
@@ -479,7 +479,7 @@ function createWindow () {
     mainWindow = new BrowserWindow(windowOptions);
     mainWindow.setMenu(null);
 
-    mainWindow.loadURL(`file://${__dirname}/page_profiles.html`);
+    mainWindow.loadURL(`file://${__dirname}/view/page_profiles.html`);
     mainWindow.webContents.openDevTools();
 
     mainWindow.webContents.on('did-finish-load', function() {
