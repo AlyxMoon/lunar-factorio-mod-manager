@@ -1,35 +1,41 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-
     <link rel="stylesheet" href="../inc/bootstrap.min.css">
     <link rel="stylesheet" href="../inc/styles.css">
 </head>
 <body>
-    <!--Standard header for every page in application-->
-    <div id="pageButtons" class="btn-group" role="group" aria-label="...">
-        <button type="button" id="start-factorio" class="btn btn-success">Start Factorio</button>
-        <button type="button" id="page-profiles" class="btn btn-primary">Profiles</button>
-        <button type="button" id="page-localMods" class="btn btn-default">Local Mods</button>
-        <button type="button" id="page-onlineMods" class="btn btn-default">Online Mods</button>
-    </div>
-    <hr>
-    <!--End of the standard header-->
+    <!-- Standard header for every page in application -->
+    <div id="nav-view">
+        <div id="pageButtons" class="btn-group" role="group" aria-label="...">
+            <button type="button" id="start-factorio" class="btn btn-success">Start Factorio</button>
+            <button type="button" id="page-profiles" class="btn btn-primary">Profiles</button>
+            <button type="button" id="page-localMods" class="btn btn-default">Local Mods</button>
+            <button type="button" id="page-onlineMods" class="btn btn-default">Online Mods</button>
+        </div>
+        <hr>
+    </div> <!-- End of the standard header -->
 
+    <!-- Main body section for data -->
     <div class="main-view">
-        <!-- Current view viewport -->
+        <!-- First column, only shows active profile -->
         <div class="col-xs-8 height-100"><div class="view-section scroll height-100">
             <table id="primary-table" class="table table-condensed table-hover"></table>
-        </div></div>
-        <!-- Current view options -->
+        </div></div> <!-- End of first column -->
+
+        <!-- Second column, shows profile management options and list of profiles -->
         <div class="col-xs-4 height-100">
+            <!-- Sub-section, shows the profile management options -->
             <div id="button-section" class="view-section height-20">
                 <button type="button" class="btn btn-info btn-block">New Profile</button>
                 <button type="button" class="btn btn-info btn-block">Rename Profile</button>
                 <button type="button" class="btn btn-danger btn-block">Delete Profile</button>
-            </div>
+            </div> <!-- End of profile management sub-section -->
+
+            <!-- Sub-section, shows the list of profiles and sorting options -->
             <div class="view-section scroll height-80">
+                <!-- Buttons to sort profiles. Too difficult for me to put on bottom of last section so they go here -->
                 <div id="profiles-sort" class="btn-group btn-group-justified" role="group" aria-label="...">
                     <div class="btn-group" role="group">
                         <button id="profile-up" type="button" class="btn btn-default">
@@ -41,17 +47,17 @@
                             Profile <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
                         </button>
                     </div>
-                </div>
+                </div> <!-- End of profile sort buttons -->
+
+                <!-- List of profiles -->
                 <table id="all-profiles" class="table table-condensed table-hover">
                     <thead><tr><th class="bg-primary">Profiles:</th></tr></thead>
                     <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
+                </table> <!-- End of profiles list -->
+            </div> <!-- End of the sub-section for profiles list and sorting options -->
+        </div> <!-- End of the second column -->
+    </div> <!-- End of the main body section -->
 </body>
-
     <!-- Required for script imports  -->
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 

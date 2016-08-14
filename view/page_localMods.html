@@ -1,37 +1,37 @@
 <!DOCTYPE html>
-<html>
-<head lang="en">
+<html lang="en">
+<head>
     <meta charset="UTF-8">
-
     <link rel="stylesheet" href="../inc/bootstrap.min.css">
     <link rel="stylesheet" href="../inc/styles.css">
 </head>
 <body>
-    <!--Standard header for every page in application-->
-    <div id="pageButtons" class="btn-group" role="group" aria-label="...">
-        <button type="button" id="start-factorio" class="btn btn-success">Start Factorio</button>
-        <button type="button" id="page-profiles" class="btn btn-default">Profiles</button>
-        <button type="button" id="page-localMods" class="btn btn-primary">Local Mods</button>
-        <button type="button" id="page-onlineMods" class="btn btn-default">Online Mods</button>
-    </div>
-    <hr>
-    <!--End of the standard header-->
+    <!-- Standard header for every page in application -->
+    <div id="nav-view">
+        <div id="pageButtons" class="btn-group" role="group" aria-label="...">
+            <button type="button" id="start-factorio" class="btn btn-success">Start Factorio</button>
+            <button type="button" id="page-profiles" class="btn btn-default">Profiles</button>
+            <button type="button" id="page-localMods" class="btn btn-primary">Local Mods</button>
+            <button type="button" id="page-onlineMods" class="btn btn-default">Online Mods</button>
+        </div>
+        <hr>
+    </div> <!-- End of the standard header -->
 
+    <!-- Main body section for data -->
     <div class="main-view">
-        <!-- The list of installed mods -->
+        <!-- First column, the list of installed mods -->
         <div class="col-xs-5 height-100"><div class="view-section scroll height-100">
             <table id="primary-table" class="table table-condensed table-hover"></table>
-        </div></div>
+        </div></div> <!-- End of first column -->
 
-        <!-- Info on selected mod -->
+        <!-- Second column, shows info on a selected mod -->
         <div class="col-xs-7 height-100"><div class="view-section scroll height-100">
             <table id="tbl-mod-info" class="table table-bordered">
-                <thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead>
+                <thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead> <!-- Filler text before data is received -->
             </table>
-        </div></div>
-    </div>
+        </div></div> <!-- End of second column -->
+    </div> <!-- End of the main body section -->
 </body>
-
     <!-- Required for script imports  -->
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 
