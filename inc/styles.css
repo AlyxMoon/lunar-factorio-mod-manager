@@ -5,6 +5,9 @@ hr {
 .col-* {
     height: 100%;
 }
+.btn[disabled] {
+    cursor: default; /* No ugly cross-out on a disabled button */
+}
 
 /* --- Global Settings --- */
 html {
