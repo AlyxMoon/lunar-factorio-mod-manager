@@ -13,7 +13,6 @@ electron.ipcRenderer.on('dataOnlineModInfo', showOnlineModInfo);
 $(document).on('click', '.tbl-onlineMod', requestOnlineModInfo);
 $(document).on('click', '.download-mod', requestDownload);
 
-$('button').click(handleButtons);
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -122,23 +121,4 @@ function showOnlineModInfo(event, mod) {
 function requestDownload(event) {
     let requestedMod = $(this).attr('id');
     electron.ipcRenderer.send('requestDownload', requestedMod);
-}
-
-// Used as callback function
-// Takes no extra arguments
-function handleButtons(event) {
-    if($(this).text() === 'Start Factorio') {
-        electron.ipcRenderer.send('startGame');
-    }
-    else if($(this).attr('id') === 'page_profiles') {
-        electron.ipcRenderer.send('changePage', $(this).attr('id'));
-    }
-    else if($(this).attr('id') === 'page_localMods') {
-        electron.ipcRenderer.send('changePage', $(this).attr('id'));
-    }
-    else if($(this).attr('id') === 'page_onlineMods') {
-        electron.ipcRenderer.send('changePage', $(this).attr('id'));
-    }
-
-    $(this).blur();
 }

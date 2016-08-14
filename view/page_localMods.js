@@ -12,7 +12,6 @@ electron.ipcRenderer.on('dataInstalledModInfo', showInstalledModInfo);
 // Uses this way to assign events to elements as they will be dynamically generated
 $(document).on('click', '.tbl-installedMod', requestInstalledModInfo);
 
-$('button').click(handleButtons);
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -110,23 +109,4 @@ function showInstalledModInfo(event, mod) {
 
     tableBody.append('</tbody>');
 
-}
-
-// Used as callback function
-// Takes no extra arguments
-function handleButtons(event) {
-    if($(this).text() === 'Start Factorio') {
-        electron.ipcRenderer.send('startGame');
-    }
-    else if($(this).attr('id') === 'page_profiles') {
-        electron.ipcRenderer.send('changePage', $(this).attr('id'));
-    }
-    else if($(this).attr('id') === 'page_localMods') {
-        electron.ipcRenderer.send('changePage', $(this).attr('id'));
-    }
-    else if($(this).attr('id') === 'page_onlineMods') {
-        electron.ipcRenderer.send('changePage', $(this).attr('id'));
-    }
-
-    $(this).blur();
 }
