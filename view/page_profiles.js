@@ -10,7 +10,12 @@ electron.ipcRenderer.on('dataAllProfiles', listAllProfiles);
 $(document).on('click', '.tbl-mod', toggleMod);
 $(document).on('click', '.tbl-profile', activateProfile);
 
-$('button').click(handleButtons);
+$('button#profile-new').click(profileNew);
+$('button#profile-rename').click(profileRename);
+$('button#profile-delete').click(profileDelete);
+$('button#profile-sort-up').click(profileSortUp);
+$('button#profile-sort-down').click(profileSortDown);
+$('button').click(function() { $(this).blur() });
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -90,44 +95,34 @@ function activateProfile(event) {
     console.log($(this).text());
     electron.ipcRenderer.send('activateProfile', $(this).text());
 
-
 }
 
-// Used as callback function
-// Takes no extra arguments
-function renameProfile(event) {
-    electron.ipcRenderer.send('renameProfile', $('textarea').val());
+//---------------------------------------------------------
+// Button listeners for profile management
+
+function profileNew() {
+    electron.ipcRenderer.send('newProfile');
 }
-
-// Used as callback function
-// Takes no extra arguments
-function handleButtons(event) {
-    if($(this).text() === 'New Profile') {
-        electron.ipcRenderer.send('newProfile');
-    }
-    else if($(this).text() === 'Rename Profile') {
-        startRename();
-    }
-    else if($(this).text() === 'Delete Profile') {
-        electron.ipcRenderer.send('deleteProfile');
-    }
-    else if($(this).attr('id') === 'profile-up') {
-        electron.ipcRenderer.send('sortProfile', 'up');
-    }
-    else if($(this).attr('id') === 'profile-down') {
-        electron.ipcRenderer.send('sortProfile', 'down');
-    }
-
-
-    $(this).blur();
-}
-
-function startRename() {
+function profileRename() {
     let tableHead = $('table#primary-table thead');
     let profileName = tableHead.children().text();
+
     tableHead.children().remove();
     tableHead.append('<tr class="info"><th><textarea rows="1">' + profileName + '</textarea></th></tr>');
     $('table#primary-table thead tr').append('<th><button id="rename-submit" type="button" class="btn btn-default">Save Name</button></th>');
-    $('#rename-submit').on('click', renameProfile);
+
+    $('#rename-submit').on('click', function() { electron.ipcRenderer.send('renameProfile', $('textarea').val()) });
     $('textarea').focus().select();
 }
+function profileDelete() {
+    electron.ipcRenderer.send('deleteProfile');
+}
+function profileSortUp() {
+    electron.ipcRenderer.send('sortProfile', 'up');
+}
+function profileSortDown() {
+    electron.ipcRenderer.send('sortProfile', 'down');
+}
+
+//---------------------------------------------------------
+//---------------------------------------------------------
