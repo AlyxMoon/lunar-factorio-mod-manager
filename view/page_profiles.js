@@ -7,8 +7,8 @@ messager.on('dataActiveProfile', listActiveProfile);
 messager.on('dataAllProfiles', listAllProfiles);
 
 // Uses this way to assign events to elements as they will be dynamically generated
-$(document).on('click', '.tbl-mod', toggleMod);
-$(document).on('click', '.tbl-profile', activateProfile);
+$(document).on('click', 'table#active-profile tbody tr', toggleMod);
+$(document).on('click', 'table#profiles-list td', activateProfile);
 
 $('button#profile-new').click(profileNew);
 $('button#profile-rename').click(profileRename);
@@ -27,21 +27,19 @@ $(document).ready(function() {
 // One argument, an array of a single object containing:
 //      The Factorio mod list with key "mods", a bool with key "enabled", and a string with key "name"
 function listActiveProfile(event, profile) {
-
-    console.log(profile);
-    let table = $('table#primary-table');
+    let table = $('table#active-profile');
     table.children().remove();
 
-    table.append('<thead><tr id="primary-table-name" class="bg-info"><th colspan="2">' + profile['name'] + '</th></tr></thead>');
+    table.append('<thead><tr class="bg-info"><th colspan="2">' + profile['name'] + '</th></tr></thead>');
     table.append('<tbody>');
 
     let numMods = profile['mods'].length;
     for(let i = 0; i < numMods; i++) {
         mod = profile['mods'][i];
-        table.append('<tr class="tbl-mod"><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
+        table.append('<tr><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
 
         if(mod['enabled'] === 'false') {
-            $('table#primary-table tbody tr').last().addClass('danger');
+            $('table#active-profile tbody tr').last().addClass('danger');
         }
     }
     table.append('</tbody>');
@@ -51,15 +49,14 @@ function listActiveProfile(event, profile) {
 // One argument, an array of a objects, each containing:
 //      The Factorio mod list with key "mods", a bool with key "enabled", and a string with key "name"
 function listAllProfiles(event, profiles) {
-    console.log(profiles);
-    let tableBody = $('table#all-profiles tbody');
+    let tableBody = $('table#profiles-list tbody');
     tableBody.children().remove();
 
     for(let i = 0; i < profiles.length; i++) {
-        tableBody.append('<tr class="tbl-profile"><td>' + profiles[i]['name'] + '</td></tr>');
+        tableBody.append('<tr><td>' + profiles[i]['name'] + '</td></tr>');
 
         if(profiles[i]['enabled']) {
-            $('table#all-profiles tbody tr').last().addClass('info');
+            $('table#profiles-list tbody tr').last().addClass('info');
         }
     }
 }
@@ -84,7 +81,6 @@ function toggleMod(event) {
         $(this).children().first().next().text('true')
     }
 
-    console.log(data);
     messager.send('toggleMod', data);
 }
 
@@ -92,9 +88,7 @@ function toggleMod(event) {
 // Takes no extra arguments
 function activateProfile(event) {
     event.stopPropagation();
-    console.log($(this).text());
     messager.send('activateProfile', $(this).text());
-
 }
 
 //---------------------------------------------------------
@@ -104,12 +98,12 @@ function profileNew() {
     messager.send('newProfile');
 }
 function profileRename() {
-    let tableHead = $('table#primary-table thead');
+    let tableHead = $('table#active-profile thead');
     let profileName = tableHead.children().text();
 
     tableHead.children().remove();
     tableHead.append('<tr class="info"><th><textarea rows="1">' + profileName + '</textarea></th></tr>');
-    $('table#primary-table thead tr').append('<th><button id="rename-submit" type="button" class="btn btn-default">Save Name</button></th>');
+    $('table#active-profile thead tr').append('<th><button id="rename-submit" type="button" class="btn btn-default">Save Name</button></th>');
 
     $('#rename-submit').on('click', function() { messager.send('renameProfile', $('textarea').val()) });
     $('textarea').focus().select();

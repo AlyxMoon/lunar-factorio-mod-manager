@@ -7,7 +7,7 @@ messager.on('dataInstalledMods', listInstalledMods);
 messager.on('dataInstalledModInfo', showInstalledModInfo);
 
 // Uses this way to assign events to elements as they will be dynamically generated
-$(document).on('click', '.tbl-installedMod', requestInstalledModInfo);
+$(document).on('click', 'table#mods-list tbody tr', requestInstalledModInfo);
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -18,15 +18,14 @@ $(document).ready(function() {
 // Used as callback function
 // One argument, an array of strings, representing the names of mods installed
 function listInstalledMods(event, mods) {
-    console.log(mods);
-    let table = $('table#primary-table');
+    let table = $('table#mods-list');
     table.children().remove();
 
-    table.append('<thead><tr id="primary-table-name" class="bg-primary"><th colspan="2">All Installed Mods</th></tr></thead>');
+    table.append('<thead><tr class="bg-primary"><th colspan="2">All Installed Mods</th></tr></thead>');
     table.append('<tbody>');
 
     for(let i = 0; i < mods.length; i++) {
-        table.append('<tr class="tbl-installedMod"><td>' + mods[i] + '</td></tr>');
+        table.append('<tr><td>' + mods[i] + '</td></tr>');
     }
     table.append('</tbody>');
 
@@ -34,21 +33,19 @@ function listInstalledMods(event, mods) {
 
 // Will return the info pulled from the info.json file of the selected mod
 function requestInstalledModInfo() {
-    $('.tbl-installedMod').removeClass('info');
+    $('table#mods-list tbody tr').removeClass('info');
     $(this).addClass('info');
 
     messager.send('requestInstalledModInfo', $(this).text());
 
 }
 function showInstalledModInfo(event, mod) {
-    console.log(mod);
-
-    let table = $('table#tbl-mod-info');
+    let table = $('table#mod-info');
     table.children().remove();
 
     table.append(`<thead><tr class="bg-info"><th colspan="2">${mod['title']}</th></tr></thead>`);
     table.append('<tbody>');
-    let tableBody = $('table#tbl-mod-info tbody');
+    let tableBody = $('table#mod-info tbody');
 
     if(mod['version']) {
         tableBody.append(`<tr><td>Version</td><td>${mod['version']}</td></tr>`);
