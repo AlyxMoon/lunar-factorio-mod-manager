@@ -2,6 +2,9 @@ const messager = require('electron').ipcRenderer;
 
 //---------------------------------------------------------
 // Event listeners for client and server events needed for all pages
+messager.on('ping', function(event, message) {
+    console.log(message);
+});
 
 $('button#start-factorio').click(function() {
     messager.send('startGame');

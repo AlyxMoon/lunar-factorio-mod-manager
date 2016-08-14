@@ -3,9 +3,6 @@ const electron = require('electron');
 //---------------------------------------------------------
 // Event listeners for client and server events
 
-electron.ipcRenderer.on('ping', function(event, message) {
-    console.log(message);
-});
 electron.ipcRenderer.on('dataActiveProfile', listActiveProfile);
 electron.ipcRenderer.on('dataAllProfiles', listAllProfiles);
 
