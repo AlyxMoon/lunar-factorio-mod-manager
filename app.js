@@ -10,6 +10,8 @@ let config;
 const helpers = require('./inc/helpers.js');
 const fileHandlers = require('./inc/fileHandling.js');
 const appManager = require('./inc/applicationManagement.js');
+const profileManager = require('./inc/profileManagement.js');
+const modManager = require('./inc/modManagement.js');
 
 let appData = {
     'profiles': [],
@@ -94,7 +96,7 @@ function createProfile(event) {
     }
     helpers.log(`Successfully created new profile: ${profile['name']}`);
     data.push(profile);
-    showAllProfiles();
+    profileManager.showAllProfiles(mainWindow, appData['profiles']);
 }
 
 // "message" expected to be a string representing the name of an existing profile
@@ -110,8 +112,8 @@ function activateProfile(event, message) {
         else data[i]['enabled'] = false;
     }
     helpers.log(`Active profile changed, new active profile: ${appData['active-profile']['name']}`);
-    showAllProfiles();
-    showActiveProfile();
+    profileManager.showAllProfiles(mainWindow, appData['profiles']);
+    profileManager.showActiveProfile(mainWindow, appData['active-profile']);
 }
 
 // "message" expected to be a string containing the new name for the active profile
@@ -120,8 +122,8 @@ function renameProfile(event, name) {
     appData['active-profile']['name'] = name;
 
     helpers.log(`Active profile name changed to: ${appData['active-profile']['name']}`);
-    showAllProfiles();
-    showActiveProfile();
+    profileManager.showAllProfiles(mainWindow, appData['profiles']);
+    profileManager.showActiveProfile(mainWindow, appData['active-profile']);
 }
 
 // Currently only removes active profile, not any given profile
@@ -140,15 +142,15 @@ function deleteProfile(event) {
         data = [{
             'name': 'Current Profile',
             'enabled': true,
-            'mods': getFactorioModList()
+            'mods': modManager.getFactorioModList()
 
         }];
     }
     data[0]['enabled'] = true;
     appData['active-profile'] = data[0];
     helpers.log(`Successfully deleted profile. New active profile: ${appData['active-profile']['name']}`);
-    showAllProfiles();
-    showActiveProfile();
+    profileManager.showAllProfiles(mainWindow, appData['profiles']);
+    profileManager.showActiveProfile(mainWindow, appData['active-profile']);
 }
 
 // Take one argument, a string representing which direction to move the active profile
@@ -188,7 +190,7 @@ function sortProfile(event, direction) {
     }
 
     helpers.log(`Successfully moved profile '${appData['active-profile']['name']}' to index ${index}`);
-    showAllProfiles();
+    profileManager.showAllProfiles(mainWindow, appData['profiles']);
 }
 
 // "message" is an object containing the profile mod applies to, mod name, and current mod enable status
@@ -314,16 +316,6 @@ function checkForNewMods() {
     helpers.log('Finished looking for newly installed mods.');
     file.writeFileSync(config['profiles-path'], JSON.stringify(profiles));
     file.writeFileSync(config['modlist-path'], JSON.stringify(modList));
-}
-
-function getFactorioModList() {
-    helpers.log('Checking for mod list at path: ' + config['modlist-path']);
-    let file = require('fs');
-    let modlistPath = config['modlist-path'];
-
-
-    let data = file.readFileSync(modlistPath, 'utf8');
-    return JSON.parse(data)['mods'];
 }
 
 //---------------------------------------------------------
@@ -552,7 +544,7 @@ function createAppFiles() {
             let profile = [{
                 'name': 'Current Profile',
                 'enabled': true,
-                'mods': getFactorioModList()
+                'mods': modManager.getFactorioModList()
 
             }];
             helpers.log('About to write new profiles file');
@@ -600,28 +592,6 @@ function createWindow () {
     mainWindow.webContents.session.on('will-download', manageDownload);
 
     helpers.log('Window created successfully, event registered');
-}
-
-// Expects one argument, a string containing name of new page to switch to
-function changePage(event, newPage) {
-    helpers.log(`Attempting to change the page to ${newPage}`);
-
-    if(newPage === 'page_profiles') {
-        mainWindow.loadURL(`file://${__dirname}/view/${newPage}.html`);
-        mainWindow.webContents.once('did-finish-load', showActiveProfile);
-        mainWindow.webContents.once('did-finish-load', showAllProfiles);
-    }
-    else if(newPage === 'page_localMods') {
-        mainWindow.loadURL(`file://${__dirname}/view/${newPage}.html`);
-        mainWindow.webContents.once('did-finish-load', showInstalledMods);
-    }
-    else if(newPage === 'page_onlineMods') {
-        mainWindow.loadURL(`file://${__dirname}/view/${newPage}.html`);
-        mainWindow.webContents.once('did-finish-load', showOnlineMods);
-    }
-    else {
-        helpers.log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');
-    }
 }
 
 //---------------------------------------------------------
