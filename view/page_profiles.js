@@ -1,19 +1,21 @@
-const electron = require('electron');
+const messager = require('electron').ipcRenderer;
 
 //---------------------------------------------------------
 // Event listeners for client and server events
 
-electron.ipcRenderer.on('ping', function(event, message) {
-    console.log(message);
-});
-electron.ipcRenderer.on('dataActiveProfile', listActiveProfile);
-electron.ipcRenderer.on('dataAllProfiles', listAllProfiles);
+messager.on('dataActiveProfile', listActiveProfile);
+messager.on('dataAllProfiles', listAllProfiles);
 
 // Uses this way to assign events to elements as they will be dynamically generated
-$(document).on('click', '.tbl-mod', toggleMod);
-$(document).on('click', '.tbl-profile', activateProfile);
+$(document).on('click', 'table#active-profile tbody tr', toggleMod);
+$(document).on('click', 'table#profiles-list td', activateProfile);
 
-$('button').click(handleButtons);
+$('button#profile-new').click(profileNew);
+$('button#profile-rename').click(profileRename);
+$('button#profile-delete').click(profileDelete);
+$('button#profile-sort-up').click(profileSortUp);
+$('button#profile-sort-down').click(profileSortDown);
+$('button').click(function() { $(this).blur() });
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -25,21 +27,19 @@ $(document).ready(function() {
 // One argument, an array of a single object containing:
 //      The Factorio mod list with key "mods", a bool with key "enabled", and a string with key "name"
 function listActiveProfile(event, profile) {
-
-    console.log(profile);
-    let table = $('table#primary-table');
+    let table = $('table#active-profile');
     table.children().remove();
 
-    table.append('<thead><tr id="primary-table-name" class="bg-info"><th colspan="2">' + profile['name'] + '</th></tr></thead>');
+    table.append('<thead><tr class="bg-info"><th colspan="2">' + profile['name'] + '</th></tr></thead>');
     table.append('<tbody>');
 
     let numMods = profile['mods'].length;
     for(let i = 0; i < numMods; i++) {
         mod = profile['mods'][i];
-        table.append('<tr class="tbl-mod"><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
+        table.append('<tr><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
 
         if(mod['enabled'] === 'false') {
-            $('table#primary-table tbody tr').last().addClass('danger');
+            $('table#active-profile tbody tr').last().addClass('danger');
         }
     }
     table.append('</tbody>');
@@ -49,15 +49,14 @@ function listActiveProfile(event, profile) {
 // One argument, an array of a objects, each containing:
 //      The Factorio mod list with key "mods", a bool with key "enabled", and a string with key "name"
 function listAllProfiles(event, profiles) {
-    console.log(profiles);
-    let tableBody = $('table#all-profiles tbody');
+    let tableBody = $('table#profiles-list tbody');
     tableBody.children().remove();
 
     for(let i = 0; i < profiles.length; i++) {
-        tableBody.append('<tr class="tbl-profile"><td>' + profiles[i]['name'] + '</td></tr>');
+        tableBody.append('<tr><td>' + profiles[i]['name'] + '</td></tr>');
 
         if(profiles[i]['enabled']) {
-            $('table#all-profiles tbody tr').last().addClass('info');
+            $('table#profiles-list tbody tr').last().addClass('info');
         }
     }
 }
@@ -82,67 +81,42 @@ function toggleMod(event) {
         $(this).children().first().next().text('true')
     }
 
-    console.log(data);
-    electron.ipcRenderer.send('toggleMod', data);
+    messager.send('toggleMod', data);
 }
 
 // Used as callback function
 // Takes no extra arguments
 function activateProfile(event) {
     event.stopPropagation();
-    console.log($(this).text());
-    electron.ipcRenderer.send('activateProfile', $(this).text());
-
-
+    messager.send('activateProfile', $(this).text());
 }
 
-// Used as callback function
-// Takes no extra arguments
-function renameProfile(event) {
-    electron.ipcRenderer.send('renameProfile', $('textarea').val());
+//---------------------------------------------------------
+// Button listeners for profile management
+
+function profileNew() {
+    messager.send('newProfile');
 }
-
-// Used as callback function
-// Takes no extra arguments
-function handleButtons(event) {
-    if($(this).text() === 'Start Factorio') {
-        electron.ipcRenderer.send('startGame');
-    }
-    else if($(this).text() === 'New Profile') {
-        electron.ipcRenderer.send('newProfile');
-    }
-    else if($(this).text() === 'Rename Profile') {
-        startRename();
-    }
-    else if($(this).text() === 'Delete Profile') {
-        electron.ipcRenderer.send('deleteProfile');
-    }
-    else if($(this).attr('id') === 'profile-up') {
-        electron.ipcRenderer.send('sortProfile', 'up');
-    }
-    else if($(this).attr('id') === 'profile-down') {
-        electron.ipcRenderer.send('sortProfile', 'down');
-    }
-
-    else if($(this).attr('id') === 'page_profiles') {
-        electron.ipcRenderer.send('changePage', $(this).attr('id'));
-    }
-    else if($(this).attr('id') === 'page_localMods') {
-        electron.ipcRenderer.send('changePage', $(this).attr('id'));
-    }
-    else if($(this).attr('id') === 'page_onlineMods') {
-        electron.ipcRenderer.send('changePage', $(this).attr('id'));
-    }
-
-    $(this).blur();
-}
-
-function startRename() {
-    let tableHead = $('table#primary-table thead');
+function profileRename() {
+    let tableHead = $('table#active-profile thead');
     let profileName = tableHead.children().text();
+
     tableHead.children().remove();
     tableHead.append('<tr class="info"><th><textarea rows="1">' + profileName + '</textarea></th></tr>');
-    $('table#primary-table thead tr').append('<th><button id="rename-submit" type="button" class="btn btn-default">Save Name</button></th>');
-    $('#rename-submit').on('click', renameProfile);
+    $('table#active-profile thead tr').append('<th><button id="rename-submit" type="button" class="btn btn-default">Save Name</button></th>');
+
+    $('#rename-submit').on('click', function() { messager.send('renameProfile', $('textarea').val()) });
     $('textarea').focus().select();
 }
+function profileDelete() {
+    messager.send('deleteProfile');
+}
+function profileSortUp() {
+    messager.send('sortProfile', 'up');
+}
+function profileSortDown() {
+    messager.send('sortProfile', 'down');
+}
+
+//---------------------------------------------------------
+//---------------------------------------------------------

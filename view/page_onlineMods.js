@@ -1,19 +1,14 @@
-const electron = require('electron');
+const messager = require('electron').ipcRenderer;
 
 //---------------------------------------------------------
 // Event listeners for client and server events
 
-electron.ipcRenderer.on('ping', function(event, message) {
-    console.log(message);
-});
-electron.ipcRenderer.on('dataOnlineMods', listOnlineMods);
-electron.ipcRenderer.on('dataOnlineModInfo', showOnlineModInfo);
+messager.on('dataOnlineMods', listOnlineMods);
+messager.on('dataOnlineModInfo', showOnlineModInfo);
 
 // Uses this way to assign events to elements as they will be dynamically generated
-$(document).on('click', '.tbl-onlineMod', requestOnlineModInfo);
+$(document).on('click', 'table#mods-list tbody tr', requestOnlineModInfo);
 $(document).on('click', '.download-mod', requestDownload);
-
-$('button').click(handleButtons);
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -21,42 +16,37 @@ $(document).ready(function() {
 
 });
 
-
 // Used as callback function
 // One argument, an array of strings, representing the names of online mods
 function listOnlineMods(event, mods) {
-    console.log(mods);
-    let table = $('table#primary-table');
+    let table = $('table#mods-list');
     table.children().remove();
 
-    table.append('<thead><tr id="primary-table-name" class="bg-primary"><th colspan="2">All Online Mods</th></tr></thead>');
+    table.append('<thead><tr class="bg-primary"><th colspan="2">All Online Mods</th></tr></thead>');
     table.append('<tbody>');
 
     for(let i = 0; i < mods.length; i++) {
-        table.append('<tr class="tbl-onlineMod"><td>' + mods[i]['name'] + '</td></tr>');
+        table.append('<tr><td>' + mods[i]['name'] + '</td></tr>');
     }
     table.append('</tbody>');
 }
 
 // Will return the info pulled from the info.json file of the selected mod
 function requestOnlineModInfo() {
-    $('.tbl-onlineMod').removeClass('info');
+    $('table#mods-list tbody tr').removeClass('info');
     $(this).addClass('info');
 
-    electron.ipcRenderer.send('requestOnlineModInfo', $(this).text());
-
+    messager.send('requestOnlineModInfo', $(this).text());
 }
 function showOnlineModInfo(event, mod) {
-    console.log(mod);
     let modInfo = mod['latest_release']['info_json'];
-    console.log(modInfo);
 
-    let table = $('table#tbl-mod-info');
+    let table = $('table#mod-info');
     table.children().remove();
 
     table.append(`<thead><tr class="bg-info"><th class="selected-mod" colspan="2">${mod['title']}</th></tr></thead>`);
     table.append('<tbody>');
-    let tableBody = $('table#tbl-mod-info tbody');
+    let tableBody = $('table#mod-info tbody');
 
     if(mod['latest_release']['download_url']) {
         tableBody.append(`<tr><th id="${mod['id']}" class="center download-mod" colspan="2"><a href="#">Download Mod</a></th></tr>`);
@@ -121,24 +111,5 @@ function showOnlineModInfo(event, mod) {
 
 function requestDownload(event) {
     let requestedMod = $(this).attr('id');
-    electron.ipcRenderer.send('requestDownload', requestedMod);
-}
-
-// Used as callback function
-// Takes no extra arguments
-function handleButtons(event) {
-    if($(this).text() === 'Start Factorio') {
-        electron.ipcRenderer.send('startGame');
-    }
-    else if($(this).attr('id') === 'page_profiles') {
-        electron.ipcRenderer.send('changePage', $(this).attr('id'));
-    }
-    else if($(this).attr('id') === 'page_localMods') {
-        electron.ipcRenderer.send('changePage', $(this).attr('id'));
-    }
-    else if($(this).attr('id') === 'page_onlineMods') {
-        electron.ipcRenderer.send('changePage', $(this).attr('id'));
-    }
-
-    $(this).blur();
+    messager.send('requestDownload', requestedMod);
 }
