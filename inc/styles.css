@@ -1,56 +1,35 @@
-/* Bootstrap overrides */
+/* --- Bootstrap overrides --- */
 hr {
-    margin: 0;
-}
-
-.container-fluid {
-    padding: 5px;
+    margin: 2px;
 }
 .col-* {
     height: 100%;
 }
 
-/*--------------------*/
+/* --- Global Settings --- */
 html {
     height: 95%;
-}
-body {
-    height: 100%;
-    color: #333;
-}
-
-table {
-    font-size: 12px;
-}
-
-th {
-    text-align: center;
-}
-td {
-    cursor: pointer;
-}
-tr {
-    -webkit-user-select: none;
-}
-
-h1,h2,h3,h4 {
-    text-align: center;
-}
-
-.main-view {
-    height: 95%;
-}
-
-.profile-buttons {
-    margin-left: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
 }
 
 .scroll {
     overflow: scroll;
 }
 
+/* --- Primary Layout Structure --- */
+body {
+    height: 100%;
+    color: #333;
+}
+
+/* --- Secondary Layout Structure --- */
+.nav-view {
+
+}
+.main-view {
+    height: 95%;
+}
+
+/* --- Tertiary Layout Structure --- */
 .view-section {
 
     margin: 2px;
@@ -60,31 +39,54 @@ h1,h2,h3,h4 {
     box-shadow: 2px 1px;
 }
 
+/* --- Text-Related Treatments --- */
+h1,h2,h3,h4,h5,h6,
+th {
+    text-align: center;
+}
+
+/* General Element Styles --- */
+table {
+    font-size: 12px;
+}
+td {
+    cursor: pointer;
+}
+tr {
+    -webkit-user-select: none;
+}
+#tbl-mod-info td {
+    cursor: text;
+    -webkit-user-select: text;
+}
+
+.profile-buttons {
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
 #pageButtons {
     margin: 10px 5px;
 }
 
-
+/* --- Miscellaneous Helpers --- */
 .height-100 {
     height: 100%;
-}
-.height-20 {
-    height: 20%;
-}
-.height-25 {
-    height: 25%;
-}
-.height-75 {
-    height: 75%;
 }
 .height-80 {
     height: 80%;
 }
-.center {
-    text-align: center;
+.height-75 {
+    height: 75%;
+}
+.height-25 {
+    height: 25%;
+}
+.height-20 {
+    height: 20%;
 }
 
-#tbl-mod-info td {
-    cursor: text;
-    -webkit-user-select: text;
+.center {
+    text-align: center;
 }
