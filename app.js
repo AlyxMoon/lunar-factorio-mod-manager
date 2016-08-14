@@ -9,6 +9,7 @@ let config;
 
 const helpers = require('./inc/helpers.js');
 const fileHandlers = require('./inc/fileHandling.js');
+const appManager = require('./inc/applicationManagement.js');
 
 let appData = {
     'profiles': [],
@@ -25,7 +26,7 @@ let appData = {
 app.on('ready', init);
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
-        closeProgram();
+        appManager.closeProgram(app, config, appData);
     }
 });
 app.on('activate', function () {
@@ -44,11 +45,14 @@ electron.ipcMain.on('renameProfile', renameProfile);
 electron.ipcMain.on('deleteProfile', deleteProfile);
 electron.ipcMain.on('sortProfile', sortProfile);
 electron.ipcMain.on('toggleMod', toggleMod);
-electron.ipcMain.on('startGame', startGame);
 electron.ipcMain.on('changePage', changePage);
 electron.ipcMain.on('requestInstalledModInfo', showInstalledModInfo);
 electron.ipcMain.on('requestOnlineModInfo', showOnlineModInfo);
 electron.ipcMain.on('requestDownload', initiateDownload);
+
+electron.ipcMain.on('startGame', function() {
+    appManager.startGame(app, config, appData);
+});
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -482,23 +486,6 @@ function startProgram() {
     createWindow();
 }
 
-// Will save data and close app
-// If called with inError, won't save data but will log info and close
-function closeProgram(inError = false) {
-
-    if(inError) {
-        helpers.log('There was an error. Not saving app data, closing app.');
-        app.exit(-1);
-    }
-    else {
-        helpers.log('Beginning application shutdown.');
-        fileHandlers.saveProfiles(config['profiles-path'], appData['profiles']);
-        fileHandlers.setProfileAsModlist(config['modlist-path'], appData['active-profile']);
-        helpers.log('Everything taken care of, closing app now.');
-        app.quit();
-    }
-}
-
 function createAppFiles() {
     helpers.log('Beginning to create config and profiles files.');
     let file = require('fs');
@@ -529,14 +516,14 @@ function createAppFiles() {
     let modPath = electron.dialog.showOpenDialog(options);
     if(modPath === undefined) {
         helpers.log('User cancelled the dialog search.');
-        closeProgram(true);
+        appManager.closeProgram(app, config, appData, true);
     }
 
     modPath = modPath[0];
     helpers.log(`User selected mod list at: ${modPath}`);
     if(modPath.indexOf('mod-list.json') === -1) {
         helpers.log('The selected file was not correct. Closing app.');
-        closeProgram(true);
+        appManager.closeProgram(app, config, appData, true);
     }
 
 
@@ -555,12 +542,12 @@ function createAppFiles() {
 
     if(gamePath === undefined) {
         helpers.log('User cancelled the dialog search.');
-        closeProgram(true);
+        appManager.closeProgram(app, config, appData, true);
     }
     gamePath = gamePath[0];
     if(gamePath.indexOf('factorio.exe') === -1) {
         helpers.log('The selected file was not correct. Closing app.');
-        closeProgram(true);
+        appManager.closeProgram(app, config, appData, true);
     }
 
     data['game-path'] = gamePath;
@@ -582,7 +569,7 @@ function createAppFiles() {
         }
         catch(error) {
             helpers.log('Failed to write profile file on first time initialization, error: ' + error.code);
-            closeProgram(true);
+            appManager.closeProgram(app, config, appData, true);
         }
         helpers.log('Successfully created first profile');
         config['config-path'] = configPath;
@@ -591,7 +578,7 @@ function createAppFiles() {
     }
     catch(error) {
         helpers.log('Failed to write config on first time initialization, error: ' + error.code);
-        closeProgram(true);
+        appManager.closeProgram(app, config, appData, true);
     }
 }
 
@@ -628,22 +615,6 @@ function createWindow () {
     mainWindow.webContents.session.on('will-download', manageDownload);
 
     helpers.log('Window created successfully, event registered');
-}
-
-// Does not expect any data to be passed in
-function startGame() {
-    helpers.log('Starting Factorio and shutting down app.');
-
-    let spawn = require('child_process').spawn;
-    let factorioPath = config['game-path'].slice(0, config['game-path'].indexOf('factorio.exe'));
-
-    fileHandlers.setProfileAsModlist(config['modlist-path'], appData['active-profile']);
-    spawn('factorio.exe', [], {
-        'stdio': 'ignore',
-        'detached': true,
-        'cwd': factorioPath
-    }).unref();
-    closeProgram();
 }
 
 // Expects one argument, a string containing name of new page to switch to
