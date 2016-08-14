@@ -45,13 +45,15 @@ electron.ipcMain.on('renameProfile', renameProfile);
 electron.ipcMain.on('deleteProfile', deleteProfile);
 electron.ipcMain.on('sortProfile', sortProfile);
 electron.ipcMain.on('toggleMod', toggleMod);
-electron.ipcMain.on('changePage', changePage);
 electron.ipcMain.on('requestInstalledModInfo', showInstalledModInfo);
 electron.ipcMain.on('requestOnlineModInfo', showOnlineModInfo);
 electron.ipcMain.on('requestDownload', initiateDownload);
 
 electron.ipcMain.on('startGame', function() {
     appManager.startGame(app, config, appData);
+});
+electron.ipcMain.on('changePage', function(event, newPage) {
+    appManager.loadPage(mainWindow, newPage, appData);
 });
 
 //---------------------------------------------------------
@@ -211,20 +213,9 @@ function toggleMod(event, message) {
     helpers.log('Successfully changed mod status.');
 }
 
-function showActiveProfile() {
-    mainWindow.webContents.send('dataActiveProfile', appData['active-profile']);
-}
-function showAllProfiles() {
-    mainWindow.webContents.send('dataAllProfiles', appData['profiles']);
-}
-
 //---------------------------------------------------------
 //---------------------------------------------------------
 // Local mod functions
-
-function showInstalledMods() {
-    mainWindow.webContents.send('dataInstalledMods', appData['modNames']);
-}
 
 // Expects one argument, a string containing the name of the mod to get info on
 function showInstalledModInfo(event, modName) {
@@ -599,15 +590,9 @@ function createWindow () {
     mainWindow = new BrowserWindow(windowOptions);
     mainWindow.setMenu(null);
 
-    mainWindow.loadURL(`file://${__dirname}/view/page_profiles.html`);
+    appManager.loadPage(mainWindow, 'page_profiles', appData);
     mainWindow.webContents.openDevTools();
 
-    mainWindow.webContents.on('did-finish-load', function() {
-        mainWindow.webContents.send('ping', appData['mods']);
-    });
-
-    mainWindow.webContents.once('did-finish-load', showActiveProfile);
-    mainWindow.webContents.once('did-finish-load', showAllProfiles);
     mainWindow.on('closed', function () {
         mainWindow = null;
     });

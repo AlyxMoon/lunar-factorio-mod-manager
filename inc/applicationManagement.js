@@ -1,5 +1,7 @@
 const helpers = require('./helpers.js');
 const fileHandlers = require('./fileHandling.js');
+const profileHandlers = require('./profileManagement.js');
+const modHandlers = require('./modManagement.js');
 
 module.exports = {
 
@@ -29,6 +31,33 @@ module.exports = {
             fileHandlers.setProfileAsModlist(config['modlist-path'], appData['active-profile']);
             helpers.log('Everything taken care of, closing app now.');
             app.quit();
+        }
+    },
+
+
+    loadPage: function(window, page, appData) {
+        helpers.log(`Attempting to change the page to ${page}`);
+
+        if(page === 'page_profiles') {
+            window.loadURL(`file://${__dirname}/../view/${page}.html`);
+            window.webContents.once('did-finish-load', function() {
+                profileHandlers.showActiveProfile(window, appData['active-profile']);
+                profileHandlers.showAllProfiles(window, appData['profiles']);
+            });
+        }
+        else if(page === 'page_localMods') {
+            window.loadURL(`file://${__dirname}/../view/${page}.html`);
+            window.webContents.once('did-finish-load', function() {
+                modHandlers.showInstalledMods(window, appData['modNames']);
+            });
+        }
+        else if(page === 'page_onlineMods') {
+            window.loadURL(`file://${__dirname}/../view/${page}.html`);
+            // TODO: Do not use in app until we've put in this functionality
+            //window.webContents.once('did-finish-load', showOnlineMods);
+        }
+        else {
+            helpers.log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');
         }
     }
 
