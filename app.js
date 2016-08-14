@@ -1,3 +1,6 @@
+//---------------------------------------------------------
+// Global Variable Declarations
+
 const electron = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
@@ -15,6 +18,10 @@ let appData = {
     'onlineMods': []
 };
 
+//---------------------------------------------------------
+//---------------------------------------------------------
+// Event listeners for application-related messages
+
 app.on('ready', init);
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
@@ -26,6 +33,11 @@ app.on('activate', function () {
         createWindow();
     }
 });
+
+//---------------------------------------------------------
+//---------------------------------------------------------
+// Event listeners for client messages
+
 electron.ipcMain.on('newProfile', createProfile);
 electron.ipcMain.on('activateProfile', activateProfile);
 electron.ipcMain.on('renameProfile', renameProfile);
@@ -37,6 +49,10 @@ electron.ipcMain.on('changePage', changePage);
 electron.ipcMain.on('requestInstalledModInfo', showInstalledModInfo);
 electron.ipcMain.on('requestOnlineModInfo', showOnlineModInfo);
 electron.ipcMain.on('requestDownload', initiateDownload);
+
+//---------------------------------------------------------
+//---------------------------------------------------------
+// Profile-related functions
 
 // Used as callback method
 // No message is expected, will potentially provide ability to choose a profile name on creation
@@ -197,44 +213,19 @@ function toggleMod(event, message) {
     helpers.log('Successfully changed mod status.');
 }
 
-// Used as callback method
-// Does not expect any data to be passed in
-function startGame(event) {
-    helpers.log('Starting Factorio and shutting down app.');
-
-    let spawn = require('child_process').spawn;
-    let factorioPath = config['game-path'].slice(0, config['game-path'].indexOf('factorio.exe'));
-
-    fileHandlers.setProfileAsModlist(config['modlist-path'], appData['active-profile']);
-    spawn('factorio.exe', [], {
-        'stdio': 'ignore',
-        'detached': true,
-        'cwd': factorioPath
-    }).unref();
-    closeProgram();
+function showActiveProfile() {
+    mainWindow.webContents.send('dataActiveProfile', appData['active-profile']);
+}
+function showAllProfiles() {
+    mainWindow.webContents.send('dataAllProfiles', appData['profiles']);
 }
 
-// Used as callback method
-// Expects one argument, a string containing name of new page to switch to
-function changePage(event, newPage) {
-    helpers.log(`Attempting to change the page to ${newPage}`);
+//---------------------------------------------------------
+//---------------------------------------------------------
+// Local mod functions
 
-    if(newPage === 'page_profiles') {
-        mainWindow.loadURL(`file://${__dirname}/view/${newPage}.html`);
-        mainWindow.webContents.once('did-finish-load', showActiveProfile);
-        mainWindow.webContents.once('did-finish-load', showAllProfiles);
-    }
-    else if(newPage === 'page_localMods') {
-        mainWindow.loadURL(`file://${__dirname}/view/${newPage}.html`);
-        mainWindow.webContents.once('did-finish-load', showInstalledMods);
-    }
-    else if(newPage === 'page_onlineMods') {
-        mainWindow.loadURL(`file://${__dirname}/view/${newPage}.html`);
-        mainWindow.webContents.once('did-finish-load', showOnlineMods);
-    }
-    else {
-        helpers.log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');
-    }
+function showInstalledMods() {
+    mainWindow.webContents.send('dataInstalledMods', appData['modNames']);
 }
 
 // Used as callback method
@@ -251,6 +242,118 @@ function showInstalledModInfo(event, modName) {
 
 }
 
+function loadInstalledMods() {
+    helpers.log('Beginning to load installed mods.');
+    //mainWindow.webContents.openDevTools();
+    let file = require('fs');
+    let JSZip = require('jszip');
+
+    let modZipNames = file.readdirSync(config['mod-path'], 'utf8');
+    modZipNames.splice(modZipNames.indexOf('mod-list.json'), 1);
+
+    let mods = [];
+
+    // Add base mod
+    let gamePath = config['game-path'];
+    let baseInfo = `${gamePath.substr(0, gamePath.lastIndexOf('Factorio\\bin'))}Factorio/data/base/info.json`;
+    mods.push(JSON.parse(file.readFileSync(baseInfo, 'utf8')));
+
+    let counter = modZipNames.length;
+    for(let i = 0; i < modZipNames.length; i++) {
+        // Exclude the not-zip-file that will be sitting in the directory
+        if(modZipNames[i] !== 'mod-list.json') {
+
+            // Open the zip file as a buffer
+            file.readFile(`${config['mod-path']}${modZipNames[i]}`, function(error, rawZipBuffer) {
+                if(error) throw error;
+
+                // Actually read the zip file
+                JSZip.loadAsync(rawZipBuffer).then(function(zip) {
+                    // Only open the mods info file in the zip
+                    return zip.file(/info\.json/)[0].async('text');
+
+                }).then(function(modData) {
+                    // Save the information
+                    mods.push(JSON.parse(modData));
+
+                    // Only show once all zip files have been read
+                    counter--;
+                    if(counter <= 0) {
+                        // Just send data to the console for now
+                        mods = helpers.sortArrayByProp(mods, 'name');
+                        appData['mods'] = mods;
+                        appData['modNames'] = mods.map(function(mod) {
+                            return mod['name']
+                        });
+
+                        checkForNewMods();
+                    }
+                });
+            });
+        }
+    }
+}
+
+function checkForNewMods() {
+    helpers.log('Checking for newly installed mods.');
+
+    let file = require('fs');
+    let mods = appData['modNames'];
+    let profiles = appData['profiles'];
+    let modList = {'mods': []};
+    for(let i = 0; i < profiles.length; i++) {
+        if(profiles[i]['enabled']) {
+            modList['mods'] = profiles[i]['mods'];
+        }
+        let profileMods = profiles[i]['mods'];
+        for(let j = 0; j < mods.length; j++) {
+
+            let index = -1;
+            for(let k = 0; k < profileMods.length; k++) {
+                if(profileMods[k]['name'] === mods[j]) {
+                    index = k;
+                    break;
+                }
+            }
+
+            if(index === -1) {
+                helpers.log(`Found new mod: ${mods[j]} -- Adding to profile: ${profiles[i]['name']}`);
+                profileMods.splice(index, 0, {'name': mods[j], 'enabled': 'false'});
+            }
+        }
+        profileMods = helpers.sortArrayByProp(profileMods, 'name');
+    }
+    helpers.log('Finished looking for newly installed mods.');
+    file.writeFileSync(config['profiles-path'], JSON.stringify(profiles));
+    file.writeFileSync(config['modlist-path'], JSON.stringify(modList));
+}
+
+function getFactorioModList() {
+    helpers.log('Checking for mod list at path: ' + config['modlist-path']);
+    let file = require('fs');
+    let modlistPath = config['modlist-path'];
+
+
+    let data = file.readFileSync(modlistPath, 'utf8');
+    return JSON.parse(data)['mods'];
+}
+
+//---------------------------------------------------------
+//---------------------------------------------------------
+// Online mod functions
+
+function showOnlineMods() {
+    if(appData['onlineMods'].length === 0) {
+        helpers.log('Getting online mods.');
+        loadOnlineMods();
+    }
+    else {
+        helpers.log('Already have online mods list, showing.');
+        mainWindow.webContents.send('dataOnlineMods', appData['onlineMods']);
+    }
+
+}
+
 // Used as callback method
 // Expects one argument, a string containing the name of the mod to get info on
 function showOnlineModInfo(event, modName) {
@@ -263,6 +366,42 @@ function showOnlineModInfo(event, modName) {
         }
     }
 
+}
+
+// This will be the best method in the world!
+function loadOnlineMods() {
+    let request = require('request');
+
+    let apiURL = 'https://mods.factorio.com/api/mods';
+    let options = '?page_size=20';
+
+    getOnlineModData(`${apiURL}${options}`, function() {
+        mainWindow.webContents.send('dataOnlineMods', appData['onlineMods']);
+    });
+
+    function getOnlineModData(url, callback) {
+
+        request(url ,function(error, response, data) {
+            if(!error && response.statusCode == 200) {
+                data = JSON.parse(data);
+
+                for(let i = 0; i < data['results'].length; i++) {
+                    appData['onlineMods'].push(data['results'][i]);
+                }
+
+                if(data['pagination']['links']['next']) {
+                    getOnlineModData(data['pagination']['links']['next'], callback);
+                }
+                else {
+                    callback();
+                }
+            }
+            else {
+                throw error;
+            }
+
+        });
+    }
 }
 
 // Used as callback method
@@ -285,6 +424,7 @@ function initiateDownload(event, modID) {
 
     mainWindow.webContents.downloadURL(downloadURL);
 }
+
 function manageDownload(event, item, webContents) {
     // Set the save path, making Electron not to prompt a save dialog.
     item.setSavePath(`${__dirname}/data/${item.getFilename()}`);
@@ -310,6 +450,9 @@ function manageDownload(event, item, webContents) {
     });
 }
 
+//---------------------------------------------------------
+//---------------------------------------------------------
+// Application management function
 
 function init() {
     helpers.log('Beginning initialization of app.');
@@ -497,157 +640,44 @@ function createWindow () {
     helpers.log('Window created successfully, event registered');
 }
 
-function getFactorioModList() {
-    helpers.log('Checking for mod list at path: ' + config['modlist-path']);
-    let file = require('fs');
-    let modlistPath = config['modlist-path'];
+// Used as callback method
+// Does not expect any data to be passed in
+function startGame(event) {
+    helpers.log('Starting Factorio and shutting down app.');
 
+    let spawn = require('child_process').spawn;
+    let factorioPath = config['game-path'].slice(0, config['game-path'].indexOf('factorio.exe'));
 
-    let data = file.readFileSync(modlistPath, 'utf8');
-    return JSON.parse(data)['mods'];
+    fileHandlers.setProfileAsModlist(config['modlist-path'], appData['active-profile']);
+    spawn('factorio.exe', [], {
+        'stdio': 'ignore',
+        'detached': true,
+        'cwd': factorioPath
+    }).unref();
+    closeProgram();
 }
 
-function showActiveProfile() {
-    mainWindow.webContents.send('dataActiveProfile', appData['active-profile']);
-}
+// Used as callback method
+// Expects one argument, a string containing name of new page to switch to
+function changePage(event, newPage) {
+    helpers.log(`Attempting to change the page to ${newPage}`);
 
-function showAllProfiles() {
-    mainWindow.webContents.send('dataAllProfiles', appData['profiles']);
-}
-
-function showInstalledMods() {
-    mainWindow.webContents.send('dataInstalledMods', appData['modNames']);
-}
-function showOnlineMods() {
-    if(appData['onlineMods'].length === 0) {
-        helpers.log('Getting online mods.');
-        loadOnlineMods();
+    if(newPage === 'page_profiles') {
+        mainWindow.loadURL(`file://${__dirname}/view/${newPage}.html`);
+        mainWindow.webContents.once('did-finish-load', showActiveProfile);
+        mainWindow.webContents.once('did-finish-load', showAllProfiles);
+    }
+    else if(newPage === 'page_localMods') {
+        mainWindow.loadURL(`file://${__dirname}/view/${newPage}.html`);
+        mainWindow.webContents.once('did-finish-load', showInstalledMods);
+    }
+    else if(newPage === 'page_onlineMods') {
+        mainWindow.loadURL(`file://${__dirname}/view/${newPage}.html`);
+        mainWindow.webContents.once('did-finish-load', showOnlineMods);
     }
     else {
-        helpers.log('Already have online mods list, showing.');
-        mainWindow.webContents.send('dataOnlineMods', appData['onlineMods']);
-    }
-
-}
-
-function checkForNewMods() {
-    helpers.log('Checking for newly installed mods.');
-
-    let file = require('fs');
-    let mods = appData['modNames'];
-    let profiles = appData['profiles'];
-    let modList = {'mods': []};
-    for(let i = 0; i < profiles.length; i++) {
-        if(profiles[i]['enabled']) {
-            modList['mods'] = profiles[i]['mods'];
-        }
-        let profileMods = profiles[i]['mods'];
-        for(let j = 0; j < mods.length; j++) {
-
-            let index = -1;
-            for(let k = 0; k < profileMods.length; k++) {
-                if(profileMods[k]['name'] === mods[j]) {
-                    index = k;
-                    break;
-                }
-            }
-
-            if(index === -1) {
-                helpers.log(`Found new mod: ${mods[j]} -- Adding to profile: ${profiles[i]['name']}`);
-                profileMods.splice(index, 0, {'name': mods[j], 'enabled': 'false'});
-            }
-        }
-        profileMods = helpers.sortArrayByProp(profileMods, 'name');
-    }
-    helpers.log('Finished looking for newly installed mods.');
-    file.writeFileSync(config['profiles-path'], JSON.stringify(profiles));
-    file.writeFileSync(config['modlist-path'], JSON.stringify(modList));
-}
-
-function loadInstalledMods() {
-    helpers.log('Beginning to load installed mods.');
-    //mainWindow.webContents.openDevTools();
-    let file = require('fs');
-    let JSZip = require('jszip');
-
-    let modZipNames = file.readdirSync(config['mod-path'], 'utf8');
-    modZipNames.splice(modZipNames.indexOf('mod-list.json'), 1);
-
-    let mods = [];
-
-    // Add base mod
-    let gamePath = config['game-path'];
-    let baseInfo = `${gamePath.substr(0, gamePath.lastIndexOf('Factorio\\bin'))}Factorio/data/base/info.json`;
-    mods.push(JSON.parse(file.readFileSync(baseInfo, 'utf8')));
-
-    let counter = modZipNames.length;
-    for(let i = 0; i < modZipNames.length; i++) {
-        // Exclude the not-zip-file that will be sitting in the directory
-        if(modZipNames[i] !== 'mod-list.json') {
-
-            // Open the zip file as a buffer
-            file.readFile(`${config['mod-path']}${modZipNames[i]}`, function(error, rawZipBuffer) {
-                if(error) throw error;
-
-                // Actually read the zip file
-                JSZip.loadAsync(rawZipBuffer).then(function(zip) {
-                    // Only open the mods info file in the zip
-                    return zip.file(/info\.json/)[0].async('text');
-
-                }).then(function(modData) {
-                    // Save the information
-                    mods.push(JSON.parse(modData));
-
-                    // Only show once all zip files have been read
-                    counter--;
-                    if(counter <= 0) {
-                        // Just send data to the console for now
-                        mods = helpers.sortArrayByProp(mods, 'name');
-                        appData['mods'] = mods;
-                        appData['modNames'] = mods.map(function(mod) {
-                           return mod['name']
-                        });
-
-                        checkForNewMods();
-                    }
-                });
-            });
-        }
+        helpers.log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');
     }
 }
 
-// This will be the best method in the world!
-function loadOnlineMods() {
-    let request = require('request');
-
-    let apiURL = 'https://mods.factorio.com/api/mods';
-    let options = '?page_size=20';
-
-    getOnlineModData(`${apiURL}${options}`, function() {
-        mainWindow.webContents.send('dataOnlineMods', appData['onlineMods']);
-    });
-
-    function getOnlineModData(url, callback) {
-
-        request(url ,function(error, response, data) {
-            if(!error && response.statusCode == 200) {
-                data = JSON.parse(data);
-
-                for(let i = 0; i < data['results'].length; i++) {
-                    appData['onlineMods'].push(data['results'][i]);
-                }
-
-                if(data['pagination']['links']['next']) {
-                    getOnlineModData(data['pagination']['links']['next'], callback);
-                }
-                else {
-                    callback();
-                }
-            }
-            else {
-                throw error;
-            }
-
-        });
-    }
-}
+//---------------------------------------------------------
