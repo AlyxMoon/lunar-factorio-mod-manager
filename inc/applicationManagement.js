@@ -1,22 +1,21 @@
 const helpers = require('./helpers.js');
-const fileHandlers = require('./fileHandling.js');
 const modHandlers = require('./modManagement.js');
 
 module.exports = {
 
-    startGame: function(app, config, appData) {
+    startGame: function(app, config, profileManager) {
         helpers.log('Starting Factorio and shutting down app.');
 
         let spawn = require('child_process').spawn;
         let factorioPath = config['game-path'].slice(0, config['game-path'].indexOf('factorio.exe'));
 
-        fileHandlers.setProfileAsModlist(config['modlist-path'], appData['active-profile']);
+        profileManager.updateFactorioModlist();
         spawn('factorio.exe', [], {
             'stdio': 'ignore',
             'detached': true,
             'cwd': factorioPath
         }).unref();
-        module.exports.closeProgram(app, config, appData);
+        module.exports.closeProgram(app, config, profileManager);
     },
 
     closeProgram: function(app, config, profileManager, inError = false) {
@@ -33,7 +32,7 @@ module.exports = {
         }
     },
 
-    createWindow: function(appConfig, data) {
+    createWindow: function(appConfig) {
         helpers.log('Creating the application window');
         const BrowserWindow = require('electron').BrowserWindow;
 
@@ -75,7 +74,7 @@ module.exports = {
         else if(page === 'page_localMods') {
             window.loadURL(`file://${__dirname}/../view/${page}.html`);
             window.webContents.once('did-finish-load', function() {
-                modHandlers.showInstalledMods(window, appData['modNames']);
+                modHandlers.showInstalledMods(window, profileManager.modNames);
             });
         }
         else if(page === 'page_onlineMods') {

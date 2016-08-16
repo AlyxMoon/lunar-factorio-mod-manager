@@ -12,6 +12,7 @@ function ProfileManager(profilesPath, modlistPath) {
 
     this.profilesPath = profilesPath;
     this.modlistPath = modlistPath;
+    this.mods = [];
     this.modNames = [];
 
     this.profileList = this.loadProfiles();

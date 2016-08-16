@@ -8,7 +8,6 @@ let profileManager;
 let config;
 
 const helpers = require('./inc/helpers.js');
-const fileHandlers = require('./inc/fileHandling.js');
 const appManager = require('./inc/applicationManagement.js');
 const modManager = require('./inc/modManagement.js');
 
@@ -66,6 +65,7 @@ electron.ipcMain.on('sortProfile', function(event, direction) {
 electron.ipcMain.on('toggleMod', function(event, modName) {
     profileManager.toggleMod(modName);
 });
+
 electron.ipcMain.on('requestInstalledModInfo', showInstalledModInfo);
 electron.ipcMain.on('requestOnlineModInfo', showOnlineModInfo);
 electron.ipcMain.on('requestDownload', initiateDownload);
@@ -84,7 +84,7 @@ electron.ipcMain.on('changePage', function(event, newPage) {
 // Expects one argument, a string containing the name of the mod to get info on
 function showInstalledModInfo(event, modName) {
 
-    let mods = appData['mods'];
+    let mods = profileManager.mods;
     for(let i = mods.length - 1; i >= 0; i--) {
         if(mods[i]['name'] === modName) {
             mainWindow.webContents.send('dataInstalledModInfo', mods[i]);
@@ -132,12 +132,11 @@ function loadInstalledMods() {
                     counter--;
                     if(counter <= 0) {
                         mods = helpers.sortArrayByProp(mods, 'name');
-                        appData['mods'] = mods;
-                        appData['modNames'] = mods.map(function(mod) {
+                        profileManager.mods = mods;
+                        profileManager.modNames = mods.map(function(mod) {
                             return mod['name']
                         });
-                        profileManager.modNames = appData['modNames'];
-                        //checkForNewMods();
+                        checkForNewMods();
                     }
                 });
             });
@@ -148,35 +147,38 @@ function loadInstalledMods() {
 function checkForNewMods() {
     helpers.log('Checking for newly installed mods.');
 
-    let file = require('fs');
-    let mods = appData['modNames'];
-    let profiles = appData['profiles'];
-    let modList = {'mods': []};
-    for(let i = 0; i < profiles.length; i++) {
-        if(profiles[i]['enabled']) {
-            modList['mods'] = profiles[i]['mods'];
-        }
-        let profileMods = profiles[i]['mods'];
-        for(let j = 0; j < mods.length; j++) {
+    try {
+        let mods = profileManager.modNames;
+        let profiles = profileManager.profileList['all-profiles'];
+        let modList = {'mods': []};
+        for(let i = 0; i < profiles.length; i++) {
+            if(profiles[i]['enabled']) {
+                modList['mods'] = profiles[i]['mods'];
+            }
+            let profileMods = profiles[i]['mods'];
+            for(let j = 0; j < mods.length; j++) {
 
-            let index = -1;
-            for(let k = 0; k < profileMods.length; k++) {
-                if(profileMods[k]['name'] === mods[j]) {
-                    index = k;
-                    break;
+                let index = -1;
+                for(let k = 0; k < profileMods.length; k++) {
+                    if(profileMods[k]['name'] === mods[j]) {
+                        index = k;
+                        break;
+                    }
+                }
+
+                if(index === -1) {
+                    helpers.log(`Found new mod: ${mods[j]} -- Adding to profile: ${profiles[i]['name']}`);
+                    profileMods.splice(index, 0, {'name': mods[j], 'enabled': 'false'});
                 }
             }
-
-            if(index === -1) {
-                helpers.log(`Found new mod: ${mods[j]} -- Adding to profile: ${profiles[i]['name']}`);
-                profileMods.splice(index, 0, {'name': mods[j], 'enabled': 'false'});
-            }
+            profileMods = helpers.sortArrayByProp(profileMods, 'name');
         }
-        profileMods = helpers.sortArrayByProp(profileMods, 'name');
+        helpers.log('Finished looking for newly installed mods.');
     }
-    helpers.log('Finished looking for newly installed mods.');
-    file.writeFileSync(config['profiles-path'], JSON.stringify(profiles));
-    file.writeFileSync(config['modlist-path'], JSON.stringify(modList));
+    catch(error) {
+        helpers.log(`Had error: ${error}`);
+    }
+
 }
 
 //---------------------------------------------------------
@@ -323,11 +325,6 @@ function startProgram() {
     let ProfileManager = require('./inc/profileManagement.js');
     profileManager = new ProfileManager.Manager(config['profiles-path'], config['modlist-path']);
 
-    helpers.log('manager loaded');
-    let tempProfiles = profileManager.loadProfiles();
-    appData['profiles'] = tempProfiles['all-profiles'];
-    appData['active-profile'] = tempProfiles['active-profile'];
-
     loadInstalledMods();
 
     mainWindow = appManager.createWindow(config, appData);
@@ -429,7 +426,5 @@ function createAppFiles() {
         appManager.closeProgram(app, config, profileManager, true);
     }
 }
-
-
 
 //---------------------------------------------------------
