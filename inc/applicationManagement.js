@@ -20,7 +20,7 @@ module.exports = {
         module.exports.closeProgram(app, config, appData);
     },
 
-    closeProgram: function (app, config, appData, inError = false) {
+    closeProgram: function(app, config, appData, inError = false) {
         if(inError) {
             helpers.log('There was an error. Not saving app data, closing app.');
             app.exit(-1);
@@ -34,6 +34,35 @@ module.exports = {
         }
     },
 
+    createWindow: function(appConfig, data) {
+        helpers.log('Creating the application window');
+        const BrowserWindow = require('electron').BrowserWindow;
+
+        let windowOptions = {
+            minWidth: appConfig['minWidth'],
+            minHeight: appConfig['minHeight'],
+            width: appConfig['width'],
+            height: appConfig['height'],
+            x: appConfig['x-loc'],
+            y: appConfig['y-loc'],
+            resizable: true,
+            title: 'Lunar\'s [Factorio] Mod Manager',
+            icon: __dirname + '/../img/favicon.ico'
+        };
+
+        let window = new BrowserWindow(windowOptions);
+        window.setMenu(null);
+        module.exports.loadPage(window, 'page_profiles', data);
+        window.webContents.openDevTools();
+
+        window.on('closed', function () {
+            window = null;
+        });
+        //window.webContents.session.on('will-download', manageDownload);
+
+        helpers.log('Window created successfully, event registered');
+        return window;
+    },
 
     loadPage: function(window, page, appData) {
         helpers.log(`Attempting to change the page to ${page}`);

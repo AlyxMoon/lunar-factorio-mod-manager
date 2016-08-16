@@ -3,7 +3,6 @@
 
 const electron = require('electron');
 const app = electron.app;
-const BrowserWindow = electron.BrowserWindow;
 let mainWindow;
 let config;
 
@@ -33,7 +32,7 @@ app.on('window-all-closed', function () {
 });
 app.on('activate', function () {
     if (mainWindow === null) {
-        createWindow();
+        mainWindow = appManager.createWindow(config, appData);
     }
 });
 
@@ -466,7 +465,7 @@ function startProgram() {
 
     loadInstalledMods();
 
-    createWindow();
+    mainWindow = appManager.createWindow(config, appData);
 }
 
 function createAppFiles() {
@@ -565,33 +564,6 @@ function createAppFiles() {
     }
 }
 
-function createWindow () {
-    helpers.log('Creating the application window');
 
-    windowOptions = {
-        minWidth: config['minWidth'],
-        minHeight: config['minHeight'],
-        width: config['width'],
-        height: config['height'],
-        x: config['x-loc'],
-        y: config['y-loc'],
-        resizable: true,
-        title: 'Lunar\'s [Factorio] Mod Manager',
-        icon: __dirname + '/img/favicon.ico'
-    };
-    mainWindow = new BrowserWindow(windowOptions);
-    mainWindow.setMenu(null);
-
-    appManager.loadPage(mainWindow, 'page_profiles', appData);
-    mainWindow.webContents.openDevTools();
-
-    mainWindow.on('closed', function () {
-        mainWindow = null;
-    });
-
-    mainWindow.webContents.session.on('will-download', manageDownload);
-
-    helpers.log('Window created successfully, event registered');
-}
 
 //---------------------------------------------------------
