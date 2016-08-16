@@ -1,6 +1,5 @@
 const helpers = require('./helpers.js');
 const fileHandlers = require('./fileHandling.js');
-const profileHandlers = require('./profileManagement.js');
 const modHandlers = require('./modManagement.js');
 
 module.exports = {
@@ -20,15 +19,15 @@ module.exports = {
         module.exports.closeProgram(app, config, appData);
     },
 
-    closeProgram: function(app, config, appData, inError = false) {
+    closeProgram: function(app, config, profileManager, inError = false) {
         if(inError) {
             helpers.log('There was an error. Not saving app data, closing app.');
             app.exit(-1);
         }
         else {
             helpers.log('Beginning application shutdown.');
-            fileHandlers.saveProfiles(config['profiles-path'], appData['profiles']);
-            fileHandlers.setProfileAsModlist(config['modlist-path'], appData['active-profile']);
+            profileManager.saveProfiles();
+            profileManager.updateFactorioModlist();
             helpers.log('Everything taken care of, closing app now.');
             app.quit();
         }
@@ -52,7 +51,6 @@ module.exports = {
 
         let window = new BrowserWindow(windowOptions);
         window.setMenu(null);
-        module.exports.loadPage(window, 'page_profiles', data);
         window.webContents.openDevTools();
 
         window.on('closed', function () {
@@ -64,14 +62,14 @@ module.exports = {
         return window;
     },
 
-    loadPage: function(window, page, appData) {
+    loadPage: function(window, page, profileManager) {
         helpers.log(`Attempting to change the page to ${page}`);
 
         if(page === 'page_profiles') {
             window.loadURL(`file://${__dirname}/../view/${page}.html`);
             window.webContents.once('did-finish-load', function() {
-                profileHandlers.showActiveProfile(window, appData['active-profile']);
-                profileHandlers.showAllProfiles(window, appData['profiles']);
+                profileManager.sendActiveProfile(window);
+                profileManager.sendAllProfiles(window);
             });
         }
         else if(page === 'page_localMods') {

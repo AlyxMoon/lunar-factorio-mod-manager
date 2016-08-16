@@ -4,12 +4,12 @@
 const electron = require('electron');
 const app = electron.app;
 let mainWindow;
+let profileManager;
 let config;
 
 const helpers = require('./inc/helpers.js');
 const fileHandlers = require('./inc/fileHandling.js');
 const appManager = require('./inc/applicationManagement.js');
-const profileManager = require('./inc/profileManagement.js');
 const modManager = require('./inc/modManagement.js');
 
 let appData = {
@@ -27,7 +27,7 @@ let appData = {
 app.on('ready', init);
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
-        appManager.closeProgram(app, config, appData);
+        appManager.closeProgram(app, config, profileManager);
     }
 });
 app.on('activate', function () {
@@ -40,12 +40,32 @@ app.on('activate', function () {
 //---------------------------------------------------------
 // Event listeners for client messages
 
-electron.ipcMain.on('newProfile', createProfile);
-electron.ipcMain.on('activateProfile', activateProfile);
-electron.ipcMain.on('renameProfile', renameProfile);
-electron.ipcMain.on('deleteProfile', deleteProfile);
-electron.ipcMain.on('sortProfile', sortProfile);
-electron.ipcMain.on('toggleMod', toggleMod);
+electron.ipcMain.on('newProfile', function() {
+    profileManager.createProfile();
+    profileManager.sendAllProfiles(mainWindow);
+});
+electron.ipcMain.on('activateProfile', function(event, profileName) {
+    profileManager.activateProfile(profileName);
+    profileManager.sendAllProfiles(mainWindow);
+    profileManager.sendActiveProfile(mainWindow);
+});
+electron.ipcMain.on('renameProfile', function(event, newName) {
+    profileManager.renameActiveProfile(newName);
+    profileManager.sendAllProfiles(mainWindow);
+    profileManager.sendActiveProfile(mainWindow);
+});
+electron.ipcMain.on('deleteProfile', function() {
+    profileManager.deleteActiveProfile();
+    profileManager.sendAllProfiles(mainWindow);
+    profileManager.sendActiveProfile(mainWindow);
+});
+electron.ipcMain.on('sortProfile', function(event, direction) {
+    profileManager.moveActiveProfile(direction);
+    profileManager.sendAllProfiles(mainWindow);
+});
+electron.ipcMain.on('toggleMod', function(event, modName) {
+    profileManager.toggleMod(modName);
+});
 electron.ipcMain.on('requestInstalledModInfo', showInstalledModInfo);
 electron.ipcMain.on('requestOnlineModInfo', showOnlineModInfo);
 electron.ipcMain.on('requestDownload', initiateDownload);
@@ -54,165 +74,8 @@ electron.ipcMain.on('startGame', function() {
     appManager.startGame(app, config, appData);
 });
 electron.ipcMain.on('changePage', function(event, newPage) {
-    appManager.loadPage(mainWindow, newPage, appData);
+    appManager.loadPage(mainWindow, newPage, profileManager);
 });
-
-//---------------------------------------------------------
-//---------------------------------------------------------
-// Profile-related functions
-
-// No message is expected, will potentially provide ability to choose a profile name on creation
-function createProfile(event) {
-    helpers.log('Attempting to create a new profile');
-    let mods = appData['modNames'];
-    let profile = {
-        'name': 'New Profile',
-        'enabled': false,
-        'mods': []
-    };
-    for(let i = 0; i < mods.length; i++) {
-        profile['mods'].push({
-            'name': mods[i],
-            'enabled': 'true'
-        });
-    }
-
-    let data = appData['profiles'];
-    let n = 1;
-    while(true) {
-        let nameExists = false;
-        for(let j = 0; j < data.length; j++) {
-            if(data[j]['name'] === profile['name'] + ' ' + n) {
-                nameExists = true;
-                n++;
-                break;
-            }
-        }
-        if(!nameExists) {
-            profile['name'] = profile['name'] + ' ' + n;
-            break;
-        }
-    }
-    helpers.log(`Successfully created new profile: ${profile['name']}`);
-    data.push(profile);
-    profileManager.showAllProfiles(mainWindow, appData['profiles']);
-}
-
-// "message" expected to be a string representing the name of an existing profile
-function activateProfile(event, message) {
-    helpers.log('Attempting to change active profile.');
-    let data = appData['profiles'];
-
-    for(let i = 0; i < data.length; i++) {
-        if(data[i]['name'] === message) {
-            data[i]['enabled'] = true;
-            appData['active-profile'] = data[i];
-        }
-        else data[i]['enabled'] = false;
-    }
-    helpers.log(`Active profile changed, new active profile: ${appData['active-profile']['name']}`);
-    profileManager.showAllProfiles(mainWindow, appData['profiles']);
-    profileManager.showActiveProfile(mainWindow, appData['active-profile']);
-}
-
-// "message" expected to be a string containing the new name for the active profile
-function renameProfile(event, name) {
-    helpers.log('Attempting to rename active profile.');
-    appData['active-profile']['name'] = name;
-
-    helpers.log(`Active profile name changed to: ${appData['active-profile']['name']}`);
-    profileManager.showAllProfiles(mainWindow, appData['profiles']);
-    profileManager.showActiveProfile(mainWindow, appData['active-profile']);
-}
-
-// Currently only removes active profile, not any given profile
-function deleteProfile(event) {
-    helpers.log(`Attempting to delete active profile: '${appData['active-profile']['name']}'`);
-    let data = appData['profiles'];
-
-    for(let i = 0; i < data.length; i++) {
-        if(data[i]['enabled']) {
-            data.splice(i, 1);
-            break;
-        }
-    }
-
-    if(data.length === 0) {
-        data = [{
-            'name': 'Current Profile',
-            'enabled': true,
-            'mods': modManager.getFactorioModList()
-
-        }];
-    }
-    data[0]['enabled'] = true;
-    appData['active-profile'] = data[0];
-    helpers.log(`Successfully deleted profile. New active profile: ${appData['active-profile']['name']}`);
-    profileManager.showAllProfiles(mainWindow, appData['profiles']);
-    profileManager.showActiveProfile(mainWindow, appData['active-profile']);
-}
-
-// Take one argument, a string representing which direction to move the active profile
-function sortProfile(event, direction) {
-    helpers.log(`Attempting to move profile '${appData['active-profile']['name']}' ${direction}`);
-
-    let data = appData['profiles'];
-    let index = 0;
-    for(let i = 0; i < data.length; i++) {
-        if(data[i]['enabled']) {
-            index = i;
-            break;
-        }
-    }
-
-    if(direction === 'up') {
-        if(index > 0) {
-            let tempProfile = data[index - 1];
-            data[index - 1] = data[index];
-            data[index] = tempProfile;
-            helpers.log('Profile has been moved up the list.');
-        }
-        else {
-            helpers.log('No need to move profile up the list, already on top.');
-        }
-    }
-    else if(direction === 'down') {
-        if(index < data.length - 1) {
-            let tempProfile = data[index + 1];
-            data[index + 1] = data[index];
-            data[index] = tempProfile;
-            helpers.log('Profile has been moved down the list.');
-        }
-        else {
-            helpers.log('No need to move profile down the list, already on bottom.');
-        }
-    }
-
-    helpers.log(`Successfully moved profile '${appData['active-profile']['name']}' to index ${index}`);
-    profileManager.showAllProfiles(mainWindow, appData['profiles']);
-}
-
-// "message" is an object containing the profile mod applies to, mod name, and current mod enable status
-// message['profile'], message['mod'], message['enabled']
-function toggleMod(event, message) {
-    helpers.log(`Attempting to change mod '${message['mod']}' from '${message['enabled']}' in profile: ${message['profile']}`);
-
-    let profiles = appData['profiles'];
-    let profile = {};
-    for(let i = profiles.length - 1; i >= 0; i--) {
-        if(profiles[i]['name'] === message['profile']) {
-            profile = profiles[i];
-            break;
-        }
-    }
-    for(let i = profile['mods'].length - 1; i >= 0; i--) {
-        if (profile['mods'][i]['name'] === message['mod']) {
-            profile['mods'][i]['enabled'] = message['enabled'];
-            break;
-        }
-    }
-    helpers.log('Successfully changed mod status.');
-}
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -268,14 +131,13 @@ function loadInstalledMods() {
                     // Only show once all zip files have been read
                     counter--;
                     if(counter <= 0) {
-                        // Just send data to the console for now
                         mods = helpers.sortArrayByProp(mods, 'name');
                         appData['mods'] = mods;
                         appData['modNames'] = mods.map(function(mod) {
                             return mod['name']
                         });
-
-                        checkForNewMods();
+                        profileManager.modNames = appData['modNames'];
+                        //checkForNewMods();
                     }
                 });
             });
@@ -458,14 +320,18 @@ function init() {
 
 function startProgram() {
     helpers.log('Starting the app now.');
+    let ProfileManager = require('./inc/profileManagement.js');
+    profileManager = new ProfileManager.Manager(config['profiles-path'], config['modlist-path']);
 
-    let tempProfiles = fileHandlers.loadProfiles(config['profiles-path']);
-    appData['profiles'] = tempProfiles['profiles'];
+    helpers.log('manager loaded');
+    let tempProfiles = profileManager.loadProfiles();
+    appData['profiles'] = tempProfiles['all-profiles'];
     appData['active-profile'] = tempProfiles['active-profile'];
 
     loadInstalledMods();
 
     mainWindow = appManager.createWindow(config, appData);
+    appManager.loadPage(mainWindow, 'page_profiles', profileManager);
 }
 
 function createAppFiles() {
@@ -498,14 +364,14 @@ function createAppFiles() {
     let modPath = electron.dialog.showOpenDialog(options);
     if(modPath === undefined) {
         helpers.log('User cancelled the dialog search.');
-        appManager.closeProgram(app, config, appData, true);
+        appManager.closeProgram(app, config, profileManager, true);
     }
 
     modPath = modPath[0];
     helpers.log(`User selected mod list at: ${modPath}`);
     if(modPath.indexOf('mod-list.json') === -1) {
         helpers.log('The selected file was not correct. Closing app.');
-        appManager.closeProgram(app, config, appData, true);
+        appManager.closeProgram(app, config, profileManager, true);
     }
 
 
@@ -524,12 +390,12 @@ function createAppFiles() {
 
     if(gamePath === undefined) {
         helpers.log('User cancelled the dialog search.');
-        appManager.closeProgram(app, config, appData, true);
+        appManager.closeProgram(app, config, profileManager, true);
     }
     gamePath = gamePath[0];
     if(gamePath.indexOf('factorio.exe') === -1) {
         helpers.log('The selected file was not correct. Closing app.');
-        appManager.closeProgram(app, config, appData, true);
+        appManager.closeProgram(app, config, profileManager, true);
     }
 
     data['game-path'] = gamePath;
@@ -551,7 +417,7 @@ function createAppFiles() {
         }
         catch(error) {
             helpers.log('Failed to write profile file on first time initialization, error: ' + error.code);
-            appManager.closeProgram(app, config, appData, true);
+            appManager.closeProgram(app, config, profileManager, true);
         }
         helpers.log('Successfully created first profile');
         config['config-path'] = configPath;
@@ -560,7 +426,7 @@ function createAppFiles() {
     }
     catch(error) {
         helpers.log('Failed to write config on first time initialization, error: ' + error.code);
-        appManager.closeProgram(app, config, appData, true);
+        appManager.closeProgram(app, config, profileManager, true);
     }
 }
 
