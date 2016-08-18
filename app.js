@@ -5,11 +5,11 @@ const electron = require('electron');
 const app = electron.app;
 let mainWindow;
 let profileManager;
+let modManager;
 let config;
 
 const helpers = require('./inc/helpers.js');
 const appManager = require('./inc/applicationManagement.js');
-const modManager = require('./inc/modManagement.js');
 
 let appData = {
     'mods': [],
@@ -72,7 +72,7 @@ electron.ipcMain.on('startGame', function() {
     appManager.startGame(app, config, appData);
 });
 electron.ipcMain.on('changePage', function(event, newPage) {
-    appManager.loadPage(mainWindow, newPage, profileManager);
+    appManager.loadPage(mainWindow, newPage, profileManager, modManager);
 });
 
 //---------------------------------------------------------
@@ -82,7 +82,7 @@ electron.ipcMain.on('changePage', function(event, newPage) {
 // Expects one argument, a string containing the name of the mod to get info on
 function showInstalledModInfo(event, modName) {
 
-    let mods = profileManager.mods;
+    let mods = modManager.installedMods;
     for(let i = mods.length - 1; i >= 0; i--) {
         if(mods[i]['name'] === modName) {
             mainWindow.webContents.send('dataInstalledModInfo', mods[i]);
@@ -92,6 +92,7 @@ function showInstalledModInfo(event, modName) {
 
 }
 
+// TODO: Better async handling so I can stick this in the modManager class
 function loadInstalledMods() {
     helpers.log('Beginning to load installed mods.');
     //mainWindow.webContents.openDevTools();
@@ -128,10 +129,13 @@ function loadInstalledMods() {
 
                     // Only show once all zip files have been read
                     counter--;
+
+                    // There are too many function wrappers here, so a return doesn't send to the first level right
+                    // TODO: Figure out how to not use globals to save this info
                     if(counter <= 0) {
                         mods = helpers.sortArrayByProp(mods, 'name');
-                        profileManager.mods = mods;
-                        profileManager.modNames = mods.map(function(mod) {
+                        modManager.installedMods = mods;
+                        modManager.installedModsNames = mods.map(function(mod) {
                             return mod['name']
                         });
                         checkForNewMods();
@@ -146,7 +150,7 @@ function checkForNewMods() {
     helpers.log('Checking for newly installed mods.');
 
     try {
-        let mods = profileManager.modNames;
+        let mods = modManager.installedModsNames;
         let profiles = profileManager.profileList['all-profiles'];
         let modList = {'mods': []};
         for(let i = 0; i < profiles.length; i++) {
@@ -178,6 +182,8 @@ function checkForNewMods() {
     }
 
 }
+
+
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -323,7 +329,21 @@ function startProgram() {
     let ProfileManager = require('./inc/profileManagement.js');
     profileManager = new ProfileManager.Manager(config['profiles-path'], config['modlist-path']);
 
+    // Only initialize if it wasn't created in the createAppFiles function
+    try{
+        if(!modManager) {
+            let ModManager = require('./inc/modManagement.js');
+            modManager = new ModManager.Manager(config['modlist-path'], config['mod-path'], config['game-path']);
+
+        }
+    }
+    catch(error){
+        helpers.log('Error: ' + error);
+    }
+    profileManager.mods = modManager.installedMods;
+    profileManager.modNames = modManager.installedModsNames;
     loadInstalledMods();
+
 
     mainWindow = appManager.createWindow(config, appData);
     appManager.loadPage(mainWindow, 'page_profiles', profileManager);
@@ -396,6 +416,8 @@ function createAppFiles() {
     data['game-path'] = gamePath;
 
     try {
+        modManager = new require('modManagement.js').Manager(data['modlist-path'], data['mod-path'], data['game-path']);
+
         file.writeFileSync(configPath, JSON.stringify(data));
         config = data;
 

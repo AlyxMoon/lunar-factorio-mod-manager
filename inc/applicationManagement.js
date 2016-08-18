@@ -1,5 +1,4 @@
 const helpers = require('./helpers.js');
-const modHandlers = require('./modManagement.js');
 
 module.exports = {
 
@@ -61,7 +60,7 @@ module.exports = {
         return window;
     },
 
-    loadPage: function(window, page, profileManager) {
+    loadPage: function(window, page, profileManager, modManager) {
         helpers.log(`Attempting to change the page to ${page}`);
 
         if(page === 'page_profiles') {
@@ -74,7 +73,7 @@ module.exports = {
         else if(page === 'page_localMods') {
             window.loadURL(`file://${__dirname}/../view/${page}.html`);
             window.webContents.once('did-finish-load', function() {
-                modHandlers.showInstalledMods(window, profileManager.modNames);
+                modManager.sendInstalledMods(window);
             });
         }
         else if(page === 'page_onlineMods') {
