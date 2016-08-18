@@ -12,8 +12,6 @@ const appManager = require('./inc/applicationManagement.js');
 const modManager = require('./inc/modManagement.js');
 
 let appData = {
-    'profiles': [],
-    'active-profile': {},
     'mods': [],
     'modNames': [],
     'onlineMods': []

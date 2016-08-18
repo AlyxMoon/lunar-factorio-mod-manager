@@ -5,7 +5,7 @@ module.exports = {
 //---------------------------------------------------------
 // Primary class declaration
 
-// TODO: Make modNames be ready before this so they can be provided in constructor
+// TODO: Make mods be ready before this so they can be provided in constructor
 function ProfileManager(profilesPath, modlistPath) {
     helpers.log(profilesPath);
     helpers.log(modlistPath);
