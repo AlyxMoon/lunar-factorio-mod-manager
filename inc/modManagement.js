@@ -14,6 +14,10 @@ function ModManager(modListPath, modDirectoryPath, gamePath) {
     this.installedMods = [];
     this.onlineMods = [];
 
+    this.playerUsername = '';
+    this.playerToken = '';
+
+    this.loadPlayerData();
     this.loadInstalledMods();
 }
 
@@ -89,6 +93,20 @@ ModManager.prototype.loadInstalledMods = function() {
                 if(counter <= 0) mods = helpers.sortArrayByProp(mods, 'name');
             });
         });
+    }
+};
+
+ModManager.prototype.loadPlayerData = function() {
+    let file = require('fs');
+
+    let configPath = `${this.modDirectoryPath}/../config/player-data.json`;
+
+    let data = file.readFileSync(configPath, 'utf8');
+    data = JSON.parse(data);
+
+    if('service-username' in data && 'service-token' in data) {
+        this.playerUsername = data['service-username'];
+        this.playerToken = data['service-token'];
     }
 };
 
