@@ -92,60 +92,6 @@ function showInstalledModInfo(event, modName) {
 
 }
 
-// TODO: Better async handling so I can stick this in the modManager class
-function loadInstalledMods() {
-    helpers.log('Beginning to load installed mods.');
-    //mainWindow.webContents.openDevTools();
-    let file = require('fs');
-    let JSZip = require('jszip');
-
-    let modZipNames = file.readdirSync(config['mod-path'], 'utf8');
-    modZipNames.splice(modZipNames.indexOf('mod-list.json'), 1);
-
-    let mods = [];
-
-    // Add base mod
-    let gamePath = config['game-path'];
-    let baseInfo = `${gamePath.substr(0, gamePath.lastIndexOf('Factorio\\bin'))}Factorio/data/base/info.json`;
-    mods.push(JSON.parse(file.readFileSync(baseInfo, 'utf8')));
-
-    let counter = modZipNames.length;
-    for(let i = 0; i < modZipNames.length; i++) {
-        // Exclude the not-zip-file that will be sitting in the directory
-        if(modZipNames[i] !== 'mod-list.json') {
-
-            // Open the zip file as a buffer
-            file.readFile(`${config['mod-path']}${modZipNames[i]}`, function(error, rawZipBuffer) {
-                if(error) throw error;
-
-                // Actually read the zip file
-                JSZip.loadAsync(rawZipBuffer).then(function(zip) {
-                    // Only open the mods info file in the zip
-                    return zip.file(/info\.json/)[0].async('text');
-
-                }).then(function(modData) {
-                    // Save the information
-                    mods.push(JSON.parse(modData));
-
-                    // Only show once all zip files have been read
-                    counter--;
-
-                    // There are too many function wrappers here, so a return doesn't send to the first level right
-                    // TODO: Figure out how to not use globals to save this info
-                    if(counter <= 0) {
-                        mods = helpers.sortArrayByProp(mods, 'name');
-                        modManager.installedMods = mods;
-                        modManager.installedModsNames = mods.map(function(mod) {
-                            return mod['name']
-                        });
-                        checkForNewMods();
-                    }
-                });
-            });
-        }
-    }
-}
-
 function checkForNewMods() {
     helpers.log('Checking for newly installed mods.');
 
@@ -340,10 +286,8 @@ function startProgram() {
     catch(error){
         helpers.log('Error: ' + error);
     }
-    profileManager.mods = modManager.installedMods;
-    profileManager.modNames = modManager.installedModsNames;
-    loadInstalledMods();
 
+    //checkForNewMods();
 
     mainWindow = appManager.createWindow(config, appData);
     appManager.loadPage(mainWindow, 'page_profiles', profileManager);
