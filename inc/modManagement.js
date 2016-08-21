@@ -39,6 +39,17 @@ ModManager.prototype.sendOnlineMods = function(window) {
    window.webContents.send('dataOnlineMods', this.onlineMods);
 }
 
+ModManager.prototype.sendOnlineModInfo = function(window, modName) {
+
+    let mods = this.onlineMods;
+    for(let i = mods.length - 1; i >= 0; i--) {
+       if(mods[i]['name'] === modName) {
+           window.webContents.send('dataOnlineModInfo', mods[i]);
+           break;
+       }
+    }
+};
+
 //---------------------------------------------------------
 // File Management
 
