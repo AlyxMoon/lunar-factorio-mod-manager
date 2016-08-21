@@ -49,7 +49,7 @@ module.exports = {
 
         let window = new BrowserWindow(windowOptions);
         window.setMenu(null);
-        window.webContents.openDevTools();
+        //window.webContents.openDevTools();
 
         window.on('closed', function () {
             window = null;
