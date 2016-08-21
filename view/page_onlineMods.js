@@ -19,6 +19,7 @@ $(document).ready(function() {
 // Used as callback function
 // One argument, an array of strings, representing the names of online mods
 function listOnlineMods(event, mods) {
+
     let table = $('table#mods-list');
     table.children().remove();
 

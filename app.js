@@ -102,40 +102,7 @@ electron.ipcMain.on('changePage', function(event, newPage) {
 //
 //}
 //
-//function loadOnlineMods() {
-//    let request = require('request');
-//
-//    let apiURL = 'https://mods.factorio.com/api/mods';
-//    let options = '?page_size=20';
-//
-//    getOnlineModData(`${apiURL}${options}`, function() {
-//        mainWindow.webContents.send('dataOnlineMods', appData['onlineMods']);
-//    });
-//
-//    function getOnlineModData(url, callback) {
-//
-//        request(url ,function(error, response, data) {
-//            if(!error && response.statusCode == 200) {
-//                data = JSON.parse(data);
-//
-//                for(let i = 0; i < data['results'].length; i++) {
-//                    appData['onlineMods'].push(data['results'][i]);
-//                }
-//
-//                if(data['pagination']['links']['next']) {
-//                    getOnlineModData(data['pagination']['links']['next'], callback);
-//                }
-//                else {
-//                    callback();
-//                }
-//            }
-//            else {
-//                throw error;
-//            }
-//
-//        });
-//    }
-//}
+
 //
 //// Expects one argument, the id of the mod to download
 //function initiateDownload(event, modID) {

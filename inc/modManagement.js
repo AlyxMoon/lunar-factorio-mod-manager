@@ -12,6 +12,7 @@ function ModManager(modListPath, modDirectoryPath, gamePath) {
     this.modDirectoryPath = modDirectoryPath;
     this.gamePath = gamePath;
     this.installedMods = [];
+    this.onlineMods = [];
 
     this.loadInstalledMods();
 }
@@ -33,6 +34,10 @@ ModManager.prototype.sendInstalledModInfo = function(window, modName) {
         }
     }
 };
+
+ModManager.prototype.sendOnlineMods = function(window) {
+   window.webContents.send('dataOnlineMods', this.onlineMods);
+}
 
 //---------------------------------------------------------
 // File Management
@@ -73,6 +78,52 @@ ModManager.prototype.loadInstalledMods = function() {
                 if(counter <= 0) mods = helpers.sortArrayByProp(mods, 'name');
             });
         });
+    }
+};
+
+//---------------------------------------------------------
+// Online Mod Management
+
+// window is an optional argument, if given will send data once loaded
+ModManager.prototype.loadOnlineMods = function(window) {
+    if(this.onlineMods.length > 0) {
+        if(window !== undefined) this.sendOnlineMods(window);
+        return;
+    }
+
+    let request = require('request');
+
+    let mods = this.onlineMods;
+    let apiURL = 'https://mods.factorio.com/api/mods';
+    let options = '?page_size=20';
+
+    getOnlineModData(`${apiURL}${options}`, function() {
+      if(window !== undefined) window.webContents.send('dataOnlineMods', mods);
+    });
+
+    function getOnlineModData(url, callback) {
+       if(window !== undefined) window.webContents.send('dataOnlineMods', mods);
+
+       request(url ,function(error, response, data) {
+           if(!error && response.statusCode == 200) {
+               data = JSON.parse(data);
+
+               for(let i = 0; i < data['results'].length; i++) {
+                   mods.push(data['results'][i]);
+               }
+
+               if(data['pagination']['links']['next']) {
+                   getOnlineModData(data['pagination']['links']['next'], callback);
+               }
+               else {
+                   callback();
+               }
+           }
+           else {
+               throw error;
+           }
+
+       });
     }
 };
 
