@@ -27,6 +27,7 @@ $(document).ready(function() {
 // One argument, an array of a single object containing:
 //      The Factorio mod list with key "mods", a bool with key "enabled", and a string with key "name"
 function listActiveProfile(event, profile) {
+    console.log(profile);
     let table = $('table#active-profile');
     table.children().remove();
 
@@ -49,6 +50,7 @@ function listActiveProfile(event, profile) {
 // One argument, an array of a objects, each containing:
 //      The Factorio mod list with key "mods", a bool with key "enabled", and a string with key "name"
 function listAllProfiles(event, profiles) {
+    console.log(profiles);
     let tableBody = $('table#profiles-list tbody');
     tableBody.children().remove();
 
@@ -81,7 +83,7 @@ function toggleMod(event) {
         $(this).children().first().next().text('true')
     }
 
-    messager.send('toggleMod', data);
+    messager.send('toggleMod', data['mod']);
 }
 
 // Used as callback function

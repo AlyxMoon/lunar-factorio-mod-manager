@@ -28,7 +28,6 @@ function listInstalledMods(event, mods) {
         table.append('<tr><td>' + mods[i] + '</td></tr>');
     }
     table.append('</tbody>');
-
 }
 
 // Will return the info pulled from the info.json file of the selected mod
@@ -37,8 +36,8 @@ function requestInstalledModInfo() {
     $(this).addClass('info');
 
     messager.send('requestInstalledModInfo', $(this).text());
-
 }
+
 function showInstalledModInfo(event, mod) {
     let table = $('table#mod-info');
     table.children().remove();
@@ -101,5 +100,4 @@ function showInstalledModInfo(event, mod) {
     }
 
     tableBody.append('</tbody>');
-
 }
