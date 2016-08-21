@@ -11,11 +11,6 @@ let config;
 const helpers = require('./inc/helpers.js');
 const appManager = require('./inc/applicationManagement.js');
 
-let appData = {
-    'mods': [],
-    'modNames': [],
-    'onlineMods': []
-};
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -29,7 +24,7 @@ app.on('window-all-closed', function () {
 });
 app.on('activate', function () {
     if (mainWindow === null) {
-        mainWindow = appManager.createWindow(config, appData);
+        mainWindow = appManager.createWindow(config);
     }
 });
 
@@ -67,11 +62,11 @@ electron.ipcMain.on('toggleMod', function(event, modName) {
 electron.ipcMain.on('requestInstalledModInfo', function(event, modName) {
     modManager.sendInstalledModInfo(mainWindow, modName);
 });
-electron.ipcMain.on('requestOnlineModInfo', showOnlineModInfo);
-electron.ipcMain.on('requestDownload', initiateDownload);
+//electron.ipcMain.on('requestOnlineModInfo', showOnlineModInfo);
+//electron.ipcMain.on('requestDownload', initiateDownload);
 
 electron.ipcMain.on('startGame', function() {
-    appManager.startGame(app, config, appData);
+    appManager.startGame(app, config, profileManager);
 });
 electron.ipcMain.on('changePage', function(event, newPage) {
     appManager.loadPage(mainWindow, newPage, profileManager, modManager);
@@ -81,110 +76,111 @@ electron.ipcMain.on('changePage', function(event, newPage) {
 //---------------------------------------------------------
 // Online mod functions
 
-function showOnlineMods() {
-    if(appData['onlineMods'].length === 0) {
-        helpers.log('Getting online mods.');
-        loadOnlineMods();
-    }
-    else {
-        helpers.log('Already have online mods list, showing.');
-        mainWindow.webContents.send('dataOnlineMods', appData['onlineMods']);
-    }
-
-}
-
-// Expects one argument, a string containing the name of the mod to get info on
-function showOnlineModInfo(event, modName) {
-
-    let mods = appData['onlineMods'];
-    for(let i = mods.length - 1; i >= 0; i--) {
-        if(mods[i]['name'] === modName) {
-            mainWindow.webContents.send('dataOnlineModInfo', mods[i]);
-            break;
-        }
-    }
-
-}
-
-function loadOnlineMods() {
-    let request = require('request');
-
-    let apiURL = 'https://mods.factorio.com/api/mods';
-    let options = '?page_size=20';
-
-    getOnlineModData(`${apiURL}${options}`, function() {
-        mainWindow.webContents.send('dataOnlineMods', appData['onlineMods']);
-    });
-
-    function getOnlineModData(url, callback) {
-
-        request(url ,function(error, response, data) {
-            if(!error && response.statusCode == 200) {
-                data = JSON.parse(data);
-
-                for(let i = 0; i < data['results'].length; i++) {
-                    appData['onlineMods'].push(data['results'][i]);
-                }
-
-                if(data['pagination']['links']['next']) {
-                    getOnlineModData(data['pagination']['links']['next'], callback);
-                }
-                else {
-                    callback();
-                }
-            }
-            else {
-                throw error;
-            }
-
-        });
-    }
-}
-
-// Expects one argument, the id of the mod to download
-function initiateDownload(event, modID) {
-    let mods = appData['onlineMods'];
-    let modToDownload;
-
-    for(let i = mods.length - 1; i >= 0; i--) {
-        if(mods[i]['id'] == modID) {
-            mainWindow.webContents.send('ping', mods[i]);
-            modToDownload = mods[i];
-            break;
-        }
-    }
-    mainWindow.webContents.send('ping', modToDownload);
-
-    helpers.log(`Attempting to download mod: ${modToDownload['name']}`);
-    let downloadURL = `https://mods.factorio.com${modToDownload['latest_release']['download_url']}`;
-
-    mainWindow.webContents.downloadURL(downloadURL);
-}
-
-function manageDownload(event, item, webContents) {
-    // Set the save path, making Electron not to prompt a save dialog.
-    item.setSavePath(`${__dirname}/data/${item.getFilename()}`);
-
-    item.on('updated', (event, state) => {
-        if (state === 'interrupted') {
-            helpers.log('Download is interrupted but can be resumed');
-            item.resume();
-        } else if (state === 'progressing') {
-            if (item.isPaused()) {
-                helpers.log('Download is paused');
-            } else {
-                helpers.log(`Received bytes: ${item.getReceivedBytes()}`);
-            }
-        }
-    });
-    item.once('done', (event, state) => {
-        if (state === 'completed') {
-            helpers.log('Download successfully');
-        } else {
-            helpers.log(`Download failed: ${state}`);
-        }
-    });
-}
+// Everything off until we work on this feature
+//function showOnlineMods() {
+//    if(appData['onlineMods'].length === 0) {
+//        helpers.log('Getting online mods.');
+//        loadOnlineMods();
+//    }
+//    else {
+//        helpers.log('Already have online mods list, showing.');
+//        mainWindow.webContents.send('dataOnlineMods', appData['onlineMods']);
+//    }
+//
+//}
+//
+//// Expects one argument, a string containing the name of the mod to get info on
+//function showOnlineModInfo(event, modName) {
+//
+//    let mods = appData['onlineMods'];
+//    for(let i = mods.length - 1; i >= 0; i--) {
+//        if(mods[i]['name'] === modName) {
+//            mainWindow.webContents.send('dataOnlineModInfo', mods[i]);
+//            break;
+//        }
+//    }
+//
+//}
+//
+//function loadOnlineMods() {
+//    let request = require('request');
+//
+//    let apiURL = 'https://mods.factorio.com/api/mods';
+//    let options = '?page_size=20';
+//
+//    getOnlineModData(`${apiURL}${options}`, function() {
+//        mainWindow.webContents.send('dataOnlineMods', appData['onlineMods']);
+//    });
+//
+//    function getOnlineModData(url, callback) {
+//
+//        request(url ,function(error, response, data) {
+//            if(!error && response.statusCode == 200) {
+//                data = JSON.parse(data);
+//
+//                for(let i = 0; i < data['results'].length; i++) {
+//                    appData['onlineMods'].push(data['results'][i]);
+//                }
+//
+//                if(data['pagination']['links']['next']) {
+//                    getOnlineModData(data['pagination']['links']['next'], callback);
+//                }
+//                else {
+//                    callback();
+//                }
+//            }
+//            else {
+//                throw error;
+//            }
+//
+//        });
+//    }
+//}
+//
+//// Expects one argument, the id of the mod to download
+//function initiateDownload(event, modID) {
+//    let mods = appData['onlineMods'];
+//    let modToDownload;
+//
+//    for(let i = mods.length - 1; i >= 0; i--) {
+//        if(mods[i]['id'] == modID) {
+//            mainWindow.webContents.send('ping', mods[i]);
+//            modToDownload = mods[i];
+//            break;
+//        }
+//    }
+//    mainWindow.webContents.send('ping', modToDownload);
+//
+//    helpers.log(`Attempting to download mod: ${modToDownload['name']}`);
+//    let downloadURL = `https://mods.factorio.com${modToDownload['latest_release']['download_url']}`;
+//
+//    mainWindow.webContents.downloadURL(downloadURL);
+//}
+//
+//function manageDownload(event, item, webContents) {
+//    // Set the save path, making Electron not to prompt a save dialog.
+//    item.setSavePath(`${__dirname}/data/${item.getFilename()}`);
+//
+//    item.on('updated', (event, state) => {
+//        if (state === 'interrupted') {
+//            helpers.log('Download is interrupted but can be resumed');
+//            item.resume();
+//        } else if (state === 'progressing') {
+//            if (item.isPaused()) {
+//                helpers.log('Download is paused');
+//            } else {
+//                helpers.log(`Received bytes: ${item.getReceivedBytes()}`);
+//            }
+//        }
+//    });
+//    item.once('done', (event, state) => {
+//        if (state === 'completed') {
+//            helpers.log('Download successfully');
+//        } else {
+//            helpers.log(`Download failed: ${state}`);
+//        }
+//    });
+//}
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -235,7 +231,7 @@ function startProgram() {
 
     profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
 
-    mainWindow = appManager.createWindow(config, appData);
+    mainWindow = appManager.createWindow(config);
     appManager.loadPage(mainWindow, 'page_profiles', profileManager);
 
 }
