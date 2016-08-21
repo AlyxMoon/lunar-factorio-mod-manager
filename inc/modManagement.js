@@ -20,7 +20,18 @@ function ModManager(modListPath, modDirectoryPath, gamePath) {
 // Sending data to the client
 
 ModManager.prototype.sendInstalledMods = function(window) {
-    window.webContents.send('dataInstalledMods', this.getInstalledModNames(this.installedMods));
+    window.webContents.send('dataInstalledMods', this.getInstalledModNames());
+};
+
+ModManager.prototype.sendInstalledModInfo = function(window, modName) {
+
+    let mods = this.installedMods;
+    for(let i = mods.length - 1; i >= 0; i--) {
+        if(mods[i]['name'] === modName) {
+            window.webContents.send('dataInstalledModInfo', mods[i]);
+            break;
+        }
+    }
 };
 
 //---------------------------------------------------------
@@ -76,9 +87,9 @@ ModManager.prototype.getFactorioModList = function() {
     return JSON.parse(data)['mods'];
 };
 
-ModManager.prototype.getInstalledModNames = function(mods) {
+ModManager.prototype.getInstalledModNames = function() {
 
-    return mods.map(function(mod) {
+    return this.installedMods.map(function(mod) {
        return mod['name'];
     });
 };

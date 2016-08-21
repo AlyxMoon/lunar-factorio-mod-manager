@@ -12,8 +12,6 @@ function ProfileManager(profilesPath, modlistPath) {
 
     this.profilesPath = profilesPath;
     this.modlistPath = modlistPath;
-    this.mods = [];
-    this.modNames = [];
 
     this.profileList = this.loadProfiles();
 }
@@ -74,9 +72,8 @@ ProfileManager.prototype.updateFactorioModlist = function() {
 //---------------------------------------------------------
 // Helper and Miscellaneous Logic
 
-ProfileManager.prototype.createProfile = function() {
+ProfileManager.prototype.createProfile = function(modNames) {
     helpers.log('Attempting to create a new profile');
-    let mods = this.modNames;
     let profiles = this.profileList['all-profiles'];
 
     let newProfile = {
@@ -84,9 +81,9 @@ ProfileManager.prototype.createProfile = function() {
         'enabled': false,
         'mods': []
     };
-    for(let i = 0; i < mods.length; i++) {
+    for(let i = 0; i < modNames.length; i++) {
         newProfile['mods'].push({
-            'name': mods[i],
+            'name': modNames[i],
             'enabled': 'true'
         });
     }
@@ -212,4 +209,41 @@ ProfileManager.prototype.toggleMod = function(modName) {
         }
     }
     helpers.log('Successfully changed mod status.');
+};
+
+ProfileManager.prototype.updateProfilesWithNewMods = function(modNames) {
+    helpers.log('Checking for newly installed mods.');
+
+    try {
+        let profiles = this.profileList['all-profiles'];
+
+        let modList = {'mods': []};
+        for(let i = 0; i < profiles.length; i++) {
+            if(profiles[i]['enabled']) {
+                modList['mods'] = profiles[i]['mods'];
+            }
+            let profileMods = profiles[i]['mods'];
+            for(let j = 0; j < modNames.length; j++) {
+
+                let index = -1;
+                for(let k = 0; k < profileMods.length; k++) {
+                    if(profileMods[k]['name'] === modNames[j]) {
+                        index = k;
+                        break;
+                    }
+                }
+
+                if(index === -1) {
+                    helpers.log(`Found new mod: ${modNames[j]} -- Adding to profile: ${profiles[i]['name']}`);
+                    profileMods.splice(index, 0, {'name': modNames[j], 'enabled': 'false'});
+                }
+            }
+            profileMods = helpers.sortArrayByProp(profileMods, 'name');
+        }
+        helpers.log('Finished looking for newly installed mods.');
+    }
+    catch(error) {
+        helpers.log(`Had error: ${error}`);
+    }
+
 };

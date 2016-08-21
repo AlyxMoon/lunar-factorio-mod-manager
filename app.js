@@ -38,7 +38,7 @@ app.on('activate', function () {
 // Event listeners for client messages
 
 electron.ipcMain.on('newProfile', function() {
-    profileManager.createProfile();
+    profileManager.createProfile(modManager.getInstalledModNames());
     profileManager.sendAllProfiles(mainWindow);
 });
 electron.ipcMain.on('activateProfile', function(event, profileName) {
@@ -64,7 +64,9 @@ electron.ipcMain.on('toggleMod', function(event, modName) {
     profileManager.toggleMod(modName);
 });
 
-electron.ipcMain.on('requestInstalledModInfo', showInstalledModInfo);
+electron.ipcMain.on('requestInstalledModInfo', function(event, modName) {
+    modManager.sendInstalledModInfo(mainWindow, modName);
+});
 electron.ipcMain.on('requestOnlineModInfo', showOnlineModInfo);
 electron.ipcMain.on('requestDownload', initiateDownload);
 
@@ -74,62 +76,6 @@ electron.ipcMain.on('startGame', function() {
 electron.ipcMain.on('changePage', function(event, newPage) {
     appManager.loadPage(mainWindow, newPage, profileManager, modManager);
 });
-
-//---------------------------------------------------------
-//---------------------------------------------------------
-// Local mod functions
-
-// Expects one argument, a string containing the name of the mod to get info on
-function showInstalledModInfo(event, modName) {
-
-    let mods = modManager.installedMods;
-    for(let i = mods.length - 1; i >= 0; i--) {
-        if(mods[i]['name'] === modName) {
-            mainWindow.webContents.send('dataInstalledModInfo', mods[i]);
-            break;
-        }
-    }
-
-}
-
-function checkForNewMods() {
-    helpers.log('Checking for newly installed mods.');
-
-    try {
-        let mods = modManager.installedModsNames;
-        let profiles = profileManager.profileList['all-profiles'];
-        let modList = {'mods': []};
-        for(let i = 0; i < profiles.length; i++) {
-            if(profiles[i]['enabled']) {
-                modList['mods'] = profiles[i]['mods'];
-            }
-            let profileMods = profiles[i]['mods'];
-            for(let j = 0; j < mods.length; j++) {
-
-                let index = -1;
-                for(let k = 0; k < profileMods.length; k++) {
-                    if(profileMods[k]['name'] === mods[j]) {
-                        index = k;
-                        break;
-                    }
-                }
-
-                if(index === -1) {
-                    helpers.log(`Found new mod: ${mods[j]} -- Adding to profile: ${profiles[i]['name']}`);
-                    profileMods.splice(index, 0, {'name': mods[j], 'enabled': 'false'});
-                }
-            }
-            profileMods = helpers.sortArrayByProp(profileMods, 'name');
-        }
-        helpers.log('Finished looking for newly installed mods.');
-    }
-    catch(error) {
-        helpers.log(`Had error: ${error}`);
-    }
-
-}
-
-
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -287,10 +233,11 @@ function startProgram() {
         helpers.log('Error: ' + error);
     }
 
-    //checkForNewMods();
+    profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
 
     mainWindow = appManager.createWindow(config, appData);
     appManager.loadPage(mainWindow, 'page_profiles', profileManager);
+
 }
 
 function createAppFiles() {
