@@ -156,6 +156,46 @@ ModManager.prototype.loadOnlineMods = function(window) {
     }
 };
 
+ModManager.prototype.initiateDownload = function(window, modID) {
+    if(!this.playerUsername || !this.playerToken) {
+        return;
+    }
+
+    let mods = this.onlineMods;
+    let modToDownload;
+
+    for(let i = mods.length - 1; i >= 0; i--) {
+       if(mods[i]['id'] == modID) {
+           window.webContents.send('ping', mods[i]);
+           modToDownload = mods[i];
+           break;
+       }
+    }
+    window.webContents.send('ping', modToDownload);
+
+    helpers.log(`Attempting to download mod: ${modToDownload['name']}`);
+    let downloadURL = `https://mods.factorio.com${modToDownload['latest_release']['download_url']}`;
+    downloadURL += `?username=${this.playerUsername}&token=${this.playerToken}`;
+    window.webContents.send('ping', downloadURL);
+
+    window.webContents.downloadURL(downloadURL);
+};
+
+ModManager.prototype.manageDownload = function(item, webContents, profileManager) {
+   // Set the save path, making Electron not to prompt a save dialog.
+   item.setSavePath(`${this.modDirectoryPath}${item.getFilename()}`);
+
+   item.once('done', (event, state) => {
+       if (state === 'completed') {
+           helpers.log('Downloaded mod successfully');
+           this.loadInstalledMods();
+           profileManager.updateProfilesWithNewMods(this.getInstalledModNames());
+       } else {
+           helpers.log(`Download failed: ${state}`);
+       }
+   });
+};
+
 //---------------------------------------------------------
 // Helper and Miscellaneous Logic
 

@@ -65,7 +65,9 @@ electron.ipcMain.on('requestInstalledModInfo', function(event, modName) {
 electron.ipcMain.on('requestOnlineModInfo', function(event, modName) {
     modManager.sendOnlineModInfo(mainWindow, modName);
 });
-//electron.ipcMain.on('requestDownload', initiateDownload);
+electron.ipcMain.on('requestDownload', function(event, modID) {
+    modManager.initiateDownload(mainWindow, modID);
+});
 
 electron.ipcMain.on('startGame', function() {
     appManager.startGame(app, config, profileManager);
@@ -76,56 +78,7 @@ electron.ipcMain.on('changePage', function(event, newPage) {
 
 //---------------------------------------------------------
 //---------------------------------------------------------
-// Online mod functions
-//
-//// Expects one argument, the id of the mod to download
-//function initiateDownload(event, modID) {
-//    let mods = appData['onlineMods'];
-//    let modToDownload;
-//
-//    for(let i = mods.length - 1; i >= 0; i--) {
-//        if(mods[i]['id'] == modID) {
-//            mainWindow.webContents.send('ping', mods[i]);
-//            modToDownload = mods[i];
-//            break;
-//        }
-//    }
-//    mainWindow.webContents.send('ping', modToDownload);
-//
-//    helpers.log(`Attempting to download mod: ${modToDownload['name']}`);
-//    let downloadURL = `https://mods.factorio.com${modToDownload['latest_release']['download_url']}`;
-//
-//    mainWindow.webContents.downloadURL(downloadURL);
-//}
-//
-//function manageDownload(event, item, webContents) {
-//    // Set the save path, making Electron not to prompt a save dialog.
-//    item.setSavePath(`${__dirname}/data/${item.getFilename()}`);
-//
-//    item.on('updated', (event, state) => {
-//        if (state === 'interrupted') {
-//            helpers.log('Download is interrupted but can be resumed');
-//            item.resume();
-//        } else if (state === 'progressing') {
-//            if (item.isPaused()) {
-//                helpers.log('Download is paused');
-//            } else {
-//                helpers.log(`Received bytes: ${item.getReceivedBytes()}`);
-//            }
-//        }
-//    });
-//    item.once('done', (event, state) => {
-//        if (state === 'completed') {
-//            helpers.log('Download successfully');
-//        } else {
-//            helpers.log(`Download failed: ${state}`);
-//        }
-//    });
-//}
-
-//---------------------------------------------------------
-//---------------------------------------------------------
-// Application management function
+// Application management functions
 
 function init() {
     helpers.log('Beginning initialization of app.');
@@ -163,7 +116,6 @@ function startProgram() {
         if(!modManager) {
             let ModManager = require('./inc/modManagement.js');
             modManager = new ModManager.Manager(config['modlist-path'], config['mod-path'], config['game-path']);
-
         }
     }
     catch(error){
@@ -173,6 +125,9 @@ function startProgram() {
     profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
 
     mainWindow = appManager.createWindow(config);
+    mainWindow.webContents.session.on('will-download', function(event, item, webContents) {
+        modManager.manageDownload(item, webContents, profileManager);
+    });
     appManager.loadPage(mainWindow, 'page_profiles', profileManager);
 
 }

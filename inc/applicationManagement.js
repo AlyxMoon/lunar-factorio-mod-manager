@@ -54,7 +54,6 @@ module.exports = {
         window.on('closed', function () {
             window = null;
         });
-        //window.webContents.session.on('will-download', manageDownload);
 
         helpers.log('Window created successfully, event registered');
         return window;
