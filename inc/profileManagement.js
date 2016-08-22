@@ -220,7 +220,6 @@ ProfileManager.prototype.updateProfilesWithNewMods = function(modNames) {
 
                 let index = -1;
                 for(let k = 0; k < profileMods.length; k++) {
-                    helpers.log(profileMods[k]['name']);
                     if(profileMods[k]['name'] === modNames[j]) {
                         index = k;
                         break;

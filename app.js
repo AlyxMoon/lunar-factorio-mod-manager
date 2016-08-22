@@ -139,8 +139,6 @@ function startProgram() {
         appManager.loadPage(mainWindow, 'page_profiles', profileManager, modManager);
     });
 
-
-
 }
 
 function createAppFiles() {
