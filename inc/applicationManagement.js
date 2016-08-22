@@ -49,12 +49,11 @@ module.exports = {
 
         let window = new BrowserWindow(windowOptions);
         window.setMenu(null);
-        //window.webContents.openDevTools();
+        if(appConfig['debug'] === true) window.webContents.openDevTools();
 
         window.on('closed', function () {
             window = null;
         });
-        //window.webContents.session.on('will-download', manageDownload);
 
         helpers.log('Window created successfully, event registered');
         return window;
@@ -78,8 +77,9 @@ module.exports = {
         }
         else if(page === 'page_onlineMods') {
             window.loadURL(`file://${__dirname}/../view/${page}.html`);
-            // TODO: Do not use in app until we've put in this functionality
-            //window.webContents.once('did-finish-load', showOnlineMods);
+            window.webContents.once('did-finish-load', function() {
+               modManager.loadOnlineMods(window);
+            });
         }
         else {
             helpers.log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');

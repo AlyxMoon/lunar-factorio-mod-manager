@@ -5,13 +5,11 @@ module.exports = {
 //---------------------------------------------------------
 // Primary class declaration
 
-// TODO: Make mods be ready before this so they can be provided in constructor
 function ProfileManager(profilesPath, modlistPath) {
-    helpers.log(profilesPath);
-    helpers.log(modlistPath);
 
     this.profilesPath = profilesPath;
     this.modlistPath = modlistPath;
+
 
     this.profileList = this.loadProfiles();
 }
@@ -136,7 +134,6 @@ ProfileManager.prototype.renameActiveProfile = function(newName) {
 ProfileManager.prototype.deleteActiveProfile = function() {
     helpers.log(`Attempting to delete active profile`);
     let profiles = this.profileList['all-profiles'];
-    let activeProfile = this.profileList['active-profile'];
 
     for(let i = 0; i < profiles.length; i++) {
         if(profiles[i]['enabled']) {
@@ -149,15 +146,15 @@ ProfileManager.prototype.deleteActiveProfile = function() {
         this.createProfile();
     }
     profiles[0]['enabled'] = true;
-    activeProfile = profiles[0];
+    this.profileList['active-profile'] = profiles[0];
 
-    helpers.log(`Successfully deleted profile. New active profile: ${activeProfile['name']}`);
+    helpers.log(`Successfully deleted profile. New active profile: ${this.profileList['active-profile']['name']}`);
 };
 
 ProfileManager.prototype.moveActiveProfile = function(direction) {
     helpers.log(`Attempting to move profile '${this.profileList['active-profile']['name']}' ${direction}`);
 
-    let profiles = this.profileList['profiles'];
+    let profiles = this.profileList['all-profiles'];
 
     let index = 0;
     for(let i = 0; i < profiles.length; i++) {
@@ -217,11 +214,7 @@ ProfileManager.prototype.updateProfilesWithNewMods = function(modNames) {
     try {
         let profiles = this.profileList['all-profiles'];
 
-        let modList = {'mods': []};
         for(let i = 0; i < profiles.length; i++) {
-            if(profiles[i]['enabled']) {
-                modList['mods'] = profiles[i]['mods'];
-            }
             let profileMods = profiles[i]['mods'];
             for(let j = 0; j < modNames.length; j++) {
 
