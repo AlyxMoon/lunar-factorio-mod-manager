@@ -6,13 +6,15 @@ module.exports = {
 // Primary class declaration
 
 // TODO: Make mods be ready before this so they can be provided in constructor
-function ModManager(modListPath, modDirectoryPath, gamePath) {
+function ModManager(modListPath, modDirectoryPath, gamePath, customEvents) {
 
     this.modListPath = modListPath;
     this.modDirectoryPath = modDirectoryPath;
     this.gamePath = gamePath;
     this.installedMods = [];
     this.onlineMods = [];
+
+    this.customEvents = customEvents;
 
     this.playerUsername = '';
     this.playerToken = '';
@@ -66,7 +68,9 @@ ModManager.prototype.loadInstalledMods = function() {
     let modZipNames = file.readdirSync(this.modDirectoryPath, 'utf8');
     modZipNames.splice(modZipNames.indexOf('mod-list.json'), 1);
 
+    this.installedMods = [];
     let mods = this.installedMods;
+    let events = this.customEvents;
 
     // Add base mod
     let gamePath = this.gamePath;
@@ -90,7 +94,11 @@ ModManager.prototype.loadInstalledMods = function() {
 
                 // Only show once all zip files have been read
                 counter--;
-                if(counter <= 0) mods = helpers.sortArrayByProp(mods, 'name');
+                if(counter <= 0) {
+                    mods = helpers.sortArrayByProp(mods, 'name');
+                    events.emit('modsLoaded');
+                    helpers.log('Finished loading mods.');
+                }
             });
         });
     }

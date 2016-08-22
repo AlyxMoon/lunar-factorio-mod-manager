@@ -3,6 +3,10 @@
 
 const electron = require('electron');
 const app = electron.app;
+
+const EventEmitter = require('events');
+let customEvents = new EventEmitter();
+
 let mainWindow;
 let profileManager;
 let modManager;
@@ -108,27 +112,34 @@ function init() {
 
 function startProgram() {
     helpers.log('Starting the app now.');
-    let ProfileManager = require('./inc/profileManagement.js');
-    profileManager = new ProfileManager.Manager(config['profiles-path'], config['modlist-path']);
+
+
 
     // Only initialize if it wasn't created in the createAppFiles function
     try{
         if(!modManager) {
             let ModManager = require('./inc/modManagement.js');
-            modManager = new ModManager.Manager(config['modlist-path'], config['mod-path'], config['game-path']);
+            modManager = new ModManager.Manager(config['modlist-path'], config['mod-path'], config['game-path'], customEvents);
         }
     }
     catch(error){
         helpers.log('Error: ' + error);
     }
 
-    profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
+    let ProfileManager = require('./inc/profileManagement.js');
+    profileManager = new ProfileManager.Manager(config['profiles-path'], config['modlist-path']);
 
     mainWindow = appManager.createWindow(config);
     mainWindow.webContents.session.on('will-download', function(event, item, webContents) {
         modManager.manageDownload(item, webContents, profileManager);
     });
-    appManager.loadPage(mainWindow, 'page_profiles', profileManager);
+
+    customEvents.once('modsLoaded', function(event) {
+        profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
+        appManager.loadPage(mainWindow, 'page_profiles', profileManager, modManager);
+    });
+
+
 
 }
 
