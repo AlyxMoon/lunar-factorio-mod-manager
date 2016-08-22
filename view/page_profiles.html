@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../inc/bootstrap.min.css">
+    <link rel="stylesheet" href="../inc/styles.css">
+</head>
+<body>
+    <!-- Standard header for every page in application -->
+    <div id="nav-view">
+        <div id="pageButtons" class="btn-group" role="group" aria-label="...">
+            <button type="button" id="start-factorio" class="btn btn-success">Start Factorio</button>
+            <button type="button" id="page-profiles" class="btn btn-primary" disabled="disabled">Profiles</button>
+            <button type="button" id="page-localMods" class="btn btn-default">Local Mods</button>
+            <button type="button" id="page-onlineMods" class="btn btn-default">Online Mods</button>
+        </div>
+        <hr>
+    </div> <!-- End of the standard header -->
+
+    <!-- Main body section for data -->
+    <div class="main-view">
+        <!-- First column, only shows active profile -->
+        <div class="col-xs-8 height-100"><div class="view-section scroll height-100">
+            <table id="active-profile" class="table table-condensed table-hover"></table>
+        </div></div> <!-- End of first column -->
+
+        <!-- Second column, shows profile management options and list of profiles -->
+        <div class="col-xs-4 height-100">
+            <!-- Sub-section, shows the profile management options -->
+            <div id="button-section" class="view-section height-20">
+                <button type="button" id="profile-new" class="btn btn-info btn-block">New Profile</button>
+                <button type="button" id="profile-rename" class="btn btn-info btn-block">Rename Profile</button>
+                <button type="button" id="profile-delete" class="btn btn-danger btn-block">Delete Profile</button>
+            </div> <!-- End of profile management sub-section -->
+
+            <!-- Sub-section, shows the list of profiles and sorting options -->
+            <div class="view-section scroll height-80">
+                <!-- Buttons to sort profiles. Too difficult for me to put on bottom of last section so they go here -->
+                <div id="profiles-sort" class="btn-group btn-group-justified" role="group" aria-label="...">
+                    <div class="btn-group" role="group">
+                        <button id="profile-sort-up" type="button" class="btn btn-default">
+                            Profile <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button id="profile-sort-down" type="button" class="btn btn-default">
+                            Profile <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div> <!-- End of profile sort buttons -->
+
+                <!-- List of profiles -->
+                <table id="profiles-list" class="table table-condensed table-hover">
+                    <thead><tr><th class="bg-primary">Profiles:</th></tr></thead>
+                    <tbody></tbody>
+                </table> <!-- End of profiles list -->
+            </div> <!-- End of the sub-section for profiles list and sorting options -->
+        </div> <!-- End of the second column -->
+    </div> <!-- End of the main body section -->
+</body>
+    <!-- Required for script imports  -->
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+    <script src='../inc/jquery-3.1.0.min.js'></script>
+    <script src='../inc/bootstrap.min.js'></script>
+    <script> require('./inc.js') </script>
+    <script> require('./page_profiles.js') </script>
+</html>
