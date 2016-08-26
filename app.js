@@ -207,9 +207,11 @@ function createAppFiles() {
 
     data['game-path'] = gamePath;
 
+    helpers.log('About to create Mod Manager');
     try {
-        modManager = new require('modManagement.js').Manager(data['modlist-path'], data['mod-path'], data['game-path']);
-
+        let ModManager = require('./inc/modManagement.js');
+        modManager = new ModManager.Manager(data['modlist-path'], data['mod-path'], data['game-path'], customEvents);
+        helpers.log('Created Mod Manager');
         file.writeFileSync(configPath, JSON.stringify(data));
         config = data;
 
