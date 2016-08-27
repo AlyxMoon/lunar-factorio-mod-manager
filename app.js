@@ -8,14 +8,15 @@ const appMessager = electron.ipcMain;
 const EventEmitter = require('events');
 let customEvents = new EventEmitter();
 
+const AppManager = require('./inc/applicationManagement.js');
+let appManager = new AppManager.Manager();
+
 let mainWindow;
 let profileManager;
 let modManager;
 let config;
 
 const helpers = require('./inc/helpers.js');
-const appManager = require('./inc/applicationManagement.js');
-
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -113,8 +114,6 @@ function init() {
 
 function startProgram() {
     helpers.log('Starting the app now.');
-
-
 
     // Only initialize if it wasn't created in the createAppFiles function
     try{
