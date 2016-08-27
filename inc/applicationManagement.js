@@ -2,10 +2,49 @@ const helpers = require('./helpers.js');
 module.exports = {
     Manager: AppManager
 };
+//---------------------------------------------------------
+// Primary class declaration
 
 function AppManager() {
-    
+
 }
+
+//---------------------------------------------------------
+// Startup-related functions
+
+
+AppManager.prototype.promptForModlist = function(dialog) {
+    helpers.log('Prompting user for Factorio modlist.json file.');
+
+    let options = {
+        'title': 'Find location of mod-list.json file',
+        'properties': ['openFile'],
+        'filters': [{'name': 'Factorio Mod List', 'extensions': ['json']}]
+    };
+
+    let modlist = dialog.showOpenDialog(options);
+
+    if(modlist) return modlist[0];
+    else return undefined;
+};
+
+AppManager.prototype.promptForGamePath = function(dialog) {
+    helpers.log('Prompting user for Factorio.exe file.');
+
+    let options = {
+        'title': 'Find location of Factorio.exe file',
+        'properties': ['openFile'],
+        'filters': [{'name': 'Factorio Executable', 'extensions': ['exe']}]
+    };
+
+    let gamePath = dialog.showOpenDialog(options);
+
+    if(gamePath) return gamePath[0];
+    else return undefined;
+};
+
+//---------------------------------------------------------
+// Application-finishing functions
 
 AppManager.prototype.startGame = function(app, config, profileManager) {
     helpers.log('Starting Factorio and shutting down app.');
@@ -35,6 +74,9 @@ AppManager.prototype.closeProgram = function(app, config, profileManager, inErro
         app.quit();
     }
 };
+
+//---------------------------------------------------------
+// Miscellaneous logic and helpers
 
 AppManager.prototype.createWindow = function(appConfig) {
     helpers.log('Creating the application window');

@@ -160,51 +160,28 @@ function createAppFiles() {
         'game-path': ''
     };
 
-
-    let options = {
-        'title': 'Find location of mod-list.json file',
-        'properties': ['openFile'],
-        'filters': [{'name': 'Factorio Mod List', 'extensions': ['json']}]
-    };
-
-    helpers.log('Prompting user for Factorio modlist.json file.');
-    let modPath = electron.dialog.showOpenDialog(options);
+    let modPath = appManager.promptForModlist(electron.dialog);
     if(modPath === undefined) {
         helpers.log('User cancelled the dialog search.');
         appManager.closeProgram(app, config, profileManager, true);
     }
-
-    modPath = modPath[0];
-    helpers.log(`User selected mod list at: ${modPath}`);
-    if(modPath.indexOf('mod-list.json') === -1) {
+    else if(modPath.indexOf('mod-list.json') === -1) {
         helpers.log('The selected file was not correct. Closing app.');
         appManager.closeProgram(app, config, profileManager, true);
     }
 
-
-    data['modlist-path'] = modPath;
-    data['mod-path'] = modPath.slice(0,modPath.indexOf('mod-list.json'));
-
-    options = {
-        'title': 'Find location of Factorio.exe file',
-        'properties': ['openFile'],
-        'filters': [{'name': 'Factorio Executable', 'extensions': ['exe']}]
-    };
-
-    helpers.log('Prompting user for Factorio.exe file.');
-    let gamePath = electron.dialog.showOpenDialog(options);
-    helpers.log(`User selected Factorio executable at: ${gamePath}`);
-
+    let gamePath = appManager.promptForGamePath(electron.dialog);
     if(gamePath === undefined) {
         helpers.log('User cancelled the dialog search.');
         appManager.closeProgram(app, config, profileManager, true);
     }
-    gamePath = gamePath[0];
-    if(gamePath.indexOf('factorio.exe') === -1) {
+    else if(gamePath.indexOf('factorio.exe') === -1) {
         helpers.log('The selected file was not correct. Closing app.');
         appManager.closeProgram(app, config, profileManager, true);
     }
 
+    data['modlist-path'] = modPath;
+    data['mod-path'] = modPath.slice(0,modPath.indexOf('mod-list.json'));
     data['game-path'] = gamePath;
 
     try {
