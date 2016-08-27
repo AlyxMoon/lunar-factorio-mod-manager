@@ -3,6 +3,7 @@
 
 const electron = require('electron');
 const app = electron.app;
+const appMessager = electron.ipcMain;
 
 const EventEmitter = require('events');
 let customEvents = new EventEmitter();
@@ -36,47 +37,47 @@ app.on('activate', function () {
 //---------------------------------------------------------
 // Event listeners for client messages
 
-electron.ipcMain.on('newProfile', function() {
+appMessager.on('newProfile', function() {
     profileManager.createProfile(modManager.getInstalledModNames());
     profileManager.sendAllProfiles(mainWindow);
 });
-electron.ipcMain.on('activateProfile', function(event, profileName) {
+appMessager.on('activateProfile', function(event, profileName) {
     profileManager.activateProfile(profileName);
     profileManager.sendAllProfiles(mainWindow);
     profileManager.sendActiveProfile(mainWindow);
 });
-electron.ipcMain.on('renameProfile', function(event, newName) {
+appMessager.on('renameProfile', function(event, newName) {
     profileManager.renameActiveProfile(newName);
     profileManager.sendAllProfiles(mainWindow);
     profileManager.sendActiveProfile(mainWindow);
 });
-electron.ipcMain.on('deleteProfile', function() {
+appMessager.on('deleteProfile', function() {
     profileManager.deleteActiveProfile();
     profileManager.sendAllProfiles(mainWindow);
     profileManager.sendActiveProfile(mainWindow);
 });
-electron.ipcMain.on('sortProfile', function(event, direction) {
+appMessager.on('sortProfile', function(event, direction) {
     profileManager.moveActiveProfile(direction);
     profileManager.sendAllProfiles(mainWindow);
 });
-electron.ipcMain.on('toggleMod', function(event, modName) {
+appMessager.on('toggleMod', function(event, modName) {
     profileManager.toggleMod(modName);
 });
 
-electron.ipcMain.on('requestInstalledModInfo', function(event, modName) {
+appMessager.on('requestInstalledModInfo', function(event, modName) {
     modManager.sendInstalledModInfo(mainWindow, modName);
 });
-electron.ipcMain.on('requestOnlineModInfo', function(event, modName) {
+appMessager.on('requestOnlineModInfo', function(event, modName) {
     modManager.sendOnlineModInfo(mainWindow, modName);
 });
-electron.ipcMain.on('requestDownload', function(event, modID) {
+appMessager.on('requestDownload', function(event, modID) {
     modManager.initiateDownload(mainWindow, modID);
 });
 
-electron.ipcMain.on('startGame', function() {
+appMessager.on('startGame', function() {
     appManager.startGame(app, config, profileManager);
 });
-electron.ipcMain.on('changePage', function(event, newPage) {
+appMessager.on('changePage', function(event, newPage) {
     appManager.loadPage(mainWindow, newPage, profileManager, modManager);
 });
 
@@ -210,7 +211,7 @@ function createAppFiles() {
     try {
         let ModManager = require('./inc/modManagement.js');
         modManager = new ModManager.Manager(data['modlist-path'], data['mod-path'], data['game-path'], customEvents);
-        
+
         file.writeFileSync(configPath, JSON.stringify(data));
         config = data;
 
