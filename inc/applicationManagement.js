@@ -128,4 +128,7 @@ AppManager.prototype.loadPage = function(window, page, profileManager, modManage
     else {
         helpers.log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');
     }
+    window.webContents.once('did-finish-load', function() {
+        modManager.sendOnlineMods(window);
+    });
 };

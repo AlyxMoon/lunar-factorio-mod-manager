@@ -156,6 +156,10 @@ appMessager.on('changePage', function(event, newPage) {
     }
 });
 
+customEvents.on('onlineModsLoaded', function() {
+    if(mainWindow && modManager) modManager.sendOnlineMods(mainWindow);
+})
+
 //---------------------------------------------------------
 //---------------------------------------------------------
 // Application management functions
@@ -217,7 +221,7 @@ function startProgram() {
             modManager.manageDownload(item, webContents, profileManager);
         });
 
-        customEvents.once('modsLoaded', function(event) {
+        customEvents.once('installedModsLoaded', function(event) {
             profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
             appManager.loadPage(mainWindow, 'page_profiles', profileManager, modManager);
         });

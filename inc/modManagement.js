@@ -61,8 +61,6 @@ ModManager.prototype.sendOnlineModInfo = function(window, modName) {
 // File Management
 
 ModManager.prototype.loadInstalledMods = function() {
-    helpers.log('Beginning to load installed mods.');
-
     let file = require('fs');
     let JSZip = require('jszip');
 
@@ -97,8 +95,7 @@ ModManager.prototype.loadInstalledMods = function() {
                 counter--;
                 if(counter <= 0) {
                     mods = helpers.sortArrayByProp(mods, 'name');
-                    events.emit('modsLoaded');
-                    helpers.log('Finished loading mods.');
+                    events.emit('installedModsLoaded');
                 }
             });
         });
@@ -123,24 +120,22 @@ ModManager.prototype.loadPlayerData = function() {
 // Online Mod Management
 
 // window is an optional argument, if given will send data once loaded
-ModManager.prototype.loadOnlineMods = function(window) {
-    if(this.onlineMods.length > 0) {
-        if(window !== undefined) this.sendOnlineMods(window);
-        return;
-    }
+ModManager.prototype.loadOnlineMods = function() {
 
     let request = require('request');
-
     let mods = this.onlineMods;
+    let events = this.customEvents;
+
     let apiURL = 'https://mods.factorio.com/api/mods';
     let options = '?page_size=20';
 
+
     getOnlineModData(`${apiURL}${options}`, function() {
-      if(window !== undefined) window.webContents.send('dataOnlineMods', mods);
+        events.emit('onlineModsLoaded');
     });
 
     function getOnlineModData(url, callback) {
-       if(window !== undefined) window.webContents.send('dataOnlineMods', mods);
+        events.emit('onlineModsLoaded');
 
        request(url ,function(error, response, data) {
            if(!error && response.statusCode == 200) {
