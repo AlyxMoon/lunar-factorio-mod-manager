@@ -1,7 +1,15 @@
 const messager = require('electron').ipcRenderer;
 
+let installedMods;
+let onlineMods;
+
 //---------------------------------------------------------
 // Event listeners for client and server events
+
+messager.on('dataInstalledMods', function(event, mods) {
+    installedMods = mods;
+    console.log(installedMods);
+});
 
 messager.on('dataOnlineMods', listOnlineMods);
 messager.on('dataOnlineModInfo', showOnlineModInfo);
@@ -28,6 +36,10 @@ function listOnlineMods(event, mods) {
 
     for(let i = 0; i < mods.length; i++) {
         table.append('<tr><td>' + mods[i]['name'] + '</td></tr>');
+        if(isModDownloaded(mods[i]['name'])) {
+            $('table#mods-list tbody td').last().prepend('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>   ');
+        }
+
     }
     table.append('</tbody>');
 }
@@ -113,4 +125,14 @@ function showOnlineModInfo(event, mod) {
 function requestDownload(event) {
     let requestedMod = $(this).attr('id');
     messager.send('requestDownload', requestedMod);
+}
+
+//---------------------------------------------------------
+// Logic and helper functions
+function isModDownloaded(modName) {
+    let length = installedMods.length;
+    for(let i = 0; i < length; i++) {
+        if(installedMods[i] === modName) return true;
+    }
+    return false;
 }

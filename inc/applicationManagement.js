@@ -125,7 +125,8 @@ AppManager.prototype.loadPage = function(window, page, profileManager, modManage
     else if(page === 'page_onlineMods') {
         window.loadURL(`file://${__dirname}/../view/${page}.html`);
         window.webContents.once('did-finish-load', function() {
-           modManager.loadOnlineMods(window);
+            modManager.sendInstalledMods(window);
+            modManager.loadOnlineMods(window);
         });
     }
     else {
