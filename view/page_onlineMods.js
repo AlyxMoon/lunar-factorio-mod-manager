@@ -39,6 +39,7 @@ function listOnlineMods(event, mods) {
     for(let i = 0; i < mods.length; i++) {
         table.append(`<tr><td id="${mods[i]['id']}">` + mods[i]['name'] + '</td></tr>');
         if(isModDownloaded(mods[i]['name'])) {
+            $('table#mods-list tbody td').last().addClass('downloaded');
             $('table#mods-list tbody td').last().prepend('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>   ');
         }
 
@@ -51,7 +52,6 @@ function showOnlineModInfo() {
     $(this).addClass('info');
 
     let modID = $(this).attr('id')
-    console.log(modID);
     let mod;
     for(let i = onlineMods.length - 1; i >= 0; i--) {
        if(onlineMods[i]['id'] == modID) {
@@ -69,9 +69,15 @@ function showOnlineModInfo() {
     table.append('<tbody>');
     let tableBody = $('table#mod-info tbody');
 
-    if(mod['latest_release']['download_url']) {
-        tableBody.append(`<tr><th id="${mod['id']}" class="center download-mod" colspan="2"><a href="#">Download Mod</a></th></tr>`);
+    if($(this).hasClass('downloaded')) {
+        tableBody.append(`<tr><th colspan="2">Already Downloaded Mod</th></tr>`);
     }
+    else {
+        if(mod['latest_release']['download_url']) {
+            tableBody.append(`<tr><th id="${mod['id']}" class="center download-mod" colspan="2"><a href="#">Download Mod</a></th></tr>`);
+        }
+    }
+
 
     if(modInfo['version']) {
         tableBody.append(`<tr><td>Version</td><td>${modInfo['version']}</td></tr>`);
