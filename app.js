@@ -38,6 +38,13 @@ app.on('activate', function () {
 //---------------------------------------------------------
 // Event listeners for client messages
 
+appMessager.on('requestInstalledMods', function() {
+    modManager.sendInstalledMods(mainWindow);
+});
+appMessager.on('requestOnlineMods', function() {
+    modManager.sendOnlineMods(mainWindow);
+});
+
 appMessager.on('newProfile', function() {
     try {
         profileManager.createProfile(modManager.getInstalledModNames());

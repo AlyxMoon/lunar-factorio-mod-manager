@@ -6,16 +6,17 @@ let onlineMods;
 //---------------------------------------------------------
 // Event listeners for client and server events
 
+messager.send('requestInstalledMods');
+messager.send('requestOnlineMods');
+
 messager.on('dataInstalledMods', function(event, mods) {
     installedMods = mods;
-    console.log(installedMods);
 });
-
 messager.on('dataOnlineMods', listOnlineMods);
 messager.on('dataOnlineModInfo', showOnlineModInfo);
 
 // Uses this way to assign events to elements as they will be dynamically generated
-$(document).on('click', 'table#mods-list tbody tr', requestOnlineModInfo);
+$(document).on('click', 'table#mods-list tbody td', showOnlineModInfo);
 $(document).on('click', '.download-mod', requestDownload);
 
 //---------------------------------------------------------
@@ -27,6 +28,7 @@ $(document).ready(function() {
 // Used as callback function
 // One argument, an array of strings, representing the names of online mods
 function listOnlineMods(event, mods) {
+    onlineMods = mods;
 
     let table = $('table#mods-list');
     table.children().remove();
@@ -35,7 +37,7 @@ function listOnlineMods(event, mods) {
     table.append('<tbody>');
 
     for(let i = 0; i < mods.length; i++) {
-        table.append('<tr><td>' + mods[i]['name'] + '</td></tr>');
+        table.append(`<tr><td id="${mods[i]['id']}">` + mods[i]['name'] + '</td></tr>');
         if(isModDownloaded(mods[i]['name'])) {
             $('table#mods-list tbody td').last().prepend('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>   ');
         }
@@ -44,14 +46,20 @@ function listOnlineMods(event, mods) {
     table.append('</tbody>');
 }
 
-// Will return the info pulled from the info.json file of the selected mod
-function requestOnlineModInfo() {
-    $('table#mods-list tbody tr').removeClass('info');
+function showOnlineModInfo() {
+    $('table#mods-list tbody td').removeClass('info');
     $(this).addClass('info');
 
-    messager.send('requestOnlineModInfo', $(this).text());
-}
-function showOnlineModInfo(event, mod) {
+    let modID = $(this).attr('id')
+    console.log(modID);
+    let mod;
+    for(let i = onlineMods.length - 1; i >= 0; i--) {
+       if(onlineMods[i]['id'] == modID) {
+           mod = onlineMods[i];
+           break;
+       }
+    }
+
     let modInfo = mod['latest_release']['info_json'];
 
     let table = $('table#mod-info');

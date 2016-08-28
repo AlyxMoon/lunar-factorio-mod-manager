@@ -124,10 +124,6 @@ AppManager.prototype.loadPage = function(window, page, profileManager, modManage
     }
     else if(page === 'page_onlineMods') {
         window.loadURL(`file://${__dirname}/../view/${page}.html`);
-        window.webContents.once('did-finish-load', function() {
-            modManager.sendInstalledMods(window);
-            modManager.loadOnlineMods(window);
-        });
     }
     else {
         helpers.log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');

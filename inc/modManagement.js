@@ -21,6 +21,7 @@ function ModManager(modListPath, modDirectoryPath, gamePath, customEvents) {
 
     this.loadPlayerData();
     this.loadInstalledMods();
+    this.loadOnlineMods();
 }
 
 //---------------------------------------------------------
