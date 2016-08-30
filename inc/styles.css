@@ -1,7 +1,11 @@
 /* --- Bootstrap overrides --- */
-hr {
-    margin: 2px;
+#header hr {
+    margin: 2px 0;
 }
+#footer hr {
+    margin: 6px 0 0 0;
+}
+
 .col-* {
     height: 100%;
 }
@@ -11,7 +15,7 @@ hr {
 
 /* --- Global Settings --- */
 html {
-    height: 95%;
+    height: 100%;
 }
 
 .scroll {
@@ -25,11 +29,14 @@ body {
 }
 
 /* --- Secondary Layout Structure --- */
-.nav-view {
-
+#header {
+    height: 8%;
 }
-.main-view {
-    height: 95%;
+#main-view {
+    height: 88%;
+}
+#footer {
+    height: 3%;
 }
 
 /* --- Tertiary Layout Structure --- */

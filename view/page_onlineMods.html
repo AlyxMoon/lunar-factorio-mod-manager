@@ -7,7 +7,7 @@
 </head>
 <body>
     <!-- Standard header for every page in application -->
-    <div id="nav-view">
+    <div id="header">
         <div id="pageButtons" class="btn-group" role="group" aria-label="...">
             <button type="button" id="start-factorio" class="btn btn-success">Start Factorio</button>
             <button type="button" id="page-profiles" class="btn btn-default">Profiles</button>
@@ -18,7 +18,7 @@
     </div> <!-- End of the standard header -->
 
     <!-- Main body section for data -->
-    <div class="main-view">
+    <div id="main-view">
         <!-- First column, the list of online mods (once polled from server) -->
         <div class="col-xs-5 height-100"><div class="view-section scroll height-100">
             <table id="mods-list" class="table table-condensed table-hover">
@@ -33,6 +33,13 @@
             </table>
         </div></div> <!-- End of second column -->
     </div> <!-- End of the main body section -->
+
+    <!-- Standard footer for every page in application -->
+    <div id="footer">
+        <hr>
+        <div id="modsLoadedStatus"></div>
+    </div> <!-- End of the standard footer -->
+
 </body>
     <!-- Required for script imports  -->
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>

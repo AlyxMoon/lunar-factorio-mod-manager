@@ -38,6 +38,16 @@ app.on('activate', function () {
 //---------------------------------------------------------
 // Event listeners for client messages
 
+appMessager.on('requestInstalledMods', function() {
+    modManager.sendInstalledMods(mainWindow);
+});
+appMessager.on('requestOnlineMods', function() {
+    modManager.sendOnlineMods(mainWindow);
+});
+appMessager.on('areModsLoaded', function() {
+    modManager.sendModLoadStatus(mainWindow);
+})
+
 appMessager.on('newProfile', function() {
     try {
         profileManager.createProfile(modManager.getInstalledModNames());
@@ -149,6 +159,13 @@ appMessager.on('changePage', function(event, newPage) {
     }
 });
 
+customEvents.on('onlineModsLoaded', function(finished, page, pageCount) {
+    if(mainWindow && modManager) {
+        modManager.sendOnlineMods(mainWindow);
+        mainWindow.webContents.send('modsLoadedStatus', finished, page, pageCount);
+    }
+})
+
 //---------------------------------------------------------
 //---------------------------------------------------------
 // Application management functions
@@ -210,7 +227,7 @@ function startProgram() {
             modManager.manageDownload(item, webContents, profileManager);
         });
 
-        customEvents.once('modsLoaded', function(event) {
+        customEvents.once('installedModsLoaded', function(event) {
             profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
             appManager.loadPage(mainWindow, 'page_profiles', profileManager, modManager);
         });
