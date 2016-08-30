@@ -44,6 +44,9 @@ appMessager.on('requestInstalledMods', function() {
 appMessager.on('requestOnlineMods', function() {
     modManager.sendOnlineMods(mainWindow);
 });
+appMessager.on('areModsLoaded', function() {
+    modManager.sendModLoadStatus(mainWindow);
+})
 
 appMessager.on('newProfile', function() {
     try {
@@ -156,8 +159,11 @@ appMessager.on('changePage', function(event, newPage) {
     }
 });
 
-customEvents.on('onlineModsLoaded', function() {
-    if(mainWindow && modManager) modManager.sendOnlineMods(mainWindow);
+customEvents.on('onlineModsLoaded', function(finished, page, pageCount) {
+    if(mainWindow && modManager) {
+        modManager.sendOnlineMods(mainWindow);
+        mainWindow.webContents.send('modsLoadedStatus', finished, page, pageCount);
+    }
 })
 
 //---------------------------------------------------------

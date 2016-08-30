@@ -15,6 +15,7 @@ function ModManager(modListPath, modDirectoryPath, gamePath, customEvents) {
     this.onlineMods = [];
 
     this.customEvents = customEvents;
+    this.modsLoaded = false;
 
     this.playerUsername = '';
     this.playerToken = '';
@@ -56,6 +57,10 @@ ModManager.prototype.sendOnlineModInfo = function(window, modName) {
        }
     }
 };
+
+ModManager.prototype.sendModLoadStatus = function(window) {
+    window.webContents.send('modsLoadedStatus', this.modsLoaded);
+}
 
 //---------------------------------------------------------
 // File Management
@@ -130,16 +135,20 @@ ModManager.prototype.loadOnlineMods = function() {
     let options = '?page_size=20';
 
 
-    getOnlineModData(`${apiURL}${options}`, function() {
-        events.emit('onlineModsLoaded');
+    getOnlineModData(`${apiURL}${options}`, () => {
+        this.modsLoaded = true;
+        events.emit('onlineModsLoaded', true);
     });
 
     function getOnlineModData(url, callback) {
-        events.emit('onlineModsLoaded');
 
        request(url ,function(error, response, data) {
            if(!error && response.statusCode == 200) {
                data = JSON.parse(data);
+
+               let page = data.pagination.page;
+               let pageCount = data.pagination.page_count;
+               events.emit('onlineModsLoaded', false, page, pageCount);
 
                for(let i = 0; i < data['results'].length; i++) {
                    mods.push(data['results'][i]);
