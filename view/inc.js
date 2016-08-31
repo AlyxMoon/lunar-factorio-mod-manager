@@ -39,10 +39,10 @@ $(document).ready(function() {
 
 function showLoadingStatus(loaded, page, pageCount) {
     if(loaded) {
-        $('div#modsLoadedStatus').text('Online mods have been downloaded');
+        $('div#modsLoadedStatus').html('<span class="glyphicon glyphicon-ok"></span>  All Online Mods Fetched');
     }
     else {
-        $('div#modsLoadedStatus').html(`<span class="glyphicon glyphicon-refresh"></span>  Online Mods Loading - ${page}/${pageCount}`);
+        $('div#modsLoadedStatus').html(`<span class="glyphicon glyphicon-refresh"></span>  Fetching Online Mods - ${page}/${pageCount}`);
     }
 }
 
