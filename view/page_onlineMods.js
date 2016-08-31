@@ -152,7 +152,7 @@ function requestDownload(event) {
 function isModDownloaded(modName) {
     let length = installedMods.length;
     for(let i = 0; i < length; i++) {
-        if(installedMods[i] === modName) return true;
+        if(installedMods[i].name === modName) return true;
     }
     return false;
 }

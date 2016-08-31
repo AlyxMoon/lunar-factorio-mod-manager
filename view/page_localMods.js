@@ -25,7 +25,7 @@ function listInstalledMods(event, mods) {
     table.append('<tbody>');
 
     for(let i = 0; i < mods.length; i++) {
-        table.append('<tr><td>' + mods[i] + '</td></tr>');
+        table.append('<tr><td>' + mods[i].name + '</td></tr>');
     }
     table.append('</tbody>');
 }

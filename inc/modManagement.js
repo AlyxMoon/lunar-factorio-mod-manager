@@ -29,7 +29,7 @@ function ModManager(modListPath, modDirectoryPath, gamePath, customEvents) {
 // Sending data to the client
 
 ModManager.prototype.sendInstalledMods = function(window) {
-    window.webContents.send('dataInstalledMods', this.getInstalledModNames());
+    window.webContents.send('dataInstalledMods', this.installedMods);
 };
 
 ModManager.prototype.sendInstalledModInfo = function(window, modName) {
