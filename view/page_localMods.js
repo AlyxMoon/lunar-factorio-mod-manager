@@ -1,10 +1,14 @@
 const messager = require('electron').ipcRenderer;
 
+let installedMods;
+
 //---------------------------------------------------------
 // Event listeners for client and server events
 
-messager.on('dataInstalledMods', listInstalledMods);
-messager.on('dataInstalledModInfo', showInstalledModInfo);
+messager.on('dataInstalledMods', function(event, mods) {
+    installedMods = mods;
+    listInstalledMods(installedMods);
+});
 
 // Uses this way to assign events to elements as they will be dynamically generated
 $(document).on('click', 'table#mods-list tbody tr', requestInstalledModInfo);
@@ -12,12 +16,14 @@ $(document).on('click', 'table#mods-list tbody tr', requestInstalledModInfo);
 //---------------------------------------------------------
 //---------------------------------------------------------
 $(document).ready(function() {
-
+    messager.send('requestInstalledMods');
 });
 
 // Used as callback function
 // One argument, an array of strings, representing the names of mods installed
-function listInstalledMods(event, mods) {
+function listInstalledMods(mods) {
+    installedMods = mods;
+
     let table = $('table#mods-list');
     table.children().remove();
 
@@ -25,7 +31,7 @@ function listInstalledMods(event, mods) {
     table.append('<tbody>');
 
     for(let i = 0; i < mods.length; i++) {
-        table.append(`<tr><td>${mods[i].name}</td><td>${mods[i].version}</td></tr>`);
+        table.append(`<tr id="${i}"><td>${mods[i].name}</td><td>${mods[i].version}</td></tr>`);
     }
     table.append('</tbody>');
 }
@@ -34,12 +40,11 @@ function listInstalledMods(event, mods) {
 function requestInstalledModInfo() {
     $('table#mods-list tbody tr').removeClass('info');
     $(this).addClass('info');
-    console.log($(this).children().first().text());
 
-    messager.send('requestInstalledModInfo', $(this).children().first().text());
+    showInstalledModInfo(installedMods[$(this).attr('id')]);
 }
 
-function showInstalledModInfo(event, mod) {
+function showInstalledModInfo(mod) {
     let table = $('table#mod-info');
     table.children().remove();
 
