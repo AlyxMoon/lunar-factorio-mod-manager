@@ -3,12 +3,14 @@ const messager = require('electron').ipcRenderer;
 let installedMods;
 let onlineMods;
 
+let factorioVersion;
+
 //---------------------------------------------------------
 // Event listeners for client and server events
 
 messager.on('dataInstalledMods', function(event, mods) {
     installedMods = mods;
-    listInstalledMods(installedMods);
+    listInstalledMods();
 });
 messager.on('modsLoadedStatus', function(event, loaded, page, pageCount) {
     if(loaded) {
@@ -21,20 +23,25 @@ messager.on('modsLoadedStatus', function(event, loaded, page, pageCount) {
 
 });
 
+messager.on('dataFactorioVersion', function(event, version) {
+    factorioVersion = version;
+});
+
 // Uses this way to assign events to elements as they will be dynamically generated
 $(document).on('click', 'table#mods-list tbody tr', requestInstalledModInfo);
 
 //---------------------------------------------------------
 //---------------------------------------------------------
 $(document).ready(function() {
+    messager.send('requestFactorioVersion');
     messager.send('requestInstalledMods');
 
 });
 
 // Used as callback function
 // One argument, an array of strings, representing the names of mods installed
-function listInstalledMods(mods) {
-    installedMods = mods;
+function listInstalledMods() {
+    let mods = installedMods;
 
     let table = $('table#mods-list');
     table.children().remove();
@@ -129,12 +136,17 @@ function checkModVersions() {
 
         for(let i = 0; i < onlineMods.length; i++) {
             if(onlineMods[i].name === mod) {
-                if(isVersionHigher(version, onlineMods[i].latest_release.version)) {
+                // Check if latest release is for same Factorio version and if a higher version available
+                if( onlineMods[i].latest_release.factorio_version === factorioVersion &&
+                    isVersionHigher(version, onlineMods[i].latest_release.version)) {
+
                     $(this).children().last().html(updateIndicator + `  <span>${version}</span>`);
                 }
             }
         }
     });
+
+    $(function () { $('[data-toggle="tooltip"]').tooltip() });
 }
 
 function isVersionHigher(currentVersion, checkedVersion) {

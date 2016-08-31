@@ -50,6 +50,9 @@ appMessager.on('areModsLoaded', function() {
 appMessager.on('requestPlayerInfo', function() {
     modManager.sendPlayerInfo(mainWindow);
 });
+appMessager.on('requestFactorioVersion', function() {
+    modManager.sendFactorioVersion(mainWindow);
+});
 
 appMessager.on('newProfile', function() {
     try {

@@ -11,6 +11,7 @@ function ModManager(modListPath, modDirectoryPath, gamePath, customEvents) {
     this.modListPath = modListPath;
     this.modDirectoryPath = modDirectoryPath;
     this.gamePath = gamePath;
+    this.factorioVersion = '';
     this.installedMods = [];
     this.onlineMods = [];
 
@@ -23,6 +24,7 @@ function ModManager(modListPath, modDirectoryPath, gamePath, customEvents) {
     this.loadPlayerData();
     this.loadInstalledMods();
     this.loadOnlineMods();
+
 }
 
 //---------------------------------------------------------
@@ -61,6 +63,12 @@ ModManager.prototype.sendOnlineModInfo = function(window, modName) {
 ModManager.prototype.sendModLoadStatus = function(window) {
     window.webContents.send('modsLoadedStatus', this.modsLoaded);
 }
+
+ModManager.prototype.sendFactorioVersion = function(window) {
+    // Couldn't get event listener to set version working in the class constructor, this is my workaround
+    if(this.factorioVersion === '') this.getFactorioVersion();
+    window.webContents.send('dataFactorioVersion', this.factorioVersion);
+};
 
 ModManager.prototype.sendPlayerInfo = function(window) {
     window.webContents.send('dataPlayerInfo', this.playerUsername);
@@ -223,6 +231,19 @@ ModManager.prototype.getFactorioModList = function() {
     let data = file.readFileSync(this.modListPath, 'utf8');
     return JSON.parse(data)['mods'];
 };
+
+ModManager.prototype.getFactorioVersion = function() {
+    let mods = this.installedMods;
+
+    for(let i = 0; i < mods.length; i++) {
+        if(mods[i].name === 'base') {
+            let version = mods[i].version;
+            // Factorio version check logic doesn't care about patch version
+            this.factorioVersion = version.slice(0, version.lastIndexOf('.'));
+            break;
+        }
+    }
+}
 
 ModManager.prototype.getInstalledModNames = function() {
 

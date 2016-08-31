@@ -30,6 +30,7 @@ $('button#page-onlineMods').click(function() {
 $(document).ready(function() {
     messager.send('areModsLoaded');
     messager.send('requestPlayerInfo');
+    messager.send('requestFactorioVersion');
 
     $(function () { $('[data-toggle="tooltip"]').tooltip() });
 });
