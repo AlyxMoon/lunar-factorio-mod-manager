@@ -1,6 +1,7 @@
 const messager = require('electron').ipcRenderer;
 
 let installedMods;
+let onlineMods;
 
 //---------------------------------------------------------
 // Event listeners for client and server events
@@ -8,6 +9,16 @@ let installedMods;
 messager.on('dataInstalledMods', function(event, mods) {
     installedMods = mods;
     listInstalledMods(installedMods);
+});
+messager.on('modsLoadedStatus', function(event, loaded, page, pageCount) {
+    if(loaded) {
+        messager.on('dataOnlineMods', function(event, mods) {
+            onlineMods = mods;
+            checkModVersions();
+        });
+        messager.send('requestOnlineMods');
+    }
+
 });
 
 // Uses this way to assign events to elements as they will be dynamically generated
@@ -17,6 +28,7 @@ $(document).on('click', 'table#mods-list tbody tr', requestInstalledModInfo);
 //---------------------------------------------------------
 $(document).ready(function() {
     messager.send('requestInstalledMods');
+
 });
 
 // Used as callback function
@@ -106,4 +118,36 @@ function showInstalledModInfo(mod) {
     }
 
     tableBody.append('</tbody>');
+}
+
+function checkModVersions() {
+    let updateIndicator = '<a href="#" id="playerInfo" data-toggle="tooltip" title="Newer version available for download"><i class="glyphicon glyphicon-info-sign"></i></a>';
+
+    $('table#mods-list tbody').children().each(function(index) {
+        let mod = $(this).children().first().text();
+        let version = $(this).children().last().text();
+
+        for(let i = 0; i < onlineMods.length; i++) {
+            if(onlineMods[i].name === mod) {
+                if(isVersionHigher(version, onlineMods[i].latest_release.version)) {
+                    $(this).children().last().html(updateIndicator + `  <span>${version}</span>`);
+                }
+            }
+        }
+    });
+}
+
+function isVersionHigher(currentVersion, checkedVersion) {
+    // Expecting version to be the following format: major.minor.patch
+    let version1 = currentVersion.split('.');
+    let version2 = checkedVersion.split('.');
+
+    for(i = 0; i < 3; i++) {
+        let temp1 = parseInt(version1[i]), temp2 = parseInt(version2[i]);
+        if(temp1 < temp2) return true;
+        else if(temp1 > temp2) return false;
+    }
+
+    // Would be the same version at this point
+    return false;
 }
