@@ -62,6 +62,10 @@ ModManager.prototype.sendModLoadStatus = function(window) {
     window.webContents.send('modsLoadedStatus', this.modsLoaded);
 }
 
+ModManager.prototype.sendPlayerInfo = function(window) {
+    window.webContents.send('dataPlayerInfo', this.playerUsername);
+};
+
 //---------------------------------------------------------
 // File Management
 

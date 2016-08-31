@@ -13,6 +13,10 @@
     cursor: default; /* No ugly cross-out on a disabled button */
 }
 
+.tooltip-inner {
+    white-space: pre-wrap;
+}
+
 /* --- Global Settings --- */
 html {
     height: 100%;
