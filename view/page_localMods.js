@@ -25,7 +25,7 @@ function listInstalledMods(event, mods) {
     table.append('<tbody>');
 
     for(let i = 0; i < mods.length; i++) {
-        table.append('<tr><td>' + mods[i].name + '</td></tr>');
+        table.append(`<tr><td>${mods[i].name}</td><td>${mods[i].version}</td></tr>`);
     }
     table.append('</tbody>');
 }
@@ -34,8 +34,9 @@ function listInstalledMods(event, mods) {
 function requestInstalledModInfo() {
     $('table#mods-list tbody tr').removeClass('info');
     $(this).addClass('info');
+    console.log($(this).children().first().text());
 
-    messager.send('requestInstalledModInfo', $(this).text());
+    messager.send('requestInstalledModInfo', $(this).children().first().text());
 }
 
 function showInstalledModInfo(event, mod) {
