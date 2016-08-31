@@ -9,6 +9,9 @@ messager.on('ping', function(event, message) {
 messager.on('modsLoadedStatus', function(event, loaded, page, pageCount) {
     showLoadingStatus(loaded, page, pageCount);
 })
+messager.on('dataPlayerInfo', function(event, username) {
+    showPlayerInfo(username);
+})
 
 $('button#start-factorio').click(function() {
     messager.send('startGame');
@@ -26,7 +29,13 @@ $('button#page-onlineMods').click(function() {
 //---------------------------------------------------------
 $(document).ready(function() {
     messager.send('areModsLoaded');
+    messager.send('requestPlayerInfo');
+
+    $(function () { $('[data-toggle="tooltip"]').tooltip() });
 });
+
+//---------------------------------------------------------
+// Misc logic and helpers
 
 function showLoadingStatus(loaded, page, pageCount) {
     if(loaded) {
@@ -34,5 +43,23 @@ function showLoadingStatus(loaded, page, pageCount) {
     }
     else {
         $('div#modsLoadedStatus').html(`<span class="glyphicon glyphicon-refresh"></span>  Online Mods Loading - ${page}/${pageCount}`);
+    }
+}
+
+function showPlayerInfo(username) {
+    let playerInfoTooltip = $('a#playerInfo');
+    let playerInfoText = $('span#playerInfoText');
+
+    if(username === '') {
+        let titleText = 'Your Factorio credentials were not found. You will be unable to download mods.';
+
+        playerInfoText.text('Not Logged In');
+        playerInfoTooltip.attr('data-original-title', titleText);
+    }
+    else {
+        let titleText = `You can download mods. You are logged in as: ${username}`;
+
+        playerInfoText.text('Logged In');
+        playerInfoTooltip.attr('data-original-title', titleText);
     }
 }

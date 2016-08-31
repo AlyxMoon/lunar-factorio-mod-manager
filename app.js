@@ -46,7 +46,10 @@ appMessager.on('requestOnlineMods', function() {
 });
 appMessager.on('areModsLoaded', function() {
     modManager.sendModLoadStatus(mainWindow);
-})
+});
+appMessager.on('requestPlayerInfo', function() {
+    modManager.sendPlayerInfo(mainWindow);
+});
 
 appMessager.on('newProfile', function() {
     try {
