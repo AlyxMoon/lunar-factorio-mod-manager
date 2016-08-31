@@ -8,10 +8,10 @@ messager.on('ping', function(event, message) {
 
 messager.on('modsLoadedStatus', function(event, loaded, page, pageCount) {
     showLoadingStatus(loaded, page, pageCount);
-})
+});
 messager.on('dataPlayerInfo', function(event, username) {
     showPlayerInfo(username);
-})
+});
 
 $('button#start-factorio').click(function() {
     messager.send('startGame');
