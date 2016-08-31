@@ -2,12 +2,13 @@ const messager = require('electron').ipcRenderer;
 
 let installedMods;
 let onlineMods;
+let canDownloadMods = false;
 
 //---------------------------------------------------------
 // Event listeners for client and server events
-
-messager.send('requestInstalledMods');
-messager.send('requestOnlineMods');
+messager.on('dataPlayerInfo', function(event, username) {
+    if(username !== '') canDownloadMods = true;
+});
 
 messager.on('dataInstalledMods', function(event, mods) {
     installedMods = mods;
@@ -22,7 +23,9 @@ $(document).on('click', '.download-mod', requestDownload);
 //---------------------------------------------------------
 //---------------------------------------------------------
 $(document).ready(function() {
-
+    messager.send('requestPlayerInfo');
+    messager.send('requestInstalledMods');
+    messager.send('requestOnlineMods');
 });
 
 // Used as callback function
@@ -71,6 +74,9 @@ function showOnlineModInfo() {
 
     if($(this).hasClass('downloaded')) {
         tableBody.append(`<tr><th colspan="2">Already Downloaded Mod</th></tr>`);
+    }
+    else if(!canDownloadMods) {
+        tableBody.append(`<tr><th colspan="2">Cannot Download Mods</th></tr>`);
     }
     else {
         if(mod['latest_release']['download_url']) {
