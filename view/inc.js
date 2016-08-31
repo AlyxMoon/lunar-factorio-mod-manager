@@ -19,8 +19,8 @@ $('button#start-factorio').click(function() {
 $('button#page-profiles').click(function() {
     messager.send('changePage', 'page_profiles');
 });
-$('button#page-localMods').click(function() {
-    messager.send('changePage', 'page_localMods');
+$('button#page-installedMods').click(function() {
+    messager.send('changePage', 'page_installedMods');
 });
 $('button#page-onlineMods').click(function() {
     messager.send('changePage', 'page_onlineMods');
