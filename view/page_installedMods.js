@@ -49,10 +49,22 @@ function listInstalledMods() {
     table.append('<thead><tr class="bg-primary"><th colspan="2">All Installed Mods</th></tr></thead>');
     table.append('<tbody>');
 
+
     for(let i = 0; i < mods.length; i++) {
-        table.append(`<tr id="${i}"><td>${mods[i].name}</td><td>${mods[i].version}</td></tr>`);
+        let dependencies = getMissingDependencies(mods[i]);
+        let dependencyIndicator = '<a href="#" class="red" data-toggle="tooltip" title="Missing required dependency"><i class="glyphicon glyphicon-info-sign"></i></a>';
+
+        //table.append(`<tr id="${i}"><td>${mods[i].name}</td><td>${dependencyIndicator}  <span>${mods[i].version}</span></td></tr>`);
+        if(!dependencies || dependencies.required.length === 0) {
+            table.append(`<tr id="${i}"><td>${mods[i].name}</td><td><span>${mods[i].version}</span></td></tr>`);
+        }
+        else {
+            table.append(`<tr id="${i}"><td>${mods[i].name}</td><td>${dependencyIndicator}  <span>${mods[i].version}</span></td></tr>`);
+        }
     }
     table.append('</tbody>');
+    $(function () { $('[data-toggle="tooltip"]').tooltip() });
+
 }
 
 // Will return the info pulled from the info.json file of the selected mod
@@ -128,7 +140,7 @@ function showInstalledModInfo(mod) {
 }
 
 function checkModVersions() {
-    let updateIndicator = '<a href="#" id="playerInfo" data-toggle="tooltip" title="Newer version available for download"><i class="glyphicon glyphicon-info-sign"></i></a>';
+    let updateIndicator = '<a href="#" data-toggle="tooltip" title="Newer version available for download"><i class="glyphicon glyphicon-info-sign"></i></a>';
 
     $('table#mods-list tbody').children().each(function(index) {
         let mod = $(this).children().first().text();
@@ -140,13 +152,57 @@ function checkModVersions() {
                 if( onlineMods[i].latest_release.factorio_version === factorioVersion &&
                     isVersionHigher(version, onlineMods[i].latest_release.version)) {
 
-                    $(this).children().last().html(updateIndicator + `  <span>${version}</span>`);
+                    let existingHTML = $(this).children().last().html();
+                    $(this).children().last().html(updateIndicator + '  ' + existingHTML);
                 }
             }
         }
     });
 
     $(function () { $('[data-toggle="tooltip"]').tooltip() });
+}
+
+function getMissingDependencies(mod) {
+    if(!mod.dependencies || mod.dependencies.length === 0) return null;
+
+    let modDependencies = {
+        'required': [],
+        'optional': []
+    };
+
+    for(let i = 0; i < mod.dependencies.length; i++) {
+        let dependency = mod.dependencies[i];
+        let index = dependency.indexOf('>=');
+
+        // TODO: Check for dependency versions as well
+        if(mod.dependencies[i][0] !== '?') {
+            if(index !== -1) {
+                if(!isModInstalled(dependency.slice(0, index).trim())) {
+                    modDependencies.required.push(dependency.slice(0, index).trim());
+                }
+            }
+            else {
+                if(!isModInstalled(dependency)) {
+                    modDependencies.required.push(dependency);
+                }
+            }
+        }
+        else {
+            if(index !== -1) {
+                if(!isModInstalled(dependency.slice(2, index).trim())) {
+                    modDependencies.optional.push(dependency.slice(2, index).trim());
+                }
+            }
+            else {
+                if(!isModInstalled(dependency.slice(2))) {
+                    modDependencies.optional.push(dependency.slice(2));
+                }
+            }
+        }
+    }
+    console.log(mod.name);
+    console.log(modDependencies);
+    return modDependencies;
 }
 
 function isVersionHigher(currentVersion, checkedVersion) {
@@ -161,5 +217,12 @@ function isVersionHigher(currentVersion, checkedVersion) {
     }
 
     // Would be the same version at this point
+    return false;
+}
+
+function isModInstalled(modName) {
+    for(let i = 0; i < installedMods.length; i++) {
+        if(installedMods[i].name === modName) return true;
+    }
     return false;
 }
