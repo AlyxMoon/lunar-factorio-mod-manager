@@ -68,7 +68,7 @@ ProfileManager.prototype.updateFactorioModlist = function() {
 };
 
 //---------------------------------------------------------
-// Helper and Miscellaneous Logic
+// Profile Management
 
 ProfileManager.prototype.createProfile = function(modNames) {
     helpers.log('Attempting to create a new profile');
@@ -208,6 +208,9 @@ ProfileManager.prototype.toggleMod = function(modName) {
     helpers.log('Successfully changed mod status.');
 };
 
+//---------------------------------------------------------
+// Helper and Miscellaneous Logic
+
 ProfileManager.prototype.updateProfilesWithNewMods = function(modNames) {
     helpers.log('Checking for newly installed mods.');
 
@@ -239,4 +242,22 @@ ProfileManager.prototype.updateProfilesWithNewMods = function(modNames) {
         helpers.log(`Had error: ${error}`);
     }
 
+};
+
+ProfileManager.prototype.removeDeletedMods = function(modNames) {
+    let profiles = this.profileList['all-profiles'];
+
+    for(let i = 0; i < profiles.length; i++) {
+
+        let profileMods = profiles[i].mods;
+        for(let j = 0; j < profileMods.length; j++) {
+
+            let index = modNames.indexOf(profileMods[j].name);
+            if(index === -1) {
+                helpers.log(`Removing deleted mod from profile -- Profile: '${profiles[i]['name']}' Mod: '${profileMods[j].name}'`);
+                profileMods.splice(j, 1);
+                j--;
+            }
+        }
+    }
 };
