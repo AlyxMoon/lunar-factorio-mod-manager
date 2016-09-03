@@ -181,13 +181,14 @@ ModManager.prototype.loadOnlineMods = function() {
     }
 };
 
-ModManager.prototype.initiateDownload = function(window, modID) {
+ModManager.prototype.initiateDownload = function(window, modID, modName) {
     if(!this.playerUsername || !this.playerToken) {
         return;
     }
 
     let mods = this.onlineMods;
     let modToDownload;
+    let updateMod = false;
 
     for(let i = mods.length - 1; i >= 0; i--) {
        if(mods[i]['id'] == modID) {
@@ -196,6 +197,26 @@ ModManager.prototype.initiateDownload = function(window, modID) {
            break;
        }
     }
+
+    // If already installed, we're updating and need to delete the existing zip file
+    for(let j = this.installedMods.length - 1; j >= 0; j--) {
+        if(this.installedMods[j].name === modToDownload.name) {
+            helpers.log('Mod does indeed exist');
+            this.customEvents.once('modDownloaded', (profileManager) => {
+                let file = require('fs');
+                let name = this.installedMods[j].name;
+                let version = this.installedMods[j].version;
+
+                file.unlinkSync(`${this.modDirectoryPath}/${name}_${version}.zip`);
+                helpers.log('Deleted mod at: ' + `${this.modDirectoryPath}/${name}_v${version}.zip`);
+
+                this.loadInstalledMods();
+                profileManager.updateProfilesWithNewMods(this.getInstalledModNames());
+            });
+            break;
+        }
+    }
+
     window.webContents.send('ping', modToDownload);
 
     helpers.log(`Attempting to download mod: ${modToDownload['name']}`);
@@ -208,13 +229,34 @@ ModManager.prototype.initiateDownload = function(window, modID) {
 
 ModManager.prototype.manageDownload = function(item, webContents, profileManager) {
    // Set the save path, making Electron not to prompt a save dialog.
-   item.setSavePath(`${this.modDirectoryPath}${item.getFilename()}`);
+   item.setSavePath(`${this.modDirectoryPath}/${item.getFilename()}`);
+
+   //Path seems correct, and directory is created if doesn't exist in correct place, but
+   // download is frozen if I use this. TODO: Figure it out
+   //item.setSavePath(`${__dirname}/../data/${item.getFilename()}`);
+
+
+   item.on('updated', (event, state) => {
+        if (state === 'interrupted') {
+            helpers.log('Download is interrupted but can be resumed')
+        }
+        else if (state === 'progressing') {
+            if (item.isPaused()) {
+                helpers.log('Download is paused');
+            }
+            else {
+                helpers.log(`Received bytes: ${item.getReceivedBytes()}`);
+            }
+        }
+    });
 
    item.once('done', (event, state) => {
        if (state === 'completed') {
            helpers.log('Downloaded mod successfully');
-           this.loadInstalledMods();
-           profileManager.updateProfilesWithNewMods(this.getInstalledModNames());
+           if(!this.customEvents.emit('modDownloaded', profileManager)) {
+               this.loadInstalledMods();
+               profileManager.updateProfilesWithNewMods(this.getInstalledModNames());
+           }
        } else {
            helpers.log(`Download failed: ${state}`);
        }
