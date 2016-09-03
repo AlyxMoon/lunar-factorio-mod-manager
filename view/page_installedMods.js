@@ -2,6 +2,7 @@ const messager = require('electron').ipcRenderer;
 
 let installedMods;
 let onlineMods;
+let selectedMod;
 
 let factorioVersion;
 
@@ -29,6 +30,9 @@ messager.on('dataFactorioVersion', function(event, version) {
 
 // Uses this way to assign events to elements as they will be dynamically generated
 $(document).on('click', 'table#mods-list tbody tr', requestInstalledModInfo);
+$(document).on('click', '.download-mod', function() {
+    messager.send('requestDownload', $(this).attr('id'), selectedMod.name);
+});
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -76,12 +80,19 @@ function requestInstalledModInfo() {
 }
 
 function showInstalledModInfo(mod) {
+    selectedMod = mod;
     let table = $('table#mod-info');
     table.children().remove();
 
     table.append(`<thead><tr class="bg-info"><th colspan="2">${mod['title']}</th></tr></thead>`);
     table.append('<tbody>');
     let tableBody = $('table#mod-info tbody');
+
+
+    let onlineMod = getOnlineModByName(mod.name);
+    if(onlineMod && onlineMod.latest_release.factorio_version === factorioVersion && isVersionHigher(mod.version, onlineMod.latest_release.version)) {
+        tableBody.append(`<tr><th id="${onlineMod.id}" class="center download-mod" colspan="2"><a href="#">Update Mod</a></th></tr>`);
+    }
 
     if(mod['version']) {
         tableBody.append(`<tr><td>Version</td><td>${mod['version']}</td></tr>`);
@@ -195,7 +206,6 @@ function getMissingDependencies(mod) {
         }
 
     }
-    console.log(modDependencies);
     return modDependencies;
 }
 
@@ -224,6 +234,15 @@ function isModInstalled(modName) {
 function getModByName(modName) {
     for(let i = 0; i < installedMods.length; i++) {
         if(installedMods[i].name === modName) return installedMods[i];
+    }
+    return null;
+}
+
+function getOnlineModByName(modName) {
+    if(onlineMods) {
+        for(let i = 0; i < onlineMods.length; i++) {
+            if(onlineMods[i].name === modName) return onlineMods[i];
+        }
     }
     return null;
 }
