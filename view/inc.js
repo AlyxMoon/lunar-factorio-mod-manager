@@ -8,10 +8,14 @@ messager.on('ping', function(event, message) {
 
 messager.on('modsLoadedStatus', function(event, loaded, page, pageCount) {
     showLoadingStatus(loaded, page, pageCount);
-})
+});
 messager.on('dataPlayerInfo', function(event, username) {
     showPlayerInfo(username);
-})
+});
+
+messager.on('dataModDownloadStatus', function(event, status, modName) {
+    showModDownloadStatus(status, modName);
+});
 
 $('button#start-factorio').click(function() {
     messager.send('startGame');
@@ -19,8 +23,8 @@ $('button#start-factorio').click(function() {
 $('button#page-profiles').click(function() {
     messager.send('changePage', 'page_profiles');
 });
-$('button#page-localMods').click(function() {
-    messager.send('changePage', 'page_localMods');
+$('button#page-installedMods').click(function() {
+    messager.send('changePage', 'page_installedMods');
 });
 $('button#page-onlineMods').click(function() {
     messager.send('changePage', 'page_onlineMods');
@@ -30,6 +34,7 @@ $('button#page-onlineMods').click(function() {
 $(document).ready(function() {
     messager.send('areModsLoaded');
     messager.send('requestPlayerInfo');
+    messager.send('requestFactorioVersion');
 
     $(function () { $('[data-toggle="tooltip"]').tooltip() });
 });
@@ -39,10 +44,10 @@ $(document).ready(function() {
 
 function showLoadingStatus(loaded, page, pageCount) {
     if(loaded) {
-        $('div#modsLoadedStatus').html('<span class="glyphicon glyphicon-ok"></span>  All Online Mods Fetched');
+        $('#modsLoadedStatus').html('<span class="glyphicon glyphicon-ok"></span>  All Mods Fetched');
     }
     else {
-        $('div#modsLoadedStatus').html(`<span class="glyphicon glyphicon-refresh"></span>  Fetching Online Mods - ${page}/${pageCount}`);
+        $('#modsLoadedStatus').html(`<span class="glyphicon glyphicon-refresh"></span>  Fetching Mods - ${page}/${pageCount}`);
     }
 }
 
@@ -61,5 +66,20 @@ function showPlayerInfo(username) {
 
         playerInfoText.text('Logged In');
         playerInfoTooltip.attr('data-original-title', titleText);
+    }
+}
+
+function showModDownloadStatus(status, modName) {
+    let display = $('#modDownloadStatus');
+
+    // Doing this to reset the animation timer and make it visible
+    display.removeClass('temporary');
+    display.addClass('temporary');
+
+    if(status === "starting") {
+        display.html(`<span class="glyphicon glyphicon-refresh"></span>  Beginning mod download: ${modName}`);
+    }
+    else if(status === "finished") {
+        display.html('<span class="glyphicon glyphicon-ok"></span>  Finished mod download');
     }
 }

@@ -11,7 +11,7 @@
         <div id="pageButtons" class="btn-group" role="group" aria-label="...">
             <button type="button" id="start-factorio" class="btn btn-success">Start Factorio</button>
             <button type="button" id="page-profiles" class="btn btn-primary" disabled="disabled">Profiles</button>
-            <button type="button" id="page-localMods" class="btn btn-default">Local Mods</button>
+            <button type="button" id="page-installedMods" class="btn btn-default">Installed Mods</button>
             <button type="button" id="page-onlineMods" class="btn btn-default">Online Mods</button>
         </div>
         <hr>
@@ -61,15 +61,14 @@
     <!-- Standard footer for every page in application -->
     <div id="footer">
         <hr>
-        <div class="col-xs-3">
+        <div class="footer-col">
             <a href="#" id="playerInfo" data-toggle="tooltip">
                 <i class="glyphicon glyphicon-info-sign"></i>
             </a>
             <span id="playerInfoText"></span>
         </div>
-        <div class="col-xs-6">
-            <div id="modsLoadedStatus"></div>
-        </div>
+        <div id="modsLoadedStatus" class="footer-col"></div>
+        <div id="modDownloadStatus" class="footer-col"></div>
     </div> <!-- End of the standard footer -->
 
 </body>
