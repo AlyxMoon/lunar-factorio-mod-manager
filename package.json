@@ -1,6 +1,6 @@
 {
   "name": "lunar-mod-manager",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "An unofficial mod manager for Factorio",
   "main": "app.js",
   "scripts": {
