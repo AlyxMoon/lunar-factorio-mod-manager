@@ -235,6 +235,7 @@ function startProgram() {
 
         customEvents.once('installedModsLoaded', function(event) {
             profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
+            profileManager.removeDeletedMods(modManager.getInstalledModNames());
             appManager.loadPage(mainWindow, 'page_profiles', profileManager, modManager);
         });
     }
