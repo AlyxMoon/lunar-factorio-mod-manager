@@ -171,6 +171,9 @@ customEvents.on('onlineModsLoaded', function(finished, page, pageCount) {
         mainWindow.webContents.send('modsLoadedStatus', finished, page, pageCount);
     }
 })
+customEvents.on('installedModsLoaded', function() {
+    if(mainWindow && modManager) modManager.sendInstalledMods(mainWindow);
+});
 
 //---------------------------------------------------------
 //---------------------------------------------------------
