@@ -110,6 +110,10 @@ tr {
     text-align: center;
 }
 
+.red {
+    color: red;
+}
+
 .temporary {
     visibility: hidden;
     opacity: 0;
