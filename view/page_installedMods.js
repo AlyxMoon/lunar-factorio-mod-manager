@@ -171,36 +171,30 @@ function getMissingDependencies(mod) {
     };
 
     for(let i = 0; i < mod.dependencies.length; i++) {
-        let dependency = mod.dependencies[i];
-        let index = dependency.indexOf('>=');
+        let dependencyFull = mod.dependencies[i].slice().trim();
+        let dependencyOptional;
+        let dependencyName;
+        let dependencyVersion;
 
-        // TODO: Check for dependency versions as well
-        if(mod.dependencies[i][0] !== '?') {
-            if(index !== -1) {
-                if(!isModInstalled(dependency.slice(0, index).trim())) {
-                    modDependencies.required.push(dependency.slice(0, index).trim());
-                }
-            }
-            else {
-                if(!isModInstalled(dependency)) {
-                    modDependencies.required.push(dependency);
-                }
-            }
+        dependencyOptional = dependencyFull[0] === '?';
+        if(dependencyOptional) dependencyFull = dependencyFull.slice(1);
+
+        let index = dependencyFull.indexOf('>=');
+        if(index !== -1) {
+            dependencyName = dependencyFull.slice(0, index).trim();
+            dependencyVersion = dependencyFull.slice(index + 2).trim();
         }
         else {
-            if(index !== -1) {
-                if(!isModInstalled(dependency.slice(2, index).trim())) {
-                    modDependencies.optional.push(dependency.slice(2, index).trim());
-                }
-            }
-            else {
-                if(!isModInstalled(dependency.slice(2))) {
-                    modDependencies.optional.push(dependency.slice(2));
-                }
-            }
+            dependencyName = dependencyFull.slice().trim();
+            dependencyVersion = '0.0.0'; // Makes other logic easier than leaving undefined
         }
+
+        if(!isModInstalled(dependencyName) || isVersionHigher(getModByName(dependencyName).version, dependencyVersion)) {
+            if(dependencyOptional) modDependencies.optional.push(dependencyName);
+            else modDependencies.required.push(dependencyName);
+        }
+
     }
-    console.log(mod.name);
     console.log(modDependencies);
     return modDependencies;
 }
@@ -225,4 +219,11 @@ function isModInstalled(modName) {
         if(installedMods[i].name === modName) return true;
     }
     return false;
+}
+
+function getModByName(modName) {
+    for(let i = 0; i < installedMods.length; i++) {
+        if(installedMods[i].name === modName) return installedMods[i];
+    }
+    return null;
 }
