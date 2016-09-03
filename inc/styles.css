@@ -42,6 +42,11 @@ body {
 #footer {
     height: 3%;
 }
+.footer-col {
+    margin-left: 5px;
+    margin-right: 5px;
+    display: inline-block;
+}
 
 /* --- Tertiary Layout Structure --- */
 .view-section {
@@ -103,4 +108,11 @@ tr {
 
 .center {
     text-align: center;
+}
+
+.temporary {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 2s ease-in, opacity 2s ease-in;
+    transition-delay: 5s;
 }

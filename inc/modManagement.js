@@ -224,6 +224,7 @@ ModManager.prototype.initiateDownload = function(window, modID, modName) {
     downloadURL += `?username=${this.playerUsername}&token=${this.playerToken}`;
     window.webContents.send('ping', downloadURL);
 
+    window.webContents.send('dataModDownloadStatus', "starting", modName);
     window.webContents.downloadURL(downloadURL);
 };
 
@@ -253,6 +254,7 @@ ModManager.prototype.manageDownload = function(item, webContents, profileManager
    item.once('done', (event, state) => {
        if (state === 'completed') {
            helpers.log('Downloaded mod successfully');
+           webContents.send('dataModDownloadStatus', "finished");
            if(!this.customEvents.emit('modDownloaded', profileManager)) {
                this.loadInstalledMods();
                profileManager.updateProfilesWithNewMods(this.getInstalledModNames());
