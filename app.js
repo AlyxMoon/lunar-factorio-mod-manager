@@ -46,7 +46,13 @@ appMessager.on('requestOnlineMods', function() {
 });
 appMessager.on('areModsLoaded', function() {
     modManager.sendModLoadStatus(mainWindow);
-})
+});
+appMessager.on('requestPlayerInfo', function() {
+    modManager.sendPlayerInfo(mainWindow);
+});
+appMessager.on('requestFactorioVersion', function() {
+    modManager.sendFactorioVersion(mainWindow);
+});
 
 appMessager.on('newProfile', function() {
     try {
@@ -130,9 +136,9 @@ appMessager.on('requestOnlineModInfo', function(event, modName) {
         app.exit(-1);
     }
 });
-appMessager.on('requestDownload', function(event, modID) {
+appMessager.on('requestDownload', function(event, modID, modName) {
     try {
-        modManager.initiateDownload(mainWindow, modID);
+        modManager.initiateDownload(mainWindow, modID, modName);
     }
     catch(error) {
         helpers.log(`Error when downloading a mod: ${error}`);

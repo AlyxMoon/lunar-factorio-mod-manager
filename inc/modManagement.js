@@ -11,6 +11,7 @@ function ModManager(modListPath, modDirectoryPath, gamePath, customEvents) {
     this.modListPath = modListPath;
     this.modDirectoryPath = modDirectoryPath;
     this.gamePath = gamePath;
+    this.factorioVersion = '';
     this.installedMods = [];
     this.onlineMods = [];
 
@@ -23,13 +24,14 @@ function ModManager(modListPath, modDirectoryPath, gamePath, customEvents) {
     this.loadPlayerData();
     this.loadInstalledMods();
     this.loadOnlineMods();
+
 }
 
 //---------------------------------------------------------
 // Sending data to the client
 
 ModManager.prototype.sendInstalledMods = function(window) {
-    window.webContents.send('dataInstalledMods', this.getInstalledModNames());
+    window.webContents.send('dataInstalledMods', this.installedMods);
 };
 
 ModManager.prototype.sendInstalledModInfo = function(window, modName) {
@@ -61,6 +63,16 @@ ModManager.prototype.sendOnlineModInfo = function(window, modName) {
 ModManager.prototype.sendModLoadStatus = function(window) {
     window.webContents.send('modsLoadedStatus', this.modsLoaded);
 }
+
+ModManager.prototype.sendFactorioVersion = function(window) {
+    // Couldn't get event listener to set version working in the class constructor, this is my workaround
+    if(this.factorioVersion === '') this.getFactorioVersion();
+    window.webContents.send('dataFactorioVersion', this.factorioVersion);
+};
+
+ModManager.prototype.sendPlayerInfo = function(window) {
+    window.webContents.send('dataPlayerInfo', this.playerUsername);
+};
 
 //---------------------------------------------------------
 // File Management
@@ -169,13 +181,14 @@ ModManager.prototype.loadOnlineMods = function() {
     }
 };
 
-ModManager.prototype.initiateDownload = function(window, modID) {
+ModManager.prototype.initiateDownload = function(window, modID, modName) {
     if(!this.playerUsername || !this.playerToken) {
         return;
     }
 
     let mods = this.onlineMods;
     let modToDownload;
+    let updateMod = false;
 
     for(let i = mods.length - 1; i >= 0; i--) {
        if(mods[i]['id'] == modID) {
@@ -184,6 +197,26 @@ ModManager.prototype.initiateDownload = function(window, modID) {
            break;
        }
     }
+
+    // If already installed, we're updating and need to delete the existing zip file
+    for(let j = this.installedMods.length - 1; j >= 0; j--) {
+        if(this.installedMods[j].name === modToDownload.name) {
+            helpers.log('Mod does indeed exist');
+            this.customEvents.once('modDownloaded', (profileManager) => {
+                let file = require('fs');
+                let name = this.installedMods[j].name;
+                let version = this.installedMods[j].version;
+
+                file.unlinkSync(`${this.modDirectoryPath}/${name}_${version}.zip`);
+                helpers.log('Deleted mod at: ' + `${this.modDirectoryPath}/${name}_v${version}.zip`);
+
+                this.loadInstalledMods();
+                profileManager.updateProfilesWithNewMods(this.getInstalledModNames());
+            });
+            break;
+        }
+    }
+
     window.webContents.send('ping', modToDownload);
 
     helpers.log(`Attempting to download mod: ${modToDownload['name']}`);
@@ -191,18 +224,41 @@ ModManager.prototype.initiateDownload = function(window, modID) {
     downloadURL += `?username=${this.playerUsername}&token=${this.playerToken}`;
     window.webContents.send('ping', downloadURL);
 
+    window.webContents.send('dataModDownloadStatus', "starting", modName);
     window.webContents.downloadURL(downloadURL);
 };
 
 ModManager.prototype.manageDownload = function(item, webContents, profileManager) {
    // Set the save path, making Electron not to prompt a save dialog.
-   item.setSavePath(`${this.modDirectoryPath}${item.getFilename()}`);
+   item.setSavePath(`${this.modDirectoryPath}/${item.getFilename()}`);
+
+   //Path seems correct, and directory is created if doesn't exist in correct place, but
+   // download is frozen if I use this. TODO: Figure it out
+   //item.setSavePath(`${__dirname}/../data/${item.getFilename()}`);
+
+
+   item.on('updated', (event, state) => {
+        if (state === 'interrupted') {
+            helpers.log('Download is interrupted but can be resumed')
+        }
+        else if (state === 'progressing') {
+            if (item.isPaused()) {
+                helpers.log('Download is paused');
+            }
+            else {
+                helpers.log(`Received bytes: ${item.getReceivedBytes()}`);
+            }
+        }
+    });
 
    item.once('done', (event, state) => {
        if (state === 'completed') {
            helpers.log('Downloaded mod successfully');
-           this.loadInstalledMods();
-           profileManager.updateProfilesWithNewMods(this.getInstalledModNames());
+           webContents.send('dataModDownloadStatus', "finished");
+           if(!this.customEvents.emit('modDownloaded', profileManager)) {
+               this.loadInstalledMods();
+               profileManager.updateProfilesWithNewMods(this.getInstalledModNames());
+           }
        } else {
            helpers.log(`Download failed: ${state}`);
        }
@@ -219,6 +275,19 @@ ModManager.prototype.getFactorioModList = function() {
     let data = file.readFileSync(this.modListPath, 'utf8');
     return JSON.parse(data)['mods'];
 };
+
+ModManager.prototype.getFactorioVersion = function() {
+    let mods = this.installedMods;
+
+    for(let i = 0; i < mods.length; i++) {
+        if(mods[i].name === 'base') {
+            let version = mods[i].version;
+            // Factorio version check logic doesn't care about patch version
+            this.factorioVersion = version.slice(0, version.lastIndexOf('.'));
+            break;
+        }
+    }
+}
 
 ModManager.prototype.getInstalledModNames = function() {
 

@@ -13,6 +13,10 @@
     cursor: default; /* No ugly cross-out on a disabled button */
 }
 
+.tooltip-inner {
+    white-space: pre-wrap;
+}
+
 /* --- Global Settings --- */
 html {
     height: 100%;
@@ -37,6 +41,11 @@ body {
 }
 #footer {
     height: 3%;
+}
+.footer-col {
+    margin-left: 5px;
+    margin-right: 5px;
+    display: inline-block;
 }
 
 /* --- Tertiary Layout Structure --- */
@@ -99,4 +108,11 @@ tr {
 
 .center {
     text-align: center;
+}
+
+.temporary {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 2s ease-in, opacity 2s ease-in;
+    transition-delay: 5s;
 }
