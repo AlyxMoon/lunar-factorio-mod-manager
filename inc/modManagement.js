@@ -82,7 +82,9 @@ ModManager.prototype.loadInstalledMods = function() {
     let JSZip = require('jszip');
 
     let modZipNames = file.readdirSync(this.modDirectoryPath, 'utf8');
-    modZipNames.splice(modZipNames.indexOf('mod-list.json'), 1);
+    modZipNames = modZipNames.filter(function(elem) {
+        return elem.slice(-4) === ".zip";
+    });
 
     this.installedMods = [];
     let mods = this.installedMods;
