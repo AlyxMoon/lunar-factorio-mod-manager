@@ -88,7 +88,7 @@ appMessager.on('renameProfile', function(event, newName) {
 });
 appMessager.on('deleteProfile', function() {
     try {
-        profileManager.deleteActiveProfile();
+        profileManager.deleteActiveProfile(modManager.getInstalledModNames());
         profileManager.sendAllProfiles(mainWindow);
         profileManager.sendActiveProfile(mainWindow);
     }
@@ -171,6 +171,9 @@ customEvents.on('onlineModsLoaded', function(finished, page, pageCount) {
         mainWindow.webContents.send('modsLoadedStatus', finished, page, pageCount);
     }
 })
+customEvents.on('installedModsLoaded', function() {
+    if(mainWindow && modManager) modManager.sendInstalledMods(mainWindow);
+});
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -235,6 +238,7 @@ function startProgram() {
 
         customEvents.once('installedModsLoaded', function(event) {
             profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
+            profileManager.removeDeletedMods(modManager.getInstalledModNames());
             appManager.loadPage(mainWindow, 'page_profiles', profileManager, modManager);
         });
     }
@@ -292,7 +296,7 @@ function createAppFiles() {
             let ModManager = require('./inc/modManagement.js');
             modManager = new ModManager.Manager(data['modlist-path'], data['mod-path'], data['game-path'], customEvents);
 
-            file.writeFileSync(configPath, JSON.stringify(data));
+            file.writeFileSync(configPath, JSON.stringify(data, null, 4));
             config = data;
 
             helpers.log('Successfully created config file, now creating profile');

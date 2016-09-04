@@ -2,6 +2,7 @@ const messager = require('electron').ipcRenderer;
 
 let installedMods;
 let onlineMods;
+let selectedMod;
 
 let factorioVersion;
 
@@ -29,6 +30,9 @@ messager.on('dataFactorioVersion', function(event, version) {
 
 // Uses this way to assign events to elements as they will be dynamically generated
 $(document).on('click', 'table#mods-list tbody tr', requestInstalledModInfo);
+$(document).on('click', '.download-mod', function() {
+    messager.send('requestDownload', $(this).attr('id'), selectedMod.name);
+});
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -49,10 +53,22 @@ function listInstalledMods() {
     table.append('<thead><tr class="bg-primary"><th colspan="2">All Installed Mods</th></tr></thead>');
     table.append('<tbody>');
 
+
     for(let i = 0; i < mods.length; i++) {
-        table.append(`<tr id="${i}"><td>${mods[i].name}</td><td>${mods[i].version}</td></tr>`);
+        let dependencies = getMissingDependencies(mods[i]);
+        let dependencyIndicator = '<a href="#" class="red" data-toggle="tooltip" title="Missing required dependency"><i class="glyphicon glyphicon-info-sign"></i></a>';
+
+        //table.append(`<tr id="${i}"><td>${mods[i].name}</td><td>${dependencyIndicator}  <span>${mods[i].version}</span></td></tr>`);
+        if(!dependencies || dependencies.required.length === 0) {
+            table.append(`<tr id="${i}"><td>${mods[i].name}</td><td><span>${mods[i].version}</span></td></tr>`);
+        }
+        else {
+            table.append(`<tr id="${i}"><td>${mods[i].name}</td><td>${dependencyIndicator}  <span>${mods[i].version}</span></td></tr>`);
+        }
     }
     table.append('</tbody>');
+    $(function () { $('[data-toggle="tooltip"]').tooltip() });
+
 }
 
 // Will return the info pulled from the info.json file of the selected mod
@@ -64,12 +80,19 @@ function requestInstalledModInfo() {
 }
 
 function showInstalledModInfo(mod) {
+    selectedMod = mod;
     let table = $('table#mod-info');
     table.children().remove();
 
     table.append(`<thead><tr class="bg-info"><th colspan="2">${mod['title']}</th></tr></thead>`);
     table.append('<tbody>');
     let tableBody = $('table#mod-info tbody');
+
+
+    let onlineMod = getOnlineModByName(mod.name);
+    if(onlineMod && onlineMod.latest_release.factorio_version === factorioVersion && isVersionHigher(mod.version, onlineMod.latest_release.version)) {
+        tableBody.append(`<tr><th id="${onlineMod.id}" class="center download-mod" colspan="2"><a href="#">Update Mod</a></th></tr>`);
+    }
 
     if(mod['version']) {
         tableBody.append(`<tr><td>Version</td><td>${mod['version']}</td></tr>`);
@@ -128,7 +151,7 @@ function showInstalledModInfo(mod) {
 }
 
 function checkModVersions() {
-    let updateIndicator = '<a href="#" id="playerInfo" data-toggle="tooltip" title="Newer version available for download"><i class="glyphicon glyphicon-info-sign"></i></a>';
+    let updateIndicator = '<a href="#" data-toggle="tooltip" title="Newer version available for download"><i class="glyphicon glyphicon-info-sign"></i></a>';
 
     $('table#mods-list tbody').children().each(function(index) {
         let mod = $(this).children().first().text();
@@ -140,13 +163,50 @@ function checkModVersions() {
                 if( onlineMods[i].latest_release.factorio_version === factorioVersion &&
                     isVersionHigher(version, onlineMods[i].latest_release.version)) {
 
-                    $(this).children().last().html(updateIndicator + `  <span>${version}</span>`);
+                    let existingHTML = $(this).children().last().html();
+                    $(this).children().last().html(updateIndicator + '  ' + existingHTML);
                 }
             }
         }
     });
 
     $(function () { $('[data-toggle="tooltip"]').tooltip() });
+}
+
+function getMissingDependencies(mod) {
+    if(!mod.dependencies || mod.dependencies.length === 0) return null;
+
+    let modDependencies = {
+        'required': [],
+        'optional': []
+    };
+
+    for(let i = 0; i < mod.dependencies.length; i++) {
+        let dependencyFull = mod.dependencies[i].slice().trim();
+        let dependencyOptional;
+        let dependencyName;
+        let dependencyVersion;
+
+        dependencyOptional = dependencyFull[0] === '?';
+        if(dependencyOptional) dependencyFull = dependencyFull.slice(1);
+
+        let index = dependencyFull.indexOf('>=');
+        if(index !== -1) {
+            dependencyName = dependencyFull.slice(0, index).trim();
+            dependencyVersion = dependencyFull.slice(index + 2).trim();
+        }
+        else {
+            dependencyName = dependencyFull.slice().trim();
+            dependencyVersion = '0.0.0'; // Makes other logic easier than leaving undefined
+        }
+
+        if(!isModInstalled(dependencyName) || isVersionHigher(getModByName(dependencyName).version, dependencyVersion)) {
+            if(dependencyOptional) modDependencies.optional.push(dependencyName);
+            else modDependencies.required.push(dependencyName);
+        }
+
+    }
+    return modDependencies;
 }
 
 function isVersionHigher(currentVersion, checkedVersion) {
@@ -162,4 +222,27 @@ function isVersionHigher(currentVersion, checkedVersion) {
 
     // Would be the same version at this point
     return false;
+}
+
+function isModInstalled(modName) {
+    for(let i = 0; i < installedMods.length; i++) {
+        if(installedMods[i].name === modName) return true;
+    }
+    return false;
+}
+
+function getModByName(modName) {
+    for(let i = 0; i < installedMods.length; i++) {
+        if(installedMods[i].name === modName) return installedMods[i];
+    }
+    return null;
+}
+
+function getOnlineModByName(modName) {
+    if(onlineMods) {
+        for(let i = 0; i < onlineMods.length; i++) {
+            if(onlineMods[i].name === modName) return onlineMods[i];
+        }
+    }
+    return null;
 }

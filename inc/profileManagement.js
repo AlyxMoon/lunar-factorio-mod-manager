@@ -52,7 +52,7 @@ ProfileManager.prototype.saveProfiles = function() {
     helpers.log('Beginning to save the profiles.');
 
     let file = require('fs');
-    file.writeFileSync(this.profilesPath, JSON.stringify(this.profileList['all-profiles']));
+    file.writeFileSync(this.profilesPath, JSON.stringify(this.profileList['all-profiles'], null, 4));
 
     helpers.log('Finished saving the profiles.');
 };
@@ -62,13 +62,13 @@ ProfileManager.prototype.updateFactorioModlist = function() {
     let file = require('fs');
     let modList = { 'mods': this.profileList['active-profile']['mods'] };
 
-    file.writeFileSync(this.modlistPath, JSON.stringify(modList));
+    file.writeFileSync(this.modlistPath, JSON.stringify(modList, null, 4));
 
     helpers.log('Finished saving current mod configuration.');
 };
 
 //---------------------------------------------------------
-// Helper and Miscellaneous Logic
+// Profile Management
 
 ProfileManager.prototype.createProfile = function(modNames) {
     helpers.log('Attempting to create a new profile');
@@ -131,7 +131,7 @@ ProfileManager.prototype.renameActiveProfile = function(newName) {
     helpers.log(`Active profile name changed to: ${activeProfile['name']}`);
 };
 
-ProfileManager.prototype.deleteActiveProfile = function() {
+ProfileManager.prototype.deleteActiveProfile = function(modNames) {
     helpers.log(`Attempting to delete active profile`);
     let profiles = this.profileList['all-profiles'];
 
@@ -143,7 +143,7 @@ ProfileManager.prototype.deleteActiveProfile = function() {
     }
 
     if(profiles.length === 0) {
-        this.createProfile();
+        this.createProfile(modNames);
     }
     profiles[0]['enabled'] = true;
     this.profileList['active-profile'] = profiles[0];
@@ -208,6 +208,9 @@ ProfileManager.prototype.toggleMod = function(modName) {
     helpers.log('Successfully changed mod status.');
 };
 
+//---------------------------------------------------------
+// Helper and Miscellaneous Logic
+
 ProfileManager.prototype.updateProfilesWithNewMods = function(modNames) {
     helpers.log('Checking for newly installed mods.');
 
@@ -239,4 +242,22 @@ ProfileManager.prototype.updateProfilesWithNewMods = function(modNames) {
         helpers.log(`Had error: ${error}`);
     }
 
+};
+
+ProfileManager.prototype.removeDeletedMods = function(modNames) {
+    let profiles = this.profileList['all-profiles'];
+
+    for(let i = 0; i < profiles.length; i++) {
+
+        let profileMods = profiles[i].mods;
+        for(let j = 0; j < profileMods.length; j++) {
+
+            let index = modNames.indexOf(profileMods[j].name);
+            if(index === -1) {
+                helpers.log(`Removing deleted mod from profile -- Profile: '${profiles[i]['name']}' Mod: '${profileMods[j].name}'`);
+                profileMods.splice(j, 1);
+                j--;
+            }
+        }
+    }
 };
