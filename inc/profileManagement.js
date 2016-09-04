@@ -131,7 +131,7 @@ ProfileManager.prototype.renameActiveProfile = function(newName) {
     helpers.log(`Active profile name changed to: ${activeProfile['name']}`);
 };
 
-ProfileManager.prototype.deleteActiveProfile = function() {
+ProfileManager.prototype.deleteActiveProfile = function(modNames) {
     helpers.log(`Attempting to delete active profile`);
     let profiles = this.profileList['all-profiles'];
 
@@ -143,7 +143,7 @@ ProfileManager.prototype.deleteActiveProfile = function() {
     }
 
     if(profiles.length === 0) {
-        this.createProfile();
+        this.createProfile(modNames);
     }
     profiles[0]['enabled'] = true;
     this.profileList['active-profile'] = profiles[0];
