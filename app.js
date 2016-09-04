@@ -296,7 +296,7 @@ function createAppFiles() {
             let ModManager = require('./inc/modManagement.js');
             modManager = new ModManager.Manager(data['modlist-path'], data['mod-path'], data['game-path'], customEvents);
 
-            file.writeFileSync(configPath, JSON.stringify(data));
+            file.writeFileSync(configPath, JSON.stringify(data, null, 4));
             config = data;
 
             helpers.log('Successfully created config file, now creating profile');
