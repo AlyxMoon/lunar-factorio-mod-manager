@@ -213,7 +213,9 @@ ModManager.prototype.initiateDownload = function(window, modID, modName) {
                 helpers.log('Deleted mod at: ' + `${this.modDirectoryPath}/${name}_v${version}.zip`);
 
                 this.loadInstalledMods();
-                profileManager.updateProfilesWithNewMods(this.getInstalledModNames());
+                this.customEvents.once('installedModsLoaded', () => {
+                    profileManager.updateProfilesWithNewMods(this.getInstalledModNames());
+                });
             });
             break;
         }
@@ -259,7 +261,10 @@ ModManager.prototype.manageDownload = function(item, webContents, profileManager
            webContents.send('dataModDownloadStatus', "finished");
            if(!this.customEvents.emit('modDownloaded', profileManager)) {
                this.loadInstalledMods();
-               profileManager.updateProfilesWithNewMods(this.getInstalledModNames());
+
+               this.customEvents.once('installedModsLoaded', () => {
+                   profileManager.updateProfilesWithNewMods(this.getInstalledModNames());
+               });
            }
        } else {
            helpers.log(`Download failed: ${state}`);
