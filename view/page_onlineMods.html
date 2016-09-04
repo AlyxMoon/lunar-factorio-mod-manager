@@ -26,12 +26,42 @@
             </table>
         </div></div> <!-- End of first column -->
 
-        <!-- Second column, shows info on a selected mod -->
-        <div class="col-xs-7 height-100"><div class="view-section scroll height-100">
-            <table id="mod-info" class="table table-bordered">
-                <thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead> <!-- Filler text before data is received -->
-            </table>
-        </div></div> <!-- End of second column -->
+        <!-- Second column, shows sorting/filtering options and info on a selected mod -->
+        <div class="col-xs-7 height-100">
+            <!-- Sub-section, shows mod sorting and filtering options -->
+            <div id="sorting-section" class="view-section height-10">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Sort By <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Alphabetically (Ascending)</a></li>
+                        <li><a href="#">Alphabetically (Descending)</a></li>
+                        <li><a href="#">Mod Author (Ascending)</a></li>
+                        <li><a href="#">Mod Author (Descending)</a></li>
+                        <li><a href="#">Most Downloads</a></li>
+                        <li><a href="#">Least Downloads</a></li>
+                        <li><a href="#">Recently Updated</a></li>
+                        <li><a href="#">Oldest Updated</a></li>
+                    </ul>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Filter By <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Functionality Pending</li>
+                    </ul>
+                </div>
+            </div> <!-- End of mod sorting/filtering sub-section -->
+
+            <!-- Sub-section, shows info on selected mod -->
+            <div class="view-section scroll height-90">
+                <table id="mod-info" class="table table-bordered">
+                    <thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead> <!-- Filler text before data is received -->
+                </table>
+            </div> <!-- End of mod info sub-section -->
+        </div> <!-- End of second column -->
     </div> <!-- End of the main body section -->
 
     <!-- Standard footer for every page in application -->
