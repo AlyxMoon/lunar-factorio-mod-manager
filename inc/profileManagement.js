@@ -52,7 +52,7 @@ ProfileManager.prototype.saveProfiles = function() {
     helpers.log('Beginning to save the profiles.');
 
     let file = require('fs');
-    file.writeFileSync(this.profilesPath, JSON.stringify(this.profileList['all-profiles']));
+    file.writeFileSync(this.profilesPath, JSON.stringify(this.profileList['all-profiles'], null, 4));
 
     helpers.log('Finished saving the profiles.');
 };
@@ -62,7 +62,7 @@ ProfileManager.prototype.updateFactorioModlist = function() {
     let file = require('fs');
     let modList = { 'mods': this.profileList['active-profile']['mods'] };
 
-    file.writeFileSync(this.modlistPath, JSON.stringify(modList));
+    file.writeFileSync(this.modlistPath, JSON.stringify(modList, null, 4));
 
     helpers.log('Finished saving current mod configuration.');
 };
