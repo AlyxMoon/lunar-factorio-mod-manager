@@ -88,7 +88,7 @@ appMessager.on('renameProfile', function(event, newName) {
 });
 appMessager.on('deleteProfile', function() {
     try {
-        profileManager.deleteActiveProfile();
+        profileManager.deleteActiveProfile(modManager.getInstalledModNames());
         profileManager.sendAllProfiles(mainWindow);
         profileManager.sendActiveProfile(mainWindow);
     }
