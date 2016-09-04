@@ -35,7 +35,6 @@ $(document).on('click', '.download-mod', requestDownload);
 
 $('a.sort-mods').click(function() {
     sortingOption = $(this).attr('id');
-    console.log(sortingOption);
     listOnlineMods();
 });
 
@@ -248,10 +247,10 @@ function sortMods(mods) {
             mods.reverse();
             break;
         case 'update-asc':
-            mods = helpers.sortArrayByProp(mods, 'updated_at');
+            mods = helpers.sortArrayByProp(mods, 'latest_release', 'released_at');
             break;
         case 'update-desc':
-            mods = helpers.sortArrayByProp(mods, 'updated_at');
+            mods = helpers.sortArrayByProp(mods, 'latest_release', 'released_at');
             mods.reverse();
             break;
         default:
