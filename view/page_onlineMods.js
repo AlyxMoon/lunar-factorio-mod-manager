@@ -7,7 +7,9 @@ let onlineMods;
 let canDownloadMods = false;
 
 let selectedMod;
-let sortingOption = "alpha-asc";
+let sortingOption = 'alpha-asc';
+let filterOption = 'all';
+let tags;
 
 //---------------------------------------------------------
 // Event listeners for client and server events
@@ -27,6 +29,12 @@ messager.on('dataOnlineMods', function(event, mods) {
     onlineMods = mods;
     listOnlineMods();
 });
+
+// Some things should be run only after all mods are fetched, to save cycles
+messager.on('modsLoadedStatus', function(event, loaded) {
+    if(loaded) getUsedTags(onlineMods);
+});
+
 messager.on('dataOnlineModInfo', showOnlineModInfo);
 
 // Uses this way to assign events to elements as they will be dynamically generated
@@ -37,6 +45,11 @@ $('a.sort-mods').click(function() {
     sortingOption = $(this).attr('id');
     listOnlineMods();
 });
+$(document).on('click', 'a.filter-mods', function() {
+    filterOption = $(this).attr('id');
+    console.log(filterOption);
+    listOnlineMods();
+});
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -45,12 +58,14 @@ $(document).ready(function() {
     messager.send('requestPlayerInfo');
     messager.send('requestInstalledMods');
     messager.send('requestOnlineMods');
+    messager.send('areModsLoaded');
 });
 
 // Used as callback function
 // One argument, an array of strings, representing the names of online mods
 function listOnlineMods() {
-    let mods = sortMods(onlineMods);
+    let mods = sortMods(onlineMods.slice());
+    mods = filterMods(mods);
 
     let table = $('table#mods-list');
     table.children().remove();
@@ -183,6 +198,18 @@ function requestDownload(event) {
     messager.send('requestDownload', selectedMod.id, selectedMod.name);
 }
 
+function showFiltersTags() {
+    let filterMenu = $("#filter-menu");
+    filterMenu.children().remove();
+
+    filterMenu.append('<li class="dropdown-header">Tags</li>');
+    filterMenu.append(`<li><a id="all" class="filter-mods" href="#">All</a></li>`);
+    for(let i = 0; i < tags.length; i++) {
+        filterMenu.append(`<li><a id="${tags[i].name}" class="filter-mods" href="#">${tags[i].title}</a></li>`);
+    }
+
+}
+
 //---------------------------------------------------------
 // Logic and helper functions
 
@@ -222,6 +249,24 @@ function isVersionHigher(currentVersion, checkedVersion) {
     return false;
 }
 
+function getUsedTags(mods) {
+    tags = [];
+
+    for(let i = mods.length - 1; i >= 0; i--) {
+        for(let j = mods[i].tags.length - 1; j >= 0; j--) {
+            tags.push(mods[i].tags[j]);
+        }
+    }
+
+    tags = helpers.sortArrayByProp(tags, 'id');
+    tags.reverse();
+    for(let i = 1; i < tags.length;) {
+        if(tags[i - 1].id == tags[i].id) tags.splice(i, 1);
+        else i++;
+    }
+    showFiltersTags();
+}
+
 function sortMods(mods) {
 
     switch(sortingOption) {
@@ -255,6 +300,23 @@ function sortMods(mods) {
             break;
         default:
             console.log('Sort option not set up -- ', sortingOption);
+    }
+    return mods;
+}
+
+function filterMods(mods) {
+    if(filterOption !== 'all') {
+        for(let i = 0; i < mods.length;) {
+            let containsTag = false;
+            for(let j = 0; j < mods[i].tags.length; j++) {
+                if(mods[i].tags[j].name === filterOption) {
+                    containsTag = true;
+                    break;
+                }
+            }
+            if(!containsTag) mods.splice(i, 1);
+            else i++;
+        }
     }
     return mods;
 }
