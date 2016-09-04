@@ -1,4 +1,5 @@
 const messager = require('electron').ipcRenderer;
+const helpers = require(`${__dirname}/../inc/helpers.js`);
 
 let factorioVersion;
 let installedMods;
@@ -6,6 +7,9 @@ let onlineMods;
 let canDownloadMods = false;
 
 let selectedMod;
+let sortingOption = 'alpha-asc';
+let filterOption = 'all';
+let tags;
 
 //---------------------------------------------------------
 // Event listeners for client and server events
@@ -21,12 +25,30 @@ messager.on('dataPlayerInfo', function(event, username) {
 messager.on('dataInstalledMods', function(event, mods) {
     installedMods = mods;
 });
-messager.on('dataOnlineMods', listOnlineMods);
+messager.on('dataOnlineMods', function(event, mods) {
+    onlineMods = mods;
+    listOnlineMods();
+});
+
+// Some things should be run only after all mods are fetched, to save cycles
+messager.on('modsLoadedStatus', function(event, loaded) {
+    if(loaded) getUsedTags(onlineMods);
+});
+
 messager.on('dataOnlineModInfo', showOnlineModInfo);
 
 // Uses this way to assign events to elements as they will be dynamically generated
 $(document).on('click', 'table#mods-list tbody td', showOnlineModInfo);
 $(document).on('click', '.download-mod', requestDownload);
+
+$('a.sort-mods').click(function() {
+    sortingOption = $(this).attr('id');
+    listOnlineMods();
+});
+$(document).on('click', 'a.filter-mods', function() {
+    filterOption = $(this).attr('id');
+    listOnlineMods();
+});
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -35,17 +57,19 @@ $(document).ready(function() {
     messager.send('requestPlayerInfo');
     messager.send('requestInstalledMods');
     messager.send('requestOnlineMods');
+    messager.send('areModsLoaded');
 });
 
 // Used as callback function
 // One argument, an array of strings, representing the names of online mods
-function listOnlineMods(event, mods) {
-    onlineMods = mods;
+function listOnlineMods() {
+    let mods = sortMods(onlineMods.slice());
+    mods = filterMods(mods);
 
     let table = $('table#mods-list');
     table.children().remove();
 
-    table.append('<thead><tr class="bg-primary"><th colspan="2">All Online Mods</th></tr></thead>');
+    table.append(`<thead><tr class="bg-primary"><th colspan="2">Online Mods: ${filterOption}</th></tr></thead>`);
     table.append('<tbody>');
 
     for(let i = 0; i < mods.length; i++) {
@@ -113,11 +137,11 @@ function showOnlineModInfo() {
         tableBody.append(`<tr><td>Version</td><td>Not found</td></tr>`);
     }
 
-    if(modInfo['author']) {
-        tableBody.append(`<tr><td>Author</td><td>${modInfo['author']}</td></tr>`);
+    if(mod['owner']) {
+        tableBody.append(`<tr><td>Owner</td><td>${mod['owner']}</td></tr>`);
     }
     else {
-        tableBody.append(`<tr><td>Author</td><td>Not found</td></tr>`);
+        tableBody.append(`<tr><td>Owner</td><td>Not found</td></tr>`);
     }
 
     if(modInfo['contact']) {
@@ -138,6 +162,12 @@ function showOnlineModInfo() {
     }
     else {
         tableBody.append(`<tr><td>Factorio Version</td><td>Not found</td></tr>`);
+    }
+    if(mod['downloads_count']) {
+        tableBody.append(`<tr><td>Downloads</td><td>${mod['downloads_count']}</td></tr>`);
+    }
+    else {
+        tableBody.append(`<tr><td>Downloads</td><td>Not found</td></tr>`);
     }
 
     if(modInfo['dependencies'] && modInfo['dependencies'].length > 0) {
@@ -165,6 +195,18 @@ function showOnlineModInfo() {
 
 function requestDownload(event) {
     messager.send('requestDownload', selectedMod.id, selectedMod.name);
+}
+
+function showFiltersTags() {
+    let filterMenu = $("#filter-menu");
+    filterMenu.children().remove();
+
+    filterMenu.append('<li class="dropdown-header">Tags</li>');
+    filterMenu.append(`<li><a id="all" class="filter-mods" href="#">All</a></li>`);
+    for(let i = 0; i < tags.length; i++) {
+        filterMenu.append(`<li><a id="${tags[i].name}" class="filter-mods" href="#">${tags[i].title}</a></li>`);
+    }
+
 }
 
 //---------------------------------------------------------
@@ -204,4 +246,76 @@ function isVersionHigher(currentVersion, checkedVersion) {
 
     // Would be the same version at this point
     return false;
+}
+
+function getUsedTags(mods) {
+    tags = [];
+
+    for(let i = mods.length - 1; i >= 0; i--) {
+        for(let j = mods[i].tags.length - 1; j >= 0; j--) {
+            tags.push(mods[i].tags[j]);
+        }
+    }
+
+    tags = helpers.sortArrayByProp(tags, 'id');
+    tags.reverse();
+    for(let i = 1; i < tags.length;) {
+        if(tags[i - 1].id == tags[i].id) tags.splice(i, 1);
+        else i++;
+    }
+    showFiltersTags();
+}
+
+function sortMods(mods) {
+
+    switch(sortingOption) {
+        case 'alpha-asc':
+            mods = helpers.sortArrayByProp(mods, 'name');
+            break;
+        case 'alpha-desc':
+            mods = helpers.sortArrayByProp(mods, 'name');
+            mods.reverse();
+            break;
+        case 'author-asc':
+            mods = helpers.sortArrayByProp(mods, 'owner');
+            break;
+        case 'author-desc':
+            mods = helpers.sortArrayByProp(mods, 'owner');
+            mods.reverse();
+            break;
+        case 'download-asc':
+            mods = helpers.sortArrayByProp(mods, 'downloads_count');
+            break;
+        case 'download-desc':
+            mods = helpers.sortArrayByProp(mods, 'downloads_count');
+            mods.reverse();
+            break;
+        case 'update-asc':
+            mods = helpers.sortArrayByProp(mods, 'latest_release', 'released_at');
+            break;
+        case 'update-desc':
+            mods = helpers.sortArrayByProp(mods, 'latest_release', 'released_at');
+            mods.reverse();
+            break;
+        default:
+            console.log('Sort option not set up -- ', sortingOption);
+    }
+    return mods;
+}
+
+function filterMods(mods) {
+    if(filterOption !== 'all') {
+        for(let i = 0; i < mods.length;) {
+            let containsTag = false;
+            for(let j = 0; j < mods[i].tags.length; j++) {
+                if(mods[i].tags[j].name === filterOption) {
+                    containsTag = true;
+                    break;
+                }
+            }
+            if(!containsTag) mods.splice(i, 1);
+            else i++;
+        }
+    }
+    return mods;
 }
