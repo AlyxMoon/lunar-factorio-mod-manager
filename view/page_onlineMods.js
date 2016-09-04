@@ -47,7 +47,6 @@ $('a.sort-mods').click(function() {
 });
 $(document).on('click', 'a.filter-mods', function() {
     filterOption = $(this).attr('id');
-    console.log(filterOption);
     listOnlineMods();
 });
 
@@ -70,7 +69,7 @@ function listOnlineMods() {
     let table = $('table#mods-list');
     table.children().remove();
 
-    table.append('<thead><tr class="bg-primary"><th colspan="2">All Online Mods</th></tr></thead>');
+    table.append(`<thead><tr class="bg-primary"><th colspan="2">Online Mods: ${filterOption}</th></tr></thead>`);
     table.append('<tbody>');
 
     for(let i = 0; i < mods.length; i++) {
