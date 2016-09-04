@@ -7,6 +7,7 @@ let onlineMods;
 let canDownloadMods = false;
 
 let selectedMod;
+let sortingOption = "alpha-asc";
 
 //---------------------------------------------------------
 // Event listeners for client and server events
@@ -22,12 +23,21 @@ messager.on('dataPlayerInfo', function(event, username) {
 messager.on('dataInstalledMods', function(event, mods) {
     installedMods = mods;
 });
-messager.on('dataOnlineMods', listOnlineMods);
+messager.on('dataOnlineMods', function(event, mods) {
+    onlineMods = mods;
+    listOnlineMods();
+});
 messager.on('dataOnlineModInfo', showOnlineModInfo);
 
 // Uses this way to assign events to elements as they will be dynamically generated
 $(document).on('click', 'table#mods-list tbody td', showOnlineModInfo);
 $(document).on('click', '.download-mod', requestDownload);
+
+$('a.sort-mods').click(function() {
+    sortingOption = $(this).attr('id');
+    console.log(sortingOption);
+    listOnlineMods();
+});
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -40,8 +50,8 @@ $(document).ready(function() {
 
 // Used as callback function
 // One argument, an array of strings, representing the names of online mods
-function listOnlineMods(event, mods) {
-    onlineMods = mods;
+function listOnlineMods() {
+    let mods = sortMods(onlineMods);
 
     let table = $('table#mods-list');
     table.children().remove();
@@ -114,11 +124,11 @@ function showOnlineModInfo() {
         tableBody.append(`<tr><td>Version</td><td>Not found</td></tr>`);
     }
 
-    if(modInfo['author']) {
-        tableBody.append(`<tr><td>Author</td><td>${modInfo['author']}</td></tr>`);
+    if(mod['owner']) {
+        tableBody.append(`<tr><td>Owner</td><td>${mod['owner']}</td></tr>`);
     }
     else {
-        tableBody.append(`<tr><td>Author</td><td>Not found</td></tr>`);
+        tableBody.append(`<tr><td>Owner</td><td>Not found</td></tr>`);
     }
 
     if(modInfo['contact']) {
@@ -139,6 +149,12 @@ function showOnlineModInfo() {
     }
     else {
         tableBody.append(`<tr><td>Factorio Version</td><td>Not found</td></tr>`);
+    }
+    if(mod['downloads_count']) {
+        tableBody.append(`<tr><td>Downloads</td><td>${mod['downloads_count']}</td></tr>`);
+    }
+    else {
+        tableBody.append(`<tr><td>Downloads</td><td>Not found</td></tr>`);
     }
 
     if(modInfo['dependencies'] && modInfo['dependencies'].length > 0) {
@@ -205,4 +221,41 @@ function isVersionHigher(currentVersion, checkedVersion) {
 
     // Would be the same version at this point
     return false;
+}
+
+function sortMods(mods) {
+
+    switch(sortingOption) {
+        case 'alpha-asc':
+            mods = helpers.sortArrayByProp(mods, 'name');
+            break;
+        case 'alpha-desc':
+            mods = helpers.sortArrayByProp(mods, 'name');
+            mods.reverse();
+            break;
+        case 'author-asc':
+            mods = helpers.sortArrayByProp(mods, 'owner');
+            break;
+        case 'author-desc':
+            mods = helpers.sortArrayByProp(mods, 'owner');
+            mods.reverse();
+            break;
+        case 'download-asc':
+            mods = helpers.sortArrayByProp(mods, 'downloads_count');
+            break;
+        case 'download-desc':
+            mods = helpers.sortArrayByProp(mods, 'downloads_count');
+            mods.reverse();
+            break;
+        case 'update-asc':
+            mods = helpers.sortArrayByProp(mods, 'updated_at');
+            break;
+        case 'update-desc':
+            mods = helpers.sortArrayByProp(mods, 'updated_at');
+            mods.reverse();
+            break;
+        default:
+            console.log('Sort option not set up -- ', sortingOption);
+    }
+    return mods;
 }

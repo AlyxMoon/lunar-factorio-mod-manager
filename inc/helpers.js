@@ -1,16 +1,41 @@
 module.exports = {
 
     sortArrayByProp: function(arr, property) {
-        let prop = property.split('.');
-        let len = prop.length;
+        let type = null;
+        if(typeof arr[0][property] === 'number') type = 'number';
+        else if((new Date(arr[0][property])).getTime() > 0) type = 'time';
+        else if(typeof arr[0][property] === 'string') type = 'string';
 
-        arr.sort(function (a, b) {
-            let i = 0;
-            while( i < len ) { a = a[prop[i]].toLowerCase(); b = b[prop[i]].toLowerCase(); i++; }
+
+        switch(type) {
+            case 'string':
+                arr.sort(stringSort);
+                break;
+            case 'number':
+                arr.sort(numberSort);
+                break;
+
+            default:
+                module.exports.log(`Error sorting, property type not handled -- Prop: '${property}', Type: ${typeof arr[0][property]}`);
+        }
+
+        function stringSort(a, b) {
+            a = a[property].toLowerCase();
+            b = b[property].toLowerCase();
+
             if (a < b) return -1;
             else if (a > b) return 1;
-            else  return 0;
-        });
+            else return 0;
+        };
+        function numberSort(a, b) {
+                a = a[property];
+                b = b[property];
+
+                if (a < b) return 1;
+                else if (a > b) return -1;
+                else return 0;
+        };
+
         return arr;
     },
 
