@@ -5,13 +5,15 @@ module.exports = {
 //---------------------------------------------------------
 // Primary class declaration
 
-function AppManager() {
+function AppManager(configPath) {
+
+    this.configPath = configPath;
+    this.config;
 
 }
 
 //---------------------------------------------------------
 // Startup-related functions
-
 
 AppManager.prototype.promptForModlist = function(dialog) {
     helpers.log('Prompting user for Factorio modlist.json file.');
@@ -42,6 +44,76 @@ AppManager.prototype.promptForGamePath = function(dialog) {
     if(gamePath) return gamePath[0];
     else return undefined;
 };
+
+AppManager.prototype.loadConfig = function() {
+    let file = require('fs');
+    let data;
+
+    //------------------------------
+    // Attempt to load config file
+    try {
+        data = file.readFileSync(this.configPath, 'utf8');
+    }
+    catch(error) {
+        if(error.code === 'ENOENT') {
+            helpers.log('Was not able to find config file. Creating.');
+            //this.buildConfigFile(); TODO: Implement class method
+        }
+        else { // TODO: Handle unexpected errors more appropriately?
+            throw error;
+            return null;
+        }
+    }
+
+    //------------------------------
+    // Check data for integrity
+    try {
+        data = JSON.parse(data);
+    }
+    catch(error) {
+        //this.buildConfigFile(); TODO: Implement class method
+    }
+
+    if(!data.hasOwnProperty('minWidth') || data.minWidth typeof !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.minWidth = 0;
+    }
+    if(!data.hasOwnProperty('minHeight') || data.minHeight typeof !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.minHeight = 0;
+    }
+    if(!data.hasOwnProperty('width') || data.width typeof !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.width = 0;
+    }
+    if(!data.hasOwnProperty('height') || data.height typeof !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.height = 0;
+    }
+    if(!data.hasOwnProperty('x_loc') || data.x_loc typeof !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.x_loc = 0;
+    }
+    if(!data.hasOwnProperty('y_loc') || data.y_loc typeof !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.y_loc = 0;
+    }
+
+    if(!data.hasOwnProperty('mod_path') || data.mod_path typeof !== 'string') {
+        // Critical, can't fudge this one
+        //this.buildConfigFile(); TODO: Implement class method
+    }
+    if(!data.hasOwnProperty('modlist_path') || data.modlist_path typeof !== 'string') {
+        // Critical, can't fudge this one
+        //this.buildConfigFile(); TODO: Implement class method
+    }
+    if(!data.hasOwnProperty('game_path') || data.game_path typeof !== 'string') {
+        // Critical, can't fudge this one
+        //this.buildConfigFile(); TODO: Implement class method
+    }
+
+    return data;
+}
 
 //---------------------------------------------------------
 // Application-finishing functions
