@@ -70,16 +70,37 @@ AppManager.prototype.loadConfig = function() {
     }
 
     if(!data.hasOwnProperty('mod_path') || data.mod_path typeof !== 'string') {
-        // Critical, can't fudge this one
-        //this.buildConfigFile(); TODO: Implement class method
+        // Give some backward compatibility. Remove in about a month, ~ October 1st
+        if(data.hasOwnProperty('mod-path') || data['mod-path'] typeof === 'string') {
+            data.mod_path = data['mod-path'].slice();
+            delete data['mod-path'];
+        }
+        else {
+            // Critical, can't fudge this one if not there
+            return this.buildConfigFile();
+        }
     }
     if(!data.hasOwnProperty('modlist_path') || data.modlist_path typeof !== 'string') {
-        // Critical, can't fudge this one
-        //this.buildConfigFile(); TODO: Implement class method
+        // Give some backward compatibility. Remove in about a month, ~ October 1st
+        if(data.hasOwnProperty('modlist-path') || data['modlist-path'] typeof === 'string') {
+            data.modlist_path = data['modlist-path'].slice();
+            delete data['modlist-path'];
+        }
+        else {
+            // Critical, can't fudge this one if not there
+            return this.buildConfigFile();
+        }
     }
     if(!data.hasOwnProperty('game_path') || data.game_path typeof !== 'string') {
-        // Critical, can't fudge this one
-        //this.buildConfigFile(); TODO: Implement class method
+        // Give some backward compatibility. Remove in about a month, ~ October 1st
+        if(data.hasOwnProperty('game-path') || data['game-path'] typeof === 'string') {
+            data.game_path = data['game-path'].slice();
+            delete data['game-path'];
+        }
+        else {
+            // Critical, can't fudge this one if not there
+            return this.buildConfigFile();
+        }
     }
 
     return data;
