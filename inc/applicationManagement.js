@@ -15,6 +15,76 @@ function AppManager(configPath) {
 //---------------------------------------------------------
 // File-Management
 
+AppManager.prototype.loadConfig = function() {
+    let file = require('fs');
+    let data;
+
+    //------------------------------
+    // Attempt to load config file
+    try {
+        data = file.readFileSync(this.configPath, 'utf8');
+    }
+    catch(error) {
+        if(error.code === 'ENOENT') {
+            helpers.log('Was not able to find config file. Creating.');
+            this.buildConfigFile();
+        }
+        else { // TODO: Handle unexpected errors more appropriately?
+            throw error;
+            return null;
+        }
+    }
+
+    //------------------------------
+    // Check data for integrity
+    try {
+        data = JSON.parse(data);
+    }
+    catch(error) {
+        return this.buildConfigFile()
+    }
+
+    if(!data.hasOwnProperty('minWidth') || data.minWidth typeof !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.minWidth = 0;
+    }
+    if(!data.hasOwnProperty('minHeight') || data.minHeight typeof !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.minHeight = 0;
+    }
+    if(!data.hasOwnProperty('width') || data.width typeof !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.width = 0;
+    }
+    if(!data.hasOwnProperty('height') || data.height typeof !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.height = 0;
+    }
+    if(!data.hasOwnProperty('x_loc') || data.x_loc typeof !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.x_loc = 0;
+    }
+    if(!data.hasOwnProperty('y_loc') || data.y_loc typeof !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.y_loc = 0;
+    }
+
+    if(!data.hasOwnProperty('mod_path') || data.mod_path typeof !== 'string') {
+        // Critical, can't fudge this one
+        //this.buildConfigFile(); TODO: Implement class method
+    }
+    if(!data.hasOwnProperty('modlist_path') || data.modlist_path typeof !== 'string') {
+        // Critical, can't fudge this one
+        //this.buildConfigFile(); TODO: Implement class method
+    }
+    if(!data.hasOwnProperty('game_path') || data.game_path typeof !== 'string') {
+        // Critical, can't fudge this one
+        //this.buildConfigFile(); TODO: Implement class method
+    }
+
+    return data;
+};
+
 AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, screenHeight) {
     let file = require('fs');
     let modListPath, modDirectoryPath, gamePath;
@@ -71,7 +141,7 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
         return false;
     }
 
-    return true;
+    return this.loadConfig();
 };
 
 //---------------------------------------------------------
@@ -107,75 +177,7 @@ AppManager.prototype.promptForGamePath = function(dialog) {
     else return undefined;
 };
 
-AppManager.prototype.loadConfig = function() {
-    let file = require('fs');
-    let data;
 
-    //------------------------------
-    // Attempt to load config file
-    try {
-        data = file.readFileSync(this.configPath, 'utf8');
-    }
-    catch(error) {
-        if(error.code === 'ENOENT') {
-            helpers.log('Was not able to find config file. Creating.');
-            //this.buildConfigFile(); TODO: Implement class method
-        }
-        else { // TODO: Handle unexpected errors more appropriately?
-            throw error;
-            return null;
-        }
-    }
-
-    //------------------------------
-    // Check data for integrity
-    try {
-        data = JSON.parse(data);
-    }
-    catch(error) {
-        //this.buildConfigFile(); TODO: Implement class method
-    }
-
-    if(!data.hasOwnProperty('minWidth') || data.minWidth typeof !== 'number') {
-        // The value of this property isn't critical, nothing excessive needed
-        data.minWidth = 0;
-    }
-    if(!data.hasOwnProperty('minHeight') || data.minHeight typeof !== 'number') {
-        // The value of this property isn't critical, nothing excessive needed
-        data.minHeight = 0;
-    }
-    if(!data.hasOwnProperty('width') || data.width typeof !== 'number') {
-        // The value of this property isn't critical, nothing excessive needed
-        data.width = 0;
-    }
-    if(!data.hasOwnProperty('height') || data.height typeof !== 'number') {
-        // The value of this property isn't critical, nothing excessive needed
-        data.height = 0;
-    }
-    if(!data.hasOwnProperty('x_loc') || data.x_loc typeof !== 'number') {
-        // The value of this property isn't critical, nothing excessive needed
-        data.x_loc = 0;
-    }
-    if(!data.hasOwnProperty('y_loc') || data.y_loc typeof !== 'number') {
-        // The value of this property isn't critical, nothing excessive needed
-        data.y_loc = 0;
-    }
-
-    if(!data.hasOwnProperty('mod_path') || data.mod_path typeof !== 'string') {
-        // Critical, can't fudge this one
-        //this.buildConfigFile(); TODO: Implement class method
-    }
-    if(!data.hasOwnProperty('modlist_path') || data.modlist_path typeof !== 'string') {
-        // Critical, can't fudge this one
-        //this.buildConfigFile(); TODO: Implement class method
-    }
-    if(!data.hasOwnProperty('game_path') || data.game_path typeof !== 'string') {
-        // Critical, can't fudge this one
-        //this.buildConfigFile(); TODO: Implement class method
-    }
-
-    return data;
-};
 
 //---------------------------------------------------------
 // Application-finishing functions
