@@ -10,12 +10,14 @@ function AppManager(configPath) {
     this.configPath = configPath;
     this.config;
 
+    helpers.log(this.configPath);
+
 }
 
 //---------------------------------------------------------
 // File-Management
 
-AppManager.prototype.loadConfig = function() {
+AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHeight) {
     let file = require('fs');
     let data;
 
@@ -44,35 +46,35 @@ AppManager.prototype.loadConfig = function() {
         return this.buildConfigFile()
     }
 
-    if(!data.hasOwnProperty('minWidth') || data.minWidth typeof !== 'number') {
+    if(!data.hasOwnProperty('minWidth') || typeof data.minWidth !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
         data.minWidth = 0;
     }
-    if(!data.hasOwnProperty('minHeight') || data.minHeight typeof !== 'number') {
+    if(!data.hasOwnProperty('minHeight') || typeof data.minHeight !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
         data.minHeight = 0;
     }
-    if(!data.hasOwnProperty('width') || data.width typeof !== 'number') {
+    if(!data.hasOwnProperty('width') || typeof data.width !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
         data.width = 0;
     }
-    if(!data.hasOwnProperty('height') || data.height typeof !== 'number') {
+    if(!data.hasOwnProperty('height') || typeof data.height !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
         data.height = 0;
     }
-    if(!data.hasOwnProperty('x_loc') || data.x_loc typeof !== 'number') {
+    if(!data.hasOwnProperty('x_loc') || typeof data.x_loc !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
         data.x_loc = 0;
     }
-    if(!data.hasOwnProperty('y_loc') || data.y_loc typeof !== 'number') {
+    if(!data.hasOwnProperty('y_loc') || typeof data.y_loc !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
         data.y_loc = 0;
     }
 
-    if(!data.hasOwnProperty('mod_path') || data.mod_path typeof !== 'string') {
+    if(!data.hasOwnProperty('mod_directory_path') || typeof data.mod_directory_path !== 'string') {
         // Give some backward compatibility. Remove in about a month, ~ October 1st
-        if(data.hasOwnProperty('mod-path') || data['mod-path'] typeof === 'string') {
-            data.mod_path = data['mod-path'].slice();
+        if(data.hasOwnProperty('mod-path') || typeof data['mod-path'] === 'string') {
+            data.mod_directory_path = data['mod-path'].slice();
             delete data['mod-path'];
         }
         else {
@@ -80,9 +82,9 @@ AppManager.prototype.loadConfig = function() {
             return this.buildConfigFile();
         }
     }
-    if(!data.hasOwnProperty('modlist_path') || data.modlist_path typeof !== 'string') {
+    if(!data.hasOwnProperty('modlist_path') || typeof data.modlist_path !== 'string') {
         // Give some backward compatibility. Remove in about a month, ~ October 1st
-        if(data.hasOwnProperty('modlist-path') || data['modlist-path'] typeof === 'string') {
+        if(data.hasOwnProperty('modlist-path') || typeof data['modlist-path'] === 'string') {
             data.modlist_path = data['modlist-path'].slice();
             delete data['modlist-path'];
         }
@@ -91,9 +93,9 @@ AppManager.prototype.loadConfig = function() {
             return this.buildConfigFile();
         }
     }
-    if(!data.hasOwnProperty('game_path') || data.game_path typeof !== 'string') {
+    if(!data.hasOwnProperty('game_path') || typeof data.game_path !== 'string') {
         // Give some backward compatibility. Remove in about a month, ~ October 1st
-        if(data.hasOwnProperty('game-path') || data['game-path'] typeof === 'string') {
+        if(data.hasOwnProperty('game-path') || typeof data['game-path'] === 'string') {
             data.game_path = data['game-path'].slice();
             delete data['game-path'];
         }
@@ -112,11 +114,11 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
 
     //------------------------------
     // Check data for integrity
-    if(screenWidth === undefined || screenWidth typeof !== 'number' || screenWidth <= 0) {
+    if(screenWidth === undefined || typeof screenWidth !== 'number' || screenWidth <= 0) {
         // Guess for a lower resolution
         sceenWidth = 1280;
     }
-    if(screenHeight === undefined || screenHeight typeof !== 'number' || screenHeight <= 0) {
+    if(screenHeight === undefined || typeof screenHeight !== 'number' || screenHeight <= 0) {
         // Guess for a lower resolution
         screenHeight = 720;
     }
