@@ -72,7 +72,7 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
     }
 
     return true;
-}
+};
 
 //---------------------------------------------------------
 // Startup-related functions
@@ -175,7 +175,7 @@ AppManager.prototype.loadConfig = function() {
     }
 
     return data;
-}
+};
 
 //---------------------------------------------------------
 // Application-finishing functions

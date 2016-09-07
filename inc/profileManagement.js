@@ -36,7 +36,17 @@ ProfileManager.prototype.loadProfiles = function() {
         'active-profile': {}
     };
 
-    data['all-profiles'] = JSON.parse(file.readFileSync(this.profilesPath, 'utf8'));
+    try {
+        data['all-profiles'] = file.readFileSync(this.profilesPath, 'utf8')
+    }
+    catch(error) {
+        if(error.code === 'ENOENT') {
+            helpers.log('Was not able to find profiles file. Creating.');
+            return this.buildProfilesFile();
+        }
+    }
+
+    data['all-profiles'] = JSON.parse(data['all-profiles']);
 
     for(let i = data['all-profiles'].length - 1; i >= 0; i--) {
         if(data['all-profiles'][i]['enabled']) {
@@ -55,6 +65,22 @@ ProfileManager.prototype.saveProfiles = function() {
     file.writeFileSync(this.profilesPath, JSON.stringify(this.profileList['all-profiles'], null, 4));
 
     helpers.log('Finished saving the profiles.');
+};
+
+ProfileManager.prototype.buildProfilesFile = function() {
+    let file = require('fs');
+
+    let data = file.readFileSync(this.modListPath, 'utf8');
+    let mods = JSON.parse(data)['mods'];
+
+    let profile = [{
+        'name': 'Current Profile',
+        'enabled': true,
+        'mods': mods
+    }];
+
+    file.writeFileSync(this.profilesPath, JSON.stringify(profile, null, 4));
+    return this.loadProfiles();
 };
 
 ProfileManager.prototype.updateFactorioModlist = function() {
