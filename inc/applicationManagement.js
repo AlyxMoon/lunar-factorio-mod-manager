@@ -13,6 +13,68 @@ function AppManager(configPath) {
 }
 
 //---------------------------------------------------------
+// File-Management
+
+AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, screenHeight) {
+    let file = require('fs');
+    let modListPath, modDirectoryPath, gamePath;
+
+    //------------------------------
+    // Check data for integrity
+    if(screenWidth === undefined || screenWidth typeof !== 'number' || screenWidth <= 0) {
+        // Guess for a lower resolution
+        sceenWidth = 1280;
+    }
+    if(screenHeight === undefined || screenHeight typeof !== 'number' || screenHeight <= 0) {
+        // Guess for a lower resolution
+        screenHeight = 720;
+    }
+
+    modListPath = this.promptForModlist(electronDialog);
+    if(modListPath === undefined) {
+        helpers.log('User cancelled the dialog search.');
+        return false;
+    }
+    else if(modListPath.indexOf('mod-list.json') === -1) {
+        helpers.log('The selected file was not correct. Closing app.');
+        return false;
+    }
+    modDirectoryPath = modListPath.slice(0, modListPath.indexOf('mod-list.json'));
+
+    gamePath = this.promptForGamePath(electron.dialog);
+    if(gamePath === undefined) {
+        helpers.log('User cancelled the dialog search.');
+        return false;
+    }
+    else if(gamePath.indexOf('factorio.exe') === -1) {
+        helpers.log('The selected file was not correct. Closing app.');
+        return false;
+    }
+
+    let data = {
+        'minWidth': screenWidth / 2,
+        'minHeight': screenHeight / 1.25,
+        'width': screenSize.width / 2,
+        'height': screenSize.height,
+        'x-loc': 0,
+        'y-loc': 0,
+        'mod_directory_path': modDirectoryPath,
+        'modlist_path': modListPath,
+        'game_path': gamePath
+    };
+
+    try {
+        file.writeFileSync(this.configPath, JSON.stringify(data, null, 4));
+    }
+    catch(error) { // TODO: Handle unexpected errors more appropriately?
+        throw error;
+        return false;
+    }
+
+    return true;
+}
+
+//---------------------------------------------------------
 // Startup-related functions
 
 AppManager.prototype.promptForModlist = function(dialog) {
