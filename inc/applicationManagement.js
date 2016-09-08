@@ -215,7 +215,7 @@ AppManager.prototype.startGame = function(app, config, profileManager) {
     helpers.log('Starting Factorio and shutting down app.');
 
     let spawn = require('child_process').spawn;
-    let factorioPath = config['game-path'].slice(0, config['game-path'].indexOf('factorio.exe'));
+    let factorioPath = config.game_path.slice(0, config.game_path.indexOf('factorio.exe'));
 
     profileManager.updateFactorioModlist();
     spawn('factorio.exe', [], {
