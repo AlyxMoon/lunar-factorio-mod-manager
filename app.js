@@ -180,13 +180,52 @@ customEvents.on('installedModsLoaded', function() {
 // Application management functions
 
 function init() {
+    let ModManager = require('./inc/modManagement.js');
+    let ProfileManager = require('./inc/profileManagement.js');
+
     let screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
 
     config = appManager.loadConfig(electron.dialog, screenSize.width, screenSize.height);
     if(!config) {
         app.quit();
     }
-    startProgram();
+
+    try {
+        modManager = new ModManager.Manager(config.modlist_path, config.mod_directory_path, config.game_path, customEvents);
+    }
+    catch(error) {
+        helpers.log(`Error creating Mod Manager class. Error: ${error.message}`);
+        app.quit();
+    }
+
+    try {
+        profileManager = new ProfileManager.Manager(`${__dirname}/lmm_profiles.json`, config.modlist_path);
+    }
+    catch(error) {
+        helpers.log(`Error creating Profile Manager class. Error: ${error.message}`);
+        app.quit();
+    }
+
+
+    try {
+        mainWindow = appManager.createWindow(config);
+    }
+    catch(error) {
+        helpers.log(`Error creating the window. Error: ${error.message}`);
+        app.quit();
+    }
+
+    mainWindow.webContents.session.on('will-download', function(event, item, webContents) {
+        modManager.manageDownload(item, webContents, profileManager);
+    });
+
+    customEvents.once('installedModsLoaded', function(event) {
+        profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
+        profileManager.removeDeletedMods(modManager.getInstalledModNames());
+        appManager.loadPage(mainWindow, 'page_profiles', profileManager, modManager);
+    });
+
+    //startProgram();
 
 }
 
