@@ -183,6 +183,9 @@ function init() {
     let screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
 
     config = appManager.loadConfig(electron.dialog, screenSize.width, screenSize.height);
+    if(!config) {
+        app.quit();
+    }
     startProgram();
 
 }
@@ -237,7 +240,7 @@ function startProgram() {
         }
 
         let ProfileManager = require('./inc/profileManagement.js');
-        profileManager = new ProfileManager.Manager(config['profiles-path'], config.modlist_path);
+        profileManager = new ProfileManager.Manager(`${__dirname}/lmm_profiles.json`, config.modlist_path);
 
         mainWindow = appManager.createWindow(config);
         mainWindow.webContents.session.on('will-download', function(event, item, webContents) {

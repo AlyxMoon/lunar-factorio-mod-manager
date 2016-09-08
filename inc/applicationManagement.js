@@ -29,10 +29,10 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
     catch(error) {
         if(error.code === 'ENOENT') {
             helpers.log('Was not able to find config file. Creating.');
-            this.buildConfigFile();
+            return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
         }
         else { // TODO: Handle unexpected errors more appropriately?
-            throw error;
+            helpers.log(`Unhandled error attempting to load config file. Error: ${error.message}`);
             return null;
         }
     }
@@ -43,7 +43,8 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
         data = JSON.parse(data);
     }
     catch(error) {
-        return this.buildConfigFile()
+        helpers.log(`Error parsing config file, rebuilding. Error: ${error.message}`);
+        return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
     }
 
     if(!data.hasOwnProperty('minWidth') || typeof data.minWidth !== 'number') {
@@ -79,7 +80,8 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
         }
         else {
             // Critical, can't fudge this one if not there
-            return this.buildConfigFile();
+            helpers.log('mod_directory_path not in config file, rebuilding config file.');
+            return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
         }
     }
     if(!data.hasOwnProperty('modlist_path') || typeof data.modlist_path !== 'string') {
@@ -90,7 +92,8 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
         }
         else {
             // Critical, can't fudge this one if not there
-            return this.buildConfigFile();
+            helpers.log('modlist_path not in config file, rebuilding config file.');
+            return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
         }
     }
     if(!data.hasOwnProperty('game_path') || typeof data.game_path !== 'string') {
@@ -101,7 +104,8 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
         }
         else {
             // Critical, can't fudge this one if not there
-            return this.buildConfigFile();
+            helpers.log('game_path not in config file, rebuilding config file.');
+            return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
         }
     }
 
@@ -126,29 +130,29 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
     modListPath = this.promptForModlist(electronDialog);
     if(modListPath === undefined) {
         helpers.log('User cancelled the dialog search.');
-        return false;
+        return null;
     }
     else if(modListPath.indexOf('mod-list.json') === -1) {
         helpers.log('The selected file was not correct. Closing app.');
-        return false;
+        return null;
     }
     modDirectoryPath = modListPath.slice(0, modListPath.indexOf('mod-list.json'));
 
-    gamePath = this.promptForGamePath(electron.dialog);
+    gamePath = this.promptForGamePath(electronDialog);
     if(gamePath === undefined) {
         helpers.log('User cancelled the dialog search.');
-        return false;
+        return null;
     }
     else if(gamePath.indexOf('factorio.exe') === -1) {
         helpers.log('The selected file was not correct. Closing app.');
-        return false;
+        return null;
     }
 
     let data = {
         'minWidth': screenWidth / 2,
         'minHeight': screenHeight / 1.25,
-        'width': screenSize.width / 2,
-        'height': screenSize.height,
+        'width': screenWidth / 2,
+        'height': screenHeight,
         'x-loc': 0,
         'y-loc': 0,
         'mod_directory_path': modDirectoryPath,
@@ -161,10 +165,10 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
     }
     catch(error) { // TODO: Handle unexpected errors more appropriately?
         throw error;
-        return false;
+        return null;
     }
 
-    return this.loadConfig();
+    return this.loadConfig(electronDialog, screenWidth, screenHeight);
 };
 
 //---------------------------------------------------------
