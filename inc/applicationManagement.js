@@ -115,10 +115,12 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
     // Check data for integrity
     if(screenWidth === undefined || typeof screenWidth !== 'number' || screenWidth <= 0) {
         // Guess for a lower resolution
-        sceenWidth = 1280;
+        helpers.log('screenWidth not provided to buildConfigFile, setting to a default and continuing to build.');
+        screenWidth = 1280;
     }
     if(screenHeight === undefined || typeof screenHeight !== 'number' || screenHeight <= 0) {
         // Guess for a lower resolution
+        helpers.log('screenHeight not provided to buildConfigFile, setting to a default and continuing to build.');
         screenHeight = 720;
     }
 
@@ -128,7 +130,7 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
         return null;
     }
     else if(modListPath.indexOf('mod-list.json') === -1) {
-        helpers.log('The selected file was not correct. Closing app.');
+        helpers.log(`The selected file was not correct. Closing app. File: ${modListPath}`);
         return null;
     }
     modDirectoryPath = modListPath.slice(0, modListPath.indexOf('mod-list.json'));
@@ -139,7 +141,7 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
         return null;
     }
     else if(gamePath.indexOf('factorio.exe') === -1) {
-        helpers.log('The selected file was not correct. Closing app.');
+        helpers.log(`The selected file was not correct. Closing app. File: ${gamePath}`);
         return null;
     }
 
@@ -159,6 +161,7 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
         file.writeFileSync(this.configPath, JSON.stringify(data, null, 4));
     }
     catch(error) { // TODO: Handle unexpected errors more appropriately?
+        helpers.log(`Unhandled error saving config file. Error: ${error.message}`);
         throw error;
         return null;
     }
