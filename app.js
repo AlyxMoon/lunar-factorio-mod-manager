@@ -8,9 +8,7 @@ const appMessager = electron.ipcMain;
 const EventEmitter = require('events');
 let customEvents = new EventEmitter();
 
-const AppManager = require('./inc/applicationManagement.js');
-let appManager = new AppManager.Manager();
-
+let appManager;
 let mainWindow;
 let profileManager;
 let modManager;
@@ -180,153 +178,56 @@ customEvents.on('installedModsLoaded', function() {
 // Application management functions
 
 function init() {
+    let AppManager = require('./inc/applicationManagement.js');
+    let ModManager = require('./inc/modManagement.js');
+    let ProfileManager = require('./inc/profileManagement.js');
+
+    let screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
+
     try {
-        helpers.log('Beginning initialization of app.');
-        let file = require('fs');
-        let configPath = `${__dirname}/lmm_config.json`;
-        let profilesPath = `${__dirname}/lmm_profiles.json`;
-
-        let data;
-        try {
-            data = file.readFileSync(configPath, 'utf8');
-            config = JSON.parse(data);
-            file.readFileSync(profilesPath, 'utf8');
-
-            config['config-path'] = configPath;
-            config['profiles-path'] = profilesPath;
-
-            helpers.log('Found config and profiles file, loaded successfully.');
-            startProgram();
-        }
-        catch(error) {
-            if(error.code === 'ENOENT') {
-                helpers.log('Was not able to find config or profiles file.');
-                createAppFiles();
-            }
-        }
+        appManager = new AppManager.Manager(`${__dirname}/lmm_config.json`);
     }
     catch(error) {
-        helpers.log(`Uncaught error during app initialization: ${error}`);
+        helpers.log(`Error initializating App Manager. Error: ${error.message}`);
+        app.exit(-1);
+    }
+
+    config = appManager.loadConfig(electron.dialog, screenSize.width, screenSize.height);
+    if(!config) app.exit(-1);
+
+    try {
+        modManager = new ModManager.Manager(config.modlist_path, config.mod_directory_path, config.game_path, customEvents);
+    }
+    catch(error) {
+        helpers.log(`Error creating Mod Manager class. Error: ${error.message}`);
+        app.exit(-1);
+    }
+
+    try {
+        profileManager = new ProfileManager.Manager(`${__dirname}/lmm_profiles.json`, config.modlist_path);
+    }
+    catch(error) {
+        helpers.log(`Error creating Profile Manager class. Error: ${error.message}`);
         app.exit(-1);
     }
 
 
-}
-
-function startProgram() {
     try {
-        helpers.log('Starting the app now.');
-
-        // Only initialize if it wasn't created in the createAppFiles function
-        try{
-            if(!modManager) {
-                let ModManager = require('./inc/modManagement.js');
-                modManager = new ModManager.Manager(config['modlist-path'], config['mod-path'], config['game-path'], customEvents);
-            }
-        }
-        catch(error){
-            helpers.log('Error: ' + error);
-        }
-
-        let ProfileManager = require('./inc/profileManagement.js');
-        profileManager = new ProfileManager.Manager(config['profiles-path'], config['modlist-path']);
-
         mainWindow = appManager.createWindow(config);
-        mainWindow.webContents.session.on('will-download', function(event, item, webContents) {
-            modManager.manageDownload(item, webContents, profileManager);
-        });
-
-        customEvents.once('installedModsLoaded', function(event) {
-            profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
-            profileManager.removeDeletedMods(modManager.getInstalledModNames());
-            appManager.loadPage(mainWindow, 'page_profiles', profileManager, modManager);
-        });
     }
     catch(error) {
-        helpers.log(`Uncaught error during app startup: ${error}`);
+        helpers.log(`Error creating the window. Error: ${error.message}`);
         app.exit(-1);
     }
+
+    mainWindow.webContents.session.on('will-download', function(event, item, webContents) {
+        modManager.manageDownload(item, webContents, profileManager);
+    });
+
+    customEvents.once('installedModsLoaded', function(event) {
+        profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
+        profileManager.removeDeletedMods(modManager.getInstalledModNames());
+        appManager.loadPage(mainWindow, 'page_profiles', profileManager, modManager);
+    });
+
 }
-
-function createAppFiles() {
-    try {
-        helpers.log('Beginning to create config and profiles files.');
-        let file = require('fs');
-        let configPath = `${__dirname}/lmm_config.json`;
-        let profilesPath = `${__dirname}/lmm_profiles.json`;
-
-        let screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
-        let data = {
-            'minWidth': screenSize.width / 2,
-            'minHeight': screenSize.height / 1.25,
-            'width': screenSize.width / 2,
-            'height': screenSize.height,
-            'x-loc': 0,
-            'y-loc': 0,
-            'mod-path': '',
-            'modlist-path': '',
-            'game-path': ''
-        };
-
-        let modPath = appManager.promptForModlist(electron.dialog);
-        if(modPath === undefined) {
-            helpers.log('User cancelled the dialog search.');
-            appManager.closeProgram(app, config, profileManager, true);
-        }
-        else if(modPath.indexOf('mod-list.json') === -1) {
-            helpers.log('The selected file was not correct. Closing app.');
-            appManager.closeProgram(app, config, profileManager, true);
-        }
-
-        let gamePath = appManager.promptForGamePath(electron.dialog);
-        if(gamePath === undefined) {
-            helpers.log('User cancelled the dialog search.');
-            appManager.closeProgram(app, config, profileManager, true);
-        }
-        else if(gamePath.indexOf('factorio.exe') === -1) {
-            helpers.log('The selected file was not correct. Closing app.');
-            appManager.closeProgram(app, config, profileManager, true);
-        }
-
-        data['modlist-path'] = modPath;
-        data['mod-path'] = modPath.slice(0,modPath.indexOf('mod-list.json'));
-        data['game-path'] = gamePath;
-
-        try {
-            let ModManager = require('./inc/modManagement.js');
-            modManager = new ModManager.Manager(data['modlist-path'], data['mod-path'], data['game-path'], customEvents);
-
-            file.writeFileSync(configPath, JSON.stringify(data, null, 4));
-            config = data;
-
-            helpers.log('Successfully created config file, now creating profile');
-            try {
-                let profile = [{
-                    'name': 'Current Profile',
-                    'enabled': true,
-                    'mods': modManager.getFactorioModList()
-
-                }];
-                helpers.log('About to write new profiles file');
-                file.writeFileSync(profilesPath, JSON.stringify(profile));
-            }
-            catch(error) {
-                helpers.log('Failed to write profile file on first time initialization, error: ' + error.code);
-                appManager.closeProgram(app, config, profileManager, true);
-            }
-            helpers.log('Successfully created first profile');
-            config['config-path'] = configPath;
-            config['profiles-path'] = profilesPath;
-            startProgram();
-        }
-        catch(error) {
-            helpers.log('Failed to write config on first time initialization, error: ' + error.code);
-            appManager.closeProgram(app, config, profileManager, true);
-        }
-    }
-    catch(error) {
-        helpers.log(`Uncaught error creating application files: ${error}`);
-        app.exit(-1);
-    }
-}
-//---------------------------------------------------------
