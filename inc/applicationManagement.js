@@ -44,26 +44,32 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
 
     if(!data.hasOwnProperty('minWidth') || typeof data.minWidth !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
+        helpers.log('minWidth not found parsing config, setting a default value and continuing.');
         data.minWidth = 0;
     }
     if(!data.hasOwnProperty('minHeight') || typeof data.minHeight !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
+        helpers.log('minHeight not found parsing config, setting a default value and continuing.');
         data.minHeight = 0;
     }
     if(!data.hasOwnProperty('width') || typeof data.width !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
+        helpers.log('width not found parsing config, setting a default value and continuing.');
         data.width = 0;
     }
     if(!data.hasOwnProperty('height') || typeof data.height !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
+        helpers.log('height not found parsing config, setting a default value and continuing.');
         data.height = 0;
     }
     if(!data.hasOwnProperty('x_loc') || typeof data.x_loc !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
+        helpers.log('x_loc not found parsing config, setting a default value and continuing.');
         data.x_loc = 0;
     }
     if(!data.hasOwnProperty('y_loc') || typeof data.y_loc !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
+        helpers.log('y_loc not found parsing config, setting a default value and continuing.');
         data.y_loc = 0;
     }
 
@@ -115,10 +121,12 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
     // Check data for integrity
     if(screenWidth === undefined || typeof screenWidth !== 'number' || screenWidth <= 0) {
         // Guess for a lower resolution
-        sceenWidth = 1280;
+        helpers.log('screenWidth not provided to buildConfigFile, setting to a default and continuing to build.');
+        screenWidth = 1280;
     }
     if(screenHeight === undefined || typeof screenHeight !== 'number' || screenHeight <= 0) {
         // Guess for a lower resolution
+        helpers.log('screenHeight not provided to buildConfigFile, setting to a default and continuing to build.');
         screenHeight = 720;
     }
 
@@ -128,7 +136,7 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
         return null;
     }
     else if(modListPath.indexOf('mod-list.json') === -1) {
-        helpers.log('The selected file was not correct. Closing app.');
+        helpers.log(`The selected file was not correct. Closing app. File: ${modListPath}`);
         return null;
     }
     modDirectoryPath = modListPath.slice(0, modListPath.indexOf('mod-list.json'));
@@ -139,7 +147,7 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
         return null;
     }
     else if(gamePath.indexOf('factorio.exe') === -1) {
-        helpers.log('The selected file was not correct. Closing app.');
+        helpers.log(`The selected file was not correct. Closing app. File: ${gamePath}`);
         return null;
     }
 
@@ -159,6 +167,7 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
         file.writeFileSync(this.configPath, JSON.stringify(data, null, 4));
     }
     catch(error) { // TODO: Handle unexpected errors more appropriately?
+        helpers.log(`Unhandled error saving config file. Error: ${error.message}`);
         throw error;
         return null;
     }
