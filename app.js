@@ -8,9 +8,7 @@ const appMessager = electron.ipcMain;
 const EventEmitter = require('events');
 let customEvents = new EventEmitter();
 
-const AppManager = require('./inc/applicationManagement.js');
-let appManager = new AppManager.Manager(`${__dirname}/lmm_config.json`);
-
+let appManager;
 let mainWindow;
 let profileManager;
 let modManager;
@@ -180,22 +178,29 @@ customEvents.on('installedModsLoaded', function() {
 // Application management functions
 
 function init() {
+    let AppManager = require('./inc/applicationManagement.js');
     let ModManager = require('./inc/modManagement.js');
     let ProfileManager = require('./inc/profileManagement.js');
 
     let screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
 
-    config = appManager.loadConfig(electron.dialog, screenSize.width, screenSize.height);
-    if(!config) {
-        app.quit();
+    try {
+        appManager = new AppManager.Manager(`${__dirname}/lmm_config.json`);
     }
+    catch(error) {
+        helpers.log(`Error initializating App Manager. Error: ${error.message}`);
+        app.exit(-1);
+    }
+
+    config = appManager.loadConfig(electron.dialog, screenSize.width, screenSize.height);
+    if(!config) app.exit(-1);
 
     try {
         modManager = new ModManager.Manager(config.modlist_path, config.mod_directory_path, config.game_path, customEvents);
     }
     catch(error) {
         helpers.log(`Error creating Mod Manager class. Error: ${error.message}`);
-        app.quit();
+        app.exit(-1);
     }
 
     try {
@@ -203,7 +208,7 @@ function init() {
     }
     catch(error) {
         helpers.log(`Error creating Profile Manager class. Error: ${error.message}`);
-        app.quit();
+        app.exit(-1);
     }
 
 
@@ -212,7 +217,7 @@ function init() {
     }
     catch(error) {
         helpers.log(`Error creating the window. Error: ${error.message}`);
-        app.quit();
+        app.exit(-1);
     }
 
     mainWindow.webContents.session.on('will-download', function(event, item, webContents) {

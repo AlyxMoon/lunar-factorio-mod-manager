@@ -6,12 +6,7 @@ module.exports = {
 // Primary class declaration
 
 function AppManager(configPath) {
-
     this.configPath = configPath;
-    this.config;
-
-    helpers.log(this.configPath);
-
 }
 
 //---------------------------------------------------------
@@ -203,8 +198,6 @@ AppManager.prototype.promptForGamePath = function(dialog) {
     if(gamePath) return gamePath[0];
     else return undefined;
 };
-
-
 
 //---------------------------------------------------------
 // Application-finishing functions
