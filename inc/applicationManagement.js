@@ -44,26 +44,32 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
 
     if(!data.hasOwnProperty('minWidth') || typeof data.minWidth !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
+        helpers.log('minWidth not found parsing config, setting a default value and continuing.');
         data.minWidth = 0;
     }
     if(!data.hasOwnProperty('minHeight') || typeof data.minHeight !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
+        helpers.log('minHeight not found parsing config, setting a default value and continuing.');
         data.minHeight = 0;
     }
     if(!data.hasOwnProperty('width') || typeof data.width !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
+        helpers.log('width not found parsing config, setting a default value and continuing.');
         data.width = 0;
     }
     if(!data.hasOwnProperty('height') || typeof data.height !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
+        helpers.log('height not found parsing config, setting a default value and continuing.');
         data.height = 0;
     }
     if(!data.hasOwnProperty('x_loc') || typeof data.x_loc !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
+        helpers.log('x_loc not found parsing config, setting a default value and continuing.');
         data.x_loc = 0;
     }
     if(!data.hasOwnProperty('y_loc') || typeof data.y_loc !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
+        helpers.log('y_loc not found parsing config, setting a default value and continuing.');
         data.y_loc = 0;
     }
 
