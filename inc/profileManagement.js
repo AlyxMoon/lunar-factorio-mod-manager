@@ -70,7 +70,7 @@ ProfileManager.prototype.saveProfiles = function() {
 ProfileManager.prototype.buildProfilesFile = function() {
     let file = require('fs');
 
-    let data = file.readFileSync(this.modListPath, 'utf8');
+    let data = file.readFileSync(this.modlistPath, 'utf8');
     let mods = JSON.parse(data)['mods'];
 
     let profile = [{
