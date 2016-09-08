@@ -5,13 +5,169 @@ module.exports = {
 //---------------------------------------------------------
 // Primary class declaration
 
-function AppManager() {
-
+function AppManager(configPath) {
+    this.configPath = configPath;
 }
 
 //---------------------------------------------------------
-// Startup-related functions
+// File-Management
 
+AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHeight) {
+    let file = require('fs');
+    let data;
+
+    //------------------------------
+    // Attempt to load config file
+    try {
+        data = file.readFileSync(this.configPath, 'utf8');
+    }
+    catch(error) {
+        if(error.code === 'ENOENT') {
+            helpers.log('Was not able to find config file. Creating.');
+            return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
+        }
+        else { // TODO: Handle unexpected errors more appropriately?
+            helpers.log(`Unhandled error attempting to load config file. Error: ${error.message}`);
+            return null;
+        }
+    }
+
+    //------------------------------
+    // Check data for integrity
+    try {
+        data = JSON.parse(data);
+    }
+    catch(error) {
+        helpers.log(`Error parsing config file, rebuilding. Error: ${error.message}`);
+        return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
+    }
+
+    if(!data.hasOwnProperty('minWidth') || typeof data.minWidth !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.minWidth = 0;
+    }
+    if(!data.hasOwnProperty('minHeight') || typeof data.minHeight !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.minHeight = 0;
+    }
+    if(!data.hasOwnProperty('width') || typeof data.width !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.width = 0;
+    }
+    if(!data.hasOwnProperty('height') || typeof data.height !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.height = 0;
+    }
+    if(!data.hasOwnProperty('x_loc') || typeof data.x_loc !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.x_loc = 0;
+    }
+    if(!data.hasOwnProperty('y_loc') || typeof data.y_loc !== 'number') {
+        // The value of this property isn't critical, nothing excessive needed
+        data.y_loc = 0;
+    }
+
+    if(!data.hasOwnProperty('mod_directory_path') || typeof data.mod_directory_path !== 'string') {
+        // Give some backward compatibility. Remove in about a month, ~ October 1st
+        if(data.hasOwnProperty('mod-path') || typeof data['mod-path'] === 'string') {
+            data.mod_directory_path = data['mod-path'].slice();
+            delete data['mod-path'];
+        }
+        else {
+            // Critical, can't fudge this one if not there
+            helpers.log('mod_directory_path not in config file, rebuilding config file.');
+            return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
+        }
+    }
+    if(!data.hasOwnProperty('modlist_path') || typeof data.modlist_path !== 'string') {
+        // Give some backward compatibility. Remove in about a month, ~ October 1st
+        if(data.hasOwnProperty('modlist-path') || typeof data['modlist-path'] === 'string') {
+            data.modlist_path = data['modlist-path'].slice();
+            delete data['modlist-path'];
+        }
+        else {
+            // Critical, can't fudge this one if not there
+            helpers.log('modlist_path not in config file, rebuilding config file.');
+            return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
+        }
+    }
+    if(!data.hasOwnProperty('game_path') || typeof data.game_path !== 'string') {
+        // Give some backward compatibility. Remove in about a month, ~ October 1st
+        if(data.hasOwnProperty('game-path') || typeof data['game-path'] === 'string') {
+            data.game_path = data['game-path'].slice();
+            delete data['game-path'];
+        }
+        else {
+            // Critical, can't fudge this one if not there
+            helpers.log('game_path not in config file, rebuilding config file.');
+            return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
+        }
+    }
+
+    return data;
+};
+
+AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, screenHeight) {
+    let file = require('fs');
+    let modListPath, modDirectoryPath, gamePath;
+
+    //------------------------------
+    // Check data for integrity
+    if(screenWidth === undefined || typeof screenWidth !== 'number' || screenWidth <= 0) {
+        // Guess for a lower resolution
+        sceenWidth = 1280;
+    }
+    if(screenHeight === undefined || typeof screenHeight !== 'number' || screenHeight <= 0) {
+        // Guess for a lower resolution
+        screenHeight = 720;
+    }
+
+    modListPath = this.promptForModlist(electronDialog);
+    if(modListPath === undefined) {
+        helpers.log('User cancelled the dialog search.');
+        return null;
+    }
+    else if(modListPath.indexOf('mod-list.json') === -1) {
+        helpers.log('The selected file was not correct. Closing app.');
+        return null;
+    }
+    modDirectoryPath = modListPath.slice(0, modListPath.indexOf('mod-list.json'));
+
+    gamePath = this.promptForGamePath(electronDialog);
+    if(gamePath === undefined) {
+        helpers.log('User cancelled the dialog search.');
+        return null;
+    }
+    else if(gamePath.indexOf('factorio.exe') === -1) {
+        helpers.log('The selected file was not correct. Closing app.');
+        return null;
+    }
+
+    let data = {
+        'minWidth': screenWidth / 2,
+        'minHeight': screenHeight / 1.25,
+        'width': screenWidth / 2,
+        'height': screenHeight,
+        'x-loc': 0,
+        'y-loc': 0,
+        'mod_directory_path': modDirectoryPath,
+        'modlist_path': modListPath,
+        'game_path': gamePath
+    };
+
+    try {
+        file.writeFileSync(this.configPath, JSON.stringify(data, null, 4));
+    }
+    catch(error) { // TODO: Handle unexpected errors more appropriately?
+        throw error;
+        return null;
+    }
+
+    return this.loadConfig(electronDialog, screenWidth, screenHeight);
+};
+
+//---------------------------------------------------------
+// Startup-related functions
 
 AppManager.prototype.promptForModlist = function(dialog) {
     helpers.log('Prompting user for Factorio modlist.json file.');
