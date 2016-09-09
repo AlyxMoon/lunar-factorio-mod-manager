@@ -109,13 +109,18 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
             return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
         }
     }
+    if(!data.hasOwnProperty('player_data_path') || typeof data.player_data_path !== 'string') {
+        // Critical, can't fudge this one if not there
+        helpers.log('player_data_path not in config file, rebuilding config file.');
+        return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
+    }
 
     return data;
 };
 
 AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, screenHeight) {
     let file = require('fs');
-    let modListPath, modDirectoryPath, gamePath;
+    let modListPath, modDirectoryPath, gamePath, playerConfigPath;
 
     //------------------------------
     // Check data for integrity
@@ -151,16 +156,27 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
         return null;
     }
 
+    playerDataPath = this.promptForPlayerDataPath(electronDialog);
+    if(playerDataPath === undefined) {
+        helpers.log('User cancelled the dialog search.');
+        return null;
+    }
+    else if(playerDataPath.indexOf('player-data.json') === -1) {
+        helpers.log(`The selected file was not correct. Closing app. File: ${playerDataPath}`);
+        return null;
+    }
+
     let data = {
         'minWidth': screenWidth / 2,
         'minHeight': screenHeight / 1.25,
         'width': screenWidth / 2,
         'height': screenHeight,
-        'x-loc': 0,
-        'y-loc': 0,
+        'x_loc': 0,
+        'y_loc': 0,
         'mod_directory_path': modDirectoryPath,
         'modlist_path': modListPath,
-        'game_path': gamePath
+        'game_path': gamePath,
+        'player_data_path': playerDataPath
     };
 
     try {
@@ -200,6 +216,21 @@ AppManager.prototype.promptForGamePath = function(dialog) {
         'title': 'Find location of Factorio.exe file',
         'properties': ['openFile'],
         'filters': [{'name': 'Factorio Executable', 'extensions': ['exe']}]
+    };
+
+    let gamePath = dialog.showOpenDialog(options);
+
+    if(gamePath) return gamePath[0];
+    else return undefined;
+};
+
+AppManager.prototype.promptForPlayerDataPath = function(dialog) {
+    helpers.log('Prompting user for player-data.json file.');
+
+    let options = {
+        'title': 'Find location of player-data.json file',
+        'properties': ['openFile'],
+        'filters': [{'name': 'Factorio Player Data', 'extensions': ['json']}]
     };
 
     let gamePath = dialog.showOpenDialog(options);

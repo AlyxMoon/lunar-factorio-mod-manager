@@ -196,7 +196,7 @@ function init() {
     if(!config) app.exit(-1);
 
     try {
-        modManager = new ModManager.Manager(config.modlist_path, config.mod_directory_path, config.game_path, customEvents);
+        modManager = new ModManager.Manager(config.modlist_path, config.mod_directory_path, config.game_path, config.player_data_path, customEvents);
     }
     catch(error) {
         helpers.log(`Error creating Mod Manager class. Error: ${error.message}`);
