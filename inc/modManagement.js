@@ -6,11 +6,12 @@ module.exports = {
 // Primary class declaration
 
 // TODO: Make mods be ready before this so they can be provided in constructor
-function ModManager(modListPath, modDirectoryPath, gamePath, customEvents) {
+function ModManager(modListPath, modDirectoryPath, gamePath, playerDataPath, customEvents) {
 
     this.modListPath = modListPath;
     this.modDirectoryPath = modDirectoryPath;
     this.gamePath = gamePath;
+    this.playerDataPath = playerDataPath;
     this.factorioVersion = '';
     this.installedMods = [];
     this.onlineMods = [];
@@ -124,9 +125,7 @@ ModManager.prototype.loadInstalledMods = function() {
 ModManager.prototype.loadPlayerData = function() {
     let file = require('fs');
 
-    let configPath = `${this.modDirectoryPath}/../config/player-data.json`;
-
-    let data = file.readFileSync(configPath, 'utf8');
+    let data = file.readFileSync(this.playerDataPath, 'utf8');
     data = JSON.parse(data);
 
     if('service-username' in data && 'service-token' in data) {
