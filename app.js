@@ -183,6 +183,7 @@ function init() {
     let ProfileManager = require('./inc/profileManagement.js');
 
     let screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
+    helpers.log(app.getPath('home'));
 
     try {
         appManager = new AppManager.Manager(`${__dirname}/lmm_config.json`);
@@ -192,7 +193,7 @@ function init() {
         app.exit(-1);
     }
 
-    config = appManager.loadConfig(electron.dialog, screenSize.width, screenSize.height);
+    config = appManager.loadConfig(electron, screenSize.width, screenSize.height);
     if(!config) app.exit(-1);
 
     try {
