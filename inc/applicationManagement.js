@@ -7,6 +7,14 @@ module.exports = {
 
 function AppManager(configPath) {
     this.configPath = configPath;
+
+    this.appVersion = this.loadAppMetaInfo().version;
+}
+
+//---------------------------------------------------------
+// Sending data to the client
+AppManager.prototype.sendAppVersion = function(window) {
+    window.webContents.send('dataAppVersion', this.appVersion);
 }
 
 //---------------------------------------------------------
@@ -190,6 +198,22 @@ AppManager.prototype.buildConfigFile = function(electron, screenWidth, screenHei
 
     return this.loadConfig(electron, screenWidth, screenHeight);
 };
+
+AppManager.prototype.loadAppMetaInfo = function() {
+    let file = require('fs');
+    let path = require('path');
+    let filePath = path.join(__dirname, '..', 'package.json');
+
+    try {
+        let data = file.readFileSync(filePath, 'utf8');
+        data = JSON.parse(data);
+        return data;
+    }
+    catch(error) {
+        helpers.log(`Unhandled error loading package.json file. Error: ${error.message}`);
+        return null;
+    }
+}
 
 //---------------------------------------------------------
 // Startup-related functions
