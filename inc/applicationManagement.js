@@ -118,7 +118,7 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
     return data;
 };
 
-AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, screenHeight) {
+AppManager.prototype.buildConfigFile = function(electron, screenWidth, screenHeight) {
     let file = require('fs');
     let modListPath, modDirectoryPath, gamePath, playerConfigPath;
 
@@ -135,7 +135,7 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
         screenHeight = 720;
     }
 
-    modListPath = this.promptForModlist(electronDialog);
+    modListPath = this.promptForModlist(electron);
     if(modListPath === undefined) {
         helpers.log('User cancelled the dialog search.');
         return null;
@@ -146,7 +146,7 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
     }
     modDirectoryPath = modListPath.slice(0, modListPath.indexOf('mod-list.json'));
 
-    gamePath = this.promptForGamePath(electronDialog);
+    gamePath = this.promptForGamePath(electron);
     if(gamePath === undefined) {
         helpers.log('User cancelled the dialog search.');
         return null;
@@ -156,7 +156,7 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
         return null;
     }
 
-    playerDataPath = this.promptForPlayerDataPath(electronDialog);
+    playerDataPath = this.promptForPlayerDataPath(electron);
     if(playerDataPath === undefined) {
         helpers.log('User cancelled the dialog search.');
         return null;
@@ -188,52 +188,120 @@ AppManager.prototype.buildConfigFile = function(electronDialog, screenWidth, scr
         return null;
     }
 
-    return this.loadConfig(electronDialog, screenWidth, screenHeight);
+    return this.loadConfig(electron, screenWidth, screenHeight);
 };
 
 //---------------------------------------------------------
 // Startup-related functions
 
-AppManager.prototype.promptForModlist = function(dialog) {
-    helpers.log('Prompting user for Factorio modlist.json file.');
+AppManager.prototype.promptForModlist = function(electron) {
+    helpers.log('Attempting to find Factorio mod list.');
+    let file = require('fs');
+    let path = require('path');
 
+    //------------------------------
+    // Guess for common file locations first - Windows
+    let windowsPaths = [];
+    windowsPaths.push(path.join(electron.app.getPath('appData'), 'Factorio', 'mods', 'mod-list.json'));
+    windowsPaths.push(path.join('C:\\', 'Program Files', 'Factorio', 'mods', 'mod-list.json'));
+    windowsPaths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'mods', 'mod-list.json'));
+
+    for(let i = 0, length = windowsPaths.length; i < length; i++) {
+        try {
+            file.readFileSync(windowsPaths[i], 'utf8');
+            helpers.log(`Found mod-list.json automatically: ${windowsPaths[i]}`);
+            return windowsPaths[i];
+        }
+        catch(error) { if(error.code !== 'ENOENT') return undefined; }
+    }
+
+    //------------------------------
+    // Prompt if we didn't find anything
+    helpers.log('Could not find automatically, prompting user for file location.');
     let options = {
         'title': 'Find location of mod-list.json file',
         'properties': ['openFile'],
         'filters': [{'name': 'Factorio Mod List', 'extensions': ['json']}]
     };
 
-    let modlist = dialog.showOpenDialog(options);
+    let modlistPath = electron.dialog.showOpenDialog(options);
 
     if(modlist) return modlist[0];
     else return undefined;
 };
 
-AppManager.prototype.promptForGamePath = function(dialog) {
-    helpers.log('Prompting user for Factorio.exe file.');
+AppManager.prototype.promptForGamePath = function(electron) {
+    helpers.log('Attempting to find Factorio.exe file.');
+    let file = require('fs');
+    let path = require('path');
 
+    //------------------------------
+    // Guess for common file locations first - Windows
+    let windowsPaths = [];
+    windowsPaths.push(path.join('C:\\', 'Program Files', 'Factorio', 'bin', 'Win32', 'factorio.exe'));
+    windowsPaths.push(path.join('C:\\', 'Program Files', 'Factorio', 'bin', 'x64', 'factorio.exe'));
+    windowsPaths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'bin', 'Win32', 'factorio.exe'));
+    windowsPaths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'bin', 'x64', 'factorio.exe'));
+    windowsPaths.push(path.join('C:\\', 'Program Files', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'Win32', 'factorio.exe'));
+    windowsPaths.push(path.join('C:\\', 'Program Files', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'x64', 'factorio.exe'));
+    windowsPaths.push(path.join('C:\\', 'Program Files (x86)', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'Win32', 'factorio.exe'));
+    windowsPaths.push(path.join('C:\\', 'Program Files (x86)', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'x64', 'factorio.exe'));
+
+    for(let i = 0, length = windowsPaths.length; i < length; i++) {
+        try {
+            file.readFileSync(windowsPaths[i], 'utf8');
+            helpers.log(`Found Factorio.exe automatically: ${windowsPaths[i]}`);
+            return windowsPaths[i];
+        }
+        catch(error) { if(error.code !== 'ENOENT') return undefined; }
+    }
+
+    //------------------------------
+    // Prompt if we didn't find anything
+    helpers.log('Could not find automatically, prompting user for file location.');
     let options = {
         'title': 'Find location of Factorio.exe file',
         'properties': ['openFile'],
         'filters': [{'name': 'Factorio Executable', 'extensions': ['exe']}]
     };
 
-    let gamePath = dialog.showOpenDialog(options);
+    let gamePath = electron.dialog.showOpenDialog(options);
 
     if(gamePath) return gamePath[0];
     else return undefined;
 };
 
-AppManager.prototype.promptForPlayerDataPath = function(dialog) {
-    helpers.log('Prompting user for player-data.json file.');
+AppManager.prototype.promptForPlayerDataPath = function(electron) {
+    helpers.log('Attempting to find player-data.json file.');
+    let file = require('fs');
+    let path = require('path');
 
+    //------------------------------
+    // Guess for common file locations first - Windows
+    let windowsPaths = [];
+    windowsPaths.push(path.join(electron.app.getPath('appData'), 'Factorio', 'player-data.json'));
+    windowsPaths.push(path.join(electron.app.getPath('appData'), 'Factorio', 'config', 'player-data.json'));
+    windowsPaths.push(path.join('C:\\', 'Program Files', 'Factorio', 'mods', 'mod-list.json'));
+    windowsPaths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'mods', 'mod-list.json'));
+
+    for(let i = 0, length = windowsPaths.length; i < length; i++) {
+        try {
+            file.readFileSync(windowsPaths[i], 'utf8');
+            helpers.log(`Found player-data.json automatically: ${windowsPaths[i]}`);
+            return windowsPaths[i];
+        }
+        catch(error) { if(error.code !== 'ENOENT') return undefined; }
+    }
+
+    //------------------------------
+    // Prompt if we didn't find anything
     let options = {
         'title': 'Find location of player-data.json file',
         'properties': ['openFile'],
         'filters': [{'name': 'Factorio Player Data', 'extensions': ['json']}]
     };
 
-    let gamePath = dialog.showOpenDialog(options);
+    let gamePath = electron.dialog.showOpenDialog(options);
 
     if(gamePath) return gamePath[0];
     else return undefined;

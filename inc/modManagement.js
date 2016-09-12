@@ -22,10 +22,6 @@ function ModManager(modListPath, modDirectoryPath, gamePath, playerDataPath, cus
     this.playerUsername = '';
     this.playerToken = '';
 
-    this.loadPlayerData();
-    this.loadInstalledMods();
-    this.loadOnlineMods();
-
 }
 
 //---------------------------------------------------------
@@ -80,6 +76,7 @@ ModManager.prototype.sendPlayerInfo = function(window) {
 
 ModManager.prototype.loadInstalledMods = function() {
     let file = require('fs');
+    let path = require('path');
     let JSZip = require('jszip');
 
     let modZipNames = file.readdirSync(this.modDirectoryPath, 'utf8');
@@ -92,34 +89,52 @@ ModManager.prototype.loadInstalledMods = function() {
     let events = this.customEvents;
 
     // Add base mod
-    let gamePath = this.gamePath;
-    let baseInfo = `${gamePath.substr(0, gamePath.lastIndexOf('Factorio\\bin'))}Factorio/data/base/info.json`;
-    mods.push(JSON.parse(file.readFileSync(baseInfo, 'utf8')));
-
-    let counter = modZipNames.length;
-    for(let i = 0; i < modZipNames.length; i++) {
-        // Open the zip file as a buffer
-        file.readFile(`${this.modDirectoryPath}${modZipNames[i]}`, function(error, rawZipBuffer) {
-            if(error) throw error;
-
-            // Actually read the zip file
-            JSZip.loadAsync(rawZipBuffer).then(function(zip) {
-                // Only open the mods info file in the zip
-                return zip.file(/info\.json/)[0].async('text');
-
-            }).then(function(modData) {
-                // Save the information
-                mods.push(JSON.parse(modData));
-
-                // Only show once all zip files have been read
-                counter--;
-                if(counter <= 0) {
-                    mods = helpers.sortArrayByProp(mods, 'name');
-                    events.emit('installedModsLoaded');
-                }
-            });
-        });
+    let baseInfoPath = path.join(this.gamePath, '..', '..', '..', 'data', 'base', 'info.json');
+    let baseInfo;
+    try {
+        baseInfo = file.readFileSync(baseInfoPath, 'utf8');
+        mods.push(JSON.parse(baseInfo));
     }
+    catch(error) {
+        if(error.code === 'ENOENT') {
+            helpers.log('Path to base mod incorrect. If you wish to help the app, please file a report with the directory of the Factorio base mod.');
+            helpers.log(`App attempted to find base mod at: ${baseInfoPath}`);
+        }
+        else helpers.log(`Unhandled error while loading base mod. Error: ${error.message}`);
+    }
+
+    if(modZipNames.length > 0) {
+        let counter = modZipNames.length;
+        for(let i = 0; i < modZipNames.length; i++) {
+            // Open the zip file as a buffer
+            file.readFile(`${this.modDirectoryPath}${modZipNames[i]}`, function(error, rawZipBuffer) {
+                if(error) throw error;
+
+                // Actually read the zip file
+                JSZip.loadAsync(rawZipBuffer).then(function(zip) {
+                    // Only open the mods info file in the zip
+                    return zip.file(/info\.json/)[0].async('text');
+
+                }).then(function(modData) {
+                    // Save the information
+                    mods.push(JSON.parse(modData));
+
+                    // Only show once all zip files have been read
+                    counter--;
+                    if(counter <= 0) {
+                        mods = helpers.sortArrayByProp(mods, 'name');
+                        events.emit('installedModsLoaded');
+                    }
+                });
+            });
+        }
+    }
+    else {
+        helpers.log('No installed mods were found.');
+        events.emit('installedModsLoaded'); // No mods are actually loaded besides base
+    }
+
+
 };
 
 ModManager.prototype.loadPlayerData = function() {

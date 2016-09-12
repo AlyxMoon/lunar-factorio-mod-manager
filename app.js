@@ -192,42 +192,47 @@ function init() {
         app.exit(-1);
     }
 
-    config = appManager.loadConfig(electron.dialog, screenSize.width, screenSize.height);
+    config = appManager.loadConfig(electron, screenSize.width, screenSize.height);
     if(!config) app.exit(-1);
 
     try {
         modManager = new ModManager.Manager(config.modlist_path, config.mod_directory_path, config.game_path, config.player_data_path, customEvents);
     }
     catch(error) {
-        helpers.log(`Error creating Mod Manager class. Error: ${error.message}`);
+        helpers.log(`Error creating Mod Manager class. Error: ${error.stack}`);
         app.exit(-1);
     }
-
-    try {
-        profileManager = new ProfileManager.Manager(`${__dirname}/lmm_profiles.json`, config.modlist_path);
-    }
-    catch(error) {
-        helpers.log(`Error creating Profile Manager class. Error: ${error.message}`);
-        app.exit(-1);
-    }
-
-
-    try {
-        mainWindow = appManager.createWindow(config);
-    }
-    catch(error) {
-        helpers.log(`Error creating the window. Error: ${error.message}`);
-        app.exit(-1);
-    }
-
-    mainWindow.webContents.session.on('will-download', function(event, item, webContents) {
-        modManager.manageDownload(item, webContents, profileManager);
-    });
 
     customEvents.once('installedModsLoaded', function(event) {
+        helpers.log('Installed mods are loaded.');
+        try {
+            profileManager = new ProfileManager.Manager(`${__dirname}/lmm_profiles.json`, config.modlist_path);
+        }
+        catch(error) {
+            helpers.log(`Error creating Profile Manager class. Error: ${error.message}`);
+            app.exit(-1);
+        }
+
+        try {
+            mainWindow = appManager.createWindow(config);
+        }
+        catch(error) {
+            helpers.log(`Error creating the window. Error: ${error.message}`);
+            app.exit(-1);
+        }
+
+        mainWindow.webContents.session.on('will-download', function(event, item, webContents) {
+            modManager.manageDownload(item, webContents, profileManager);
+        });
+
+
         profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
         profileManager.removeDeletedMods(modManager.getInstalledModNames());
         appManager.loadPage(mainWindow, 'page_profiles', profileManager, modManager);
     });
+
+    modManager.loadPlayerData();
+    modManager.loadInstalledMods();
+    modManager.loadOnlineMods();
 
 }
