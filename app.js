@@ -52,6 +52,13 @@ appMessager.on('requestFactorioVersion', function() {
     modManager.sendFactorioVersion(mainWindow);
 });
 
+appMessager.on('requestAllProfiles', function() {
+    profileManager.sendAllProfiles(mainWindow);
+});
+appMessager.on('requestActiveProfile', function() {
+    profileManager.sendActiveProfile(mainWindow);
+});
+
 appMessager.on('newProfile', function() {
     try {
         profileManager.createProfile(modManager.getInstalledModNames());

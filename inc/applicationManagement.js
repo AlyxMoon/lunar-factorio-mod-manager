@@ -373,23 +373,16 @@ AppManager.prototype.createWindow = function(appConfig) {
 AppManager.prototype.loadPage = function(window, page, profileManager, modManager) {
     helpers.log(`Attempting to change the page to ${page}`);
 
-    if(page === 'page_profiles') {
-        window.loadURL(`file://${__dirname}/../view/${page}.html`);
-        window.webContents.once('did-finish-load', function() {
-            profileManager.sendActiveProfile(window);
-            profileManager.sendAllProfiles(window);
-        });
+    switch(page) {
+        case 'page_profiles':
+        case 'page_installedMods':
+        case 'page_onlineMods':
+        case 'page_about':
+            window.loadURL(`file://${__dirname}/../view/${page}.html`);
+            break;
+        default:
+            helpers.log('The given page is not set up yet. Loading profiles page instead.');
+            window.loadURL(`file://${__dirname}/../view/page_profiles.html`);;
     }
-    else if(page === 'page_installedMods') {
-        window.loadURL(`file://${__dirname}/../view/${page}.html`);
-    }
-    else if(page === 'page_onlineMods') {
-        window.loadURL(`file://${__dirname}/../view/${page}.html`);
-    }
-    else {
-        helpers.log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');
-    }
-    window.webContents.once('did-finish-load', function() {
-        modManager.sendOnlineMods(window);
-    });
+
 };

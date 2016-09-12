@@ -29,6 +29,9 @@ $('button#page-installedMods').click(function() {
 $('button#page-onlineMods').click(function() {
     messager.send('changePage', 'page_onlineMods');
 });
+$('button#page-about').click(function() {
+    messager.send('changePage', 'page_about');
+});
 //---------------------------------------------------------
 //---------------------------------------------------------
 $(document).ready(function() {

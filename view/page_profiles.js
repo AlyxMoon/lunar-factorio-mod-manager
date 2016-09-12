@@ -20,7 +20,8 @@ $('button').click(function() { $(this).blur() });
 //---------------------------------------------------------
 //---------------------------------------------------------
 $(document).ready(function() {
-
+    messager.send('requestAllProfiles');
+    messager.send('requestActiveProfile');
 });
 
 // Used as callback function
