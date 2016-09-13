@@ -19,9 +19,12 @@ $(document).ready(function() {
 
 function showAppVersion(version, latestVersion, latestVersionLink) {
     let element = $('#app-version');
-    element.text(version);
+
     if(latestVersion && isVersionHigher(version, latestVersion)) {
-        element.html(`${version} -- Latest: ${latestVersion} <a href="${latestVersionLink}">(Get it here)</a>`);
+        element.html(`${version} -- Latest: ${latestVersion} (<a href="${latestVersionLink}">View it here</a>)`);
+    }
+    else {
+        element.text(`${version} -- Up to date`);
     }
 
 }
