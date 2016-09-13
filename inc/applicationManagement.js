@@ -21,13 +21,19 @@ function AppManager(configPath) {
 // Sending data to the client
 AppManager.prototype.sendAppVersion = function(window) {
     window.webContents.send('dataAppVersion', this.appVersion, this.latestVersion, this.latestVersionLink);
-}
+};
 AppManager.prototype.sendAppConfig = function(window) {
     window.webContents.send('dataAppConfig', this.config);
-}
+};
 
 //---------------------------------------------------------
 // File-Management
+
+AppManager.prototype.saveConfig = function() {
+    let file = require('fs');
+    file.writeFileSync(this.configPath, JSON.stringify(this.config, null, 4));
+    helpers.log('Saved application configuration.');
+};
 
 AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHeight) {
     let file = require('fs');
@@ -376,7 +382,7 @@ AppManager.prototype.promptForPlayerDataPath = function(electron) {
 //---------------------------------------------------------
 // Application-finishing functions
 
-AppManager.prototype.startGame = function(app, config, profileManager) {
+AppManager.prototype.startGame = function(app, profileManager) {
     helpers.log('Starting Factorio and shutting down app.');
 
     let spawn = require('child_process').spawn;
@@ -391,13 +397,14 @@ AppManager.prototype.startGame = function(app, config, profileManager) {
     this.closeProgram(app, config, profileManager);
 };
 
-AppManager.prototype.closeProgram = function(app, config, profileManager, inError = false) {
+AppManager.prototype.closeProgram = function(app, profileManager, inError = false) {
     if(inError) {
         helpers.log('There was an error. Not saving app data, closing app.');
         app.exit(-1);
     }
     else {
         helpers.log('Beginning application shutdown.');
+        this.saveConfig();
         profileManager.saveProfiles();
         profileManager.updateFactorioModlist();
         helpers.log('Everything taken care of, closing app now.');
@@ -408,17 +415,17 @@ AppManager.prototype.closeProgram = function(app, config, profileManager, inErro
 //---------------------------------------------------------
 // Miscellaneous logic and helpers
 
-AppManager.prototype.createWindow = function(appConfig) {
+AppManager.prototype.createWindow = function() {
     helpers.log('Creating the application window');
     const BrowserWindow = require('electron').BrowserWindow;
 
     let windowOptions = {
-        minWidth: appConfig['minWidth'],
-        minHeight: appConfig['minHeight'],
-        width: appConfig['width'],
-        height: appConfig['height'],
-        x: appConfig['x-loc'],
-        y: appConfig['y-loc'],
+        minWidth: this.config['minWidth'],
+        minHeight: this.config['minHeight'],
+        width: this.config['width'],
+        height: this.config['height'],
+        x: this.config['x-loc'],
+        y: this.config['y-loc'],
         resizable: true,
         title: 'Lunar\'s [Factorio] Mod Manager',
         icon: __dirname + '/../img/favicon.ico'
@@ -426,7 +433,7 @@ AppManager.prototype.createWindow = function(appConfig) {
 
     let window = new BrowserWindow(windowOptions);
     window.setMenu(null);
-    if(appConfig['debug'] === true) window.webContents.openDevTools();
+    if(this.config['debug'] === true) window.webContents.openDevTools();
 
     window.on('closed', function () {
         window = null;
