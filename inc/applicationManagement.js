@@ -65,16 +65,16 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
         return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
     }
 
-    if(!data.hasOwnProperty('minWidth') || typeof data.minWidth !== 'number') {
-        // The value of this property isn't critical, nothing excessive needed
-        helpers.log('minWidth not found parsing config, setting a default value and continuing.');
-        data.minWidth = 0;
-    }
-    if(!data.hasOwnProperty('minHeight') || typeof data.minHeight !== 'number') {
-        // The value of this property isn't critical, nothing excessive needed
-        helpers.log('minHeight not found parsing config, setting a default value and continuing.');
-        data.minHeight = 0;
-    }
+    // if(!data.hasOwnProperty('minWidth') || typeof data.minWidth !== 'number') {
+    //     // The value of this property isn't critical, nothing excessive needed
+    //     helpers.log('minWidth not found parsing config, setting a default value and continuing.');
+    //     data.minWidth = 0;
+    // }
+    // if(!data.hasOwnProperty('minHeight') || typeof data.minHeight !== 'number') {
+    //     // The value of this property isn't critical, nothing excessive needed
+    //     helpers.log('minHeight not found parsing config, setting a default value and continuing.');
+    //     data.minHeight = 0;
+    // }
     if(!data.hasOwnProperty('width') || typeof data.width !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
         helpers.log('width not found parsing config, setting a default value and continuing.');
@@ -85,6 +85,9 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
         helpers.log('height not found parsing config, setting a default value and continuing.');
         data.height = 0;
     }
+    if(data.width < (screenWidth / 2)) data.width = screenWidth / 2;
+    if(data.height < (screenHeight / 1.25)) data.height = screenHeight / 1.25;
+
     if(!data.hasOwnProperty('x_loc') || typeof data.x_loc !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
         helpers.log('x_loc not found parsing config, setting a default value and continuing.');
@@ -415,14 +418,14 @@ AppManager.prototype.closeProgram = function(app, profileManager, inError = fals
 //---------------------------------------------------------
 // Miscellaneous logic and helpers
 
-AppManager.prototype.createWindow = function() {
+AppManager.prototype.createWindow = function(screenWidth, screenHeight) {
     helpers.log('Creating the application window');
     const BrowserWindow = require('electron').BrowserWindow;
     let config = this.config;
 
     let windowOptions = {
-        minWidth: config.minWidth,
-        minHeight: config.minHeight,
+        minWidth: screenWidth / 2,
+        minHeight: screenHeight / 1.25,
         width: config.width,
         height: config.height,
         x: config.x_loc,

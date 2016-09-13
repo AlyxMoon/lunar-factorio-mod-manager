@@ -230,7 +230,7 @@ function init() {
         }
 
         try {
-            mainWindow = appManager.createWindow();
+            mainWindow = appManager.createWindow(screenSize.width, screenSize.height);
         }
         catch(error) {
             helpers.log(`Error creating the window. Error: ${error.message}`);
