@@ -418,14 +418,15 @@ AppManager.prototype.closeProgram = function(app, profileManager, inError = fals
 AppManager.prototype.createWindow = function() {
     helpers.log('Creating the application window');
     const BrowserWindow = require('electron').BrowserWindow;
+    let config = this.config;
 
     let windowOptions = {
-        minWidth: this.config['minWidth'],
-        minHeight: this.config['minHeight'],
-        width: this.config['width'],
-        height: this.config['height'],
-        x: this.config['x-loc'],
-        y: this.config['y-loc'],
+        minWidth: config.minWidth,
+        minHeight: config.minHeight,
+        width: config.width,
+        height: config.height,
+        x: config.x_loc,
+        y: config.y_loc,
         resizable: true,
         title: 'Lunar\'s [Factorio] Mod Manager',
         icon: __dirname + '/../img/favicon.ico'
