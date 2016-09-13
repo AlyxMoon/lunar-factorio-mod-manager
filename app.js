@@ -62,6 +62,10 @@ appMessager.on('requestActiveProfile', function() {
     profileManager.sendActiveProfile(mainWindow);
 });
 
+appMessager.on('requestAppConfig', function() {
+    appManager.sendAppConfig(mainWindow);
+});
+
 appMessager.on('newProfile', function() {
     try {
         profileManager.createProfile(modManager.getInstalledModNames());

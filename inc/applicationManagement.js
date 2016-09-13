@@ -7,6 +7,7 @@ module.exports = {
 
 function AppManager(configPath) {
     this.configPath = configPath;
+    this.config;
 
     this.appVersion = this.loadAppMetaInfo().version;
     this.latestVersion;
@@ -20,6 +21,9 @@ function AppManager(configPath) {
 // Sending data to the client
 AppManager.prototype.sendAppVersion = function(window) {
     window.webContents.send('dataAppVersion', this.appVersion, this.latestVersion, this.latestVersionLink);
+}
+AppManager.prototype.sendAppConfig = function(window) {
+    window.webContents.send('dataAppConfig', this.config);
 }
 
 //---------------------------------------------------------
@@ -128,6 +132,7 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
         return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
     }
 
+    this.config = data;
     return data;
 };
 
