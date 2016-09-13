@@ -243,11 +243,10 @@ AppManager.prototype.fetchLatestAppInfo = function() {
             this.latestVersionLink = data.html_url;
             this.latestVersionDownloadURL = data.assets[0].browser_download_url;
 
-            helpers.log(version);
         }
         else {
-            helpers.log(error);
-            helpers.log(`Error fetching latest app version. Error: ${response.statusCode}`);
+            if(error) helpers.log(`Error fetching latest app version. Error: ${error.message}`);
+            if(response) helpers.log(`Error fetching latest app version. Response: ${response.statusCode}`);
         }
 
     });
