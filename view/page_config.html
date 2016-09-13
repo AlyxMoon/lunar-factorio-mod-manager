@@ -13,9 +13,9 @@
         <div id="pageButtons" class="btn-group" role="group" aria-label="...">
             <button type="button" id="start-factorio" class="btn btn-success">Start Factorio</button>
             <button type="button" id="page-profiles" class="btn btn-default">Profiles</button>
-            <button type="button" id="page-installedMods" class="btn btn-primary" disabled="disabled">Installed Mods</button>
+            <button type="button" id="page-installedMods" class="btn btn-default">Installed Mods</button>
             <button type="button" id="page-onlineMods" class="btn btn-default">Online Mods</button>
-            <button type="button" id="page-config" class="btn btn-default">Config</button>
+            <button type="button" id="page-config" class="btn btn-primary" disabled="disabled">Config</button>
             <button type="button" id="page-about" class="btn btn-default">About</button>
         </div>
         <hr>
@@ -23,17 +23,6 @@
 
     <!-- Main body section for data -->
     <div id="main-view">
-        <!-- First column, the list of installed mods -->
-        <div class="col-xs-6 height-100"><div class="view-section scroll height-100">
-            <table id="mods-list" class="table table-condensed table-hover"></table>
-        </div></div> <!-- End of first column -->
-
-        <!-- Second column, shows info on a selected mod -->
-        <div class="col-xs-6 height-100"><div class="view-section scroll height-100">
-            <table id="mod-info" class="table table-bordered">
-                <thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead> <!-- Filler text before data is received -->
-            </table>
-        </div></div> <!-- End of second column -->
     </div> <!-- End of the main body section -->
 
     <!-- Standard footer for every page in application -->
@@ -56,5 +45,5 @@
     <script src='../inc/jquery-3.1.0.min.js'></script>
     <script src='../inc/bootstrap.min.js'></script>
     <script> require('./inc.js') </script>
-    <script> require('./page_installedMods.js') </script>
+    <script> require('./page_config.js') </script>
 </html>

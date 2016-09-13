@@ -438,6 +438,7 @@ AppManager.prototype.loadPage = function(window, page, profileManager, modManage
         case 'page_profiles':
         case 'page_installedMods':
         case 'page_onlineMods':
+        case 'page_config':
         case 'page_about':
             window.loadURL(`file://${__dirname}/../view/${page}.html`);
             break;
