@@ -22,10 +22,6 @@ html {
     height: 100%;
 }
 
-.scroll {
-    overflow: scroll;
-}
-
 /* --- Primary Layout Structure --- */
 body {
     height: 100%;
@@ -62,6 +58,16 @@ body {
 h1,h2,h3,h4,h5,h6,
 th {
     text-align: center;
+}
+
+p {
+    font-family: avenir !important;
+}
+
+/* --- Image-Related Treatments --- */
+.img-logo {
+    width: 100%;
+    height: 100%;
 }
 
 /* General Element Styles --- */
@@ -110,6 +116,13 @@ tr {
 }
 .height-10 {
     height: 10%;
+}
+
+.scroll {
+    overflow: scroll;
+}
+.scroll-vertical {
+    overflow-y: scroll;
 }
 
 .center {

@@ -51,6 +51,16 @@ appMessager.on('requestPlayerInfo', function() {
 appMessager.on('requestFactorioVersion', function() {
     modManager.sendFactorioVersion(mainWindow);
 });
+appMessager.on('requestAppVersion', function() {
+    appManager.sendAppVersion(mainWindow);
+});
+
+appMessager.on('requestAllProfiles', function() {
+    profileManager.sendAllProfiles(mainWindow);
+});
+appMessager.on('requestActiveProfile', function() {
+    profileManager.sendActiveProfile(mainWindow);
+});
 
 appMessager.on('newProfile', function() {
     try {

@@ -7,6 +7,19 @@ module.exports = {
 
 function AppManager(configPath) {
     this.configPath = configPath;
+
+    this.appVersion = this.loadAppMetaInfo().version;
+    this.latestVersion;
+    this.latestVersionLink;
+    this.latestVersionDownloadURL;
+
+    this.fetchLatestAppInfo();
+}
+
+//---------------------------------------------------------
+// Sending data to the client
+AppManager.prototype.sendAppVersion = function(window) {
+    window.webContents.send('dataAppVersion', this.appVersion, this.latestVersion, this.latestVersionLink);
 }
 
 //---------------------------------------------------------
@@ -191,6 +204,54 @@ AppManager.prototype.buildConfigFile = function(electron, screenWidth, screenHei
     return this.loadConfig(electron, screenWidth, screenHeight);
 };
 
+AppManager.prototype.loadAppMetaInfo = function() {
+    let file = require('fs');
+    let path = require('path');
+    let filePath = path.join(__dirname, '..', 'package.json');
+
+    try {
+        let data = file.readFileSync(filePath, 'utf8');
+        data = JSON.parse(data);
+        return data;
+    }
+    catch(error) {
+        helpers.log(`Unhandled error loading package.json file. Error: ${error.message}`);
+        return null;
+    }
+};
+
+//---------------------------------------------------------
+// Online calls
+
+AppManager.prototype.fetchLatestAppInfo = function() {
+    let request = require('request');
+    let options = {
+        'url': 'https://api.github.com/repos/AlyxMoon/lunars-factorio-mod-manager/releases/latest',
+        'headers': {
+            'User-Agent': 'request'
+        }
+    };
+
+    let version = this.latestVersion;
+    let versionLink = this.latestVersionLink;
+    let downloadURL = this.latestVersionDownloadURL;
+
+    request(options, (error, response, data) => {
+        if(!error && response.statusCode == 200) {
+            data = JSON.parse(data);
+            this.latestVersion = data.tag_name.slice(1) // Cut off the v at beginning
+            this.latestVersionLink = data.html_url;
+            this.latestVersionDownloadURL = data.assets[0].browser_download_url;
+
+        }
+        else {
+            if(error) helpers.log(`Error fetching latest app version. Error: ${error.message}`);
+            if(response) helpers.log(`Error fetching latest app version. Response: ${response.statusCode}`);
+        }
+
+    });
+};
+
 //---------------------------------------------------------
 // Startup-related functions
 
@@ -373,23 +434,16 @@ AppManager.prototype.createWindow = function(appConfig) {
 AppManager.prototype.loadPage = function(window, page, profileManager, modManager) {
     helpers.log(`Attempting to change the page to ${page}`);
 
-    if(page === 'page_profiles') {
-        window.loadURL(`file://${__dirname}/../view/${page}.html`);
-        window.webContents.once('did-finish-load', function() {
-            profileManager.sendActiveProfile(window);
-            profileManager.sendAllProfiles(window);
-        });
+    switch(page) {
+        case 'page_profiles':
+        case 'page_installedMods':
+        case 'page_onlineMods':
+        case 'page_about':
+            window.loadURL(`file://${__dirname}/../view/${page}.html`);
+            break;
+        default:
+            helpers.log('The given page is not set up yet. Loading profiles page instead.');
+            window.loadURL(`file://${__dirname}/../view/page_profiles.html`);;
     }
-    else if(page === 'page_installedMods') {
-        window.loadURL(`file://${__dirname}/../view/${page}.html`);
-    }
-    else if(page === 'page_onlineMods') {
-        window.loadURL(`file://${__dirname}/../view/${page}.html`);
-    }
-    else {
-        helpers.log('Turns out that page isn\'t set up. Let me know and I\'ll change that.');
-    }
-    window.webContents.once('did-finish-load', function() {
-        modManager.sendOnlineMods(window);
-    });
+
 };
