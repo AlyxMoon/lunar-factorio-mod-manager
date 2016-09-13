@@ -53,7 +53,16 @@ function showLoadingStatus(loaded, page, pageCount) {
         $('#modsLoadedStatus').html('<span class="glyphicon glyphicon-ok"></span>  All Mods Fetched');
     }
     else {
-        $('#modsLoadedStatus').html(`<span class="glyphicon glyphicon-refresh"></span>  Fetching Mods - ${page}/${pageCount}`);
+        if(loaded === null) {
+            $('#modsLoadedStatus').html('<span class="glyphicon glyphicon-info-sign"></span>  Error Fetching Mods');
+        }
+        else if(page && pageCount) {
+            let percent = Math.floor(page / pageCount * 100);
+            $('#modsLoadedStatus').html(`<span class="glyphicon glyphicon-refresh"></span>  Fetching Mods - ${percent}%`);
+        }
+        else {
+            $('#modsLoadedStatus').html(`<span class="glyphicon glyphicon-refresh"></span>  Fetching Mods`);
+        }
     }
 }
 
