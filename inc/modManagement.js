@@ -58,7 +58,8 @@ ModManager.prototype.sendOnlineModInfo = function(window, modName) {
 };
 
 ModManager.prototype.sendModLoadStatus = function(window) {
-    window.webContents.send('modsLoadedStatus', this.modsLoaded);
+    if(this.onlineMods === null) window.webContents.send('modsLoadedStatus', null);
+    else window.webContents.send('modsLoadedStatus', this.modsLoaded);
 }
 
 ModManager.prototype.sendFactorioVersion = function(window) {
@@ -190,7 +191,9 @@ ModManager.prototype.loadOnlineMods = function() {
                }
            }
            else {
-               throw error;
+               if(error) helpers.log(`Error when fetching online mods. Error: ${error.message}`);
+               if(response) helpers.log(`Error when fetching online mods. Response code: ${response.statusCode}`);
+               mods = null;
            }
 
        });
