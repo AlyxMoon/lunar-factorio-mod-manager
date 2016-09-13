@@ -17,6 +17,10 @@
     white-space: pre-wrap;
 }
 
+.input-group-addon {
+    width: 40% /* Enough to make inputs line up nicely */
+}
+
 /* --- Global Settings --- */
 html {
     height: 100%;

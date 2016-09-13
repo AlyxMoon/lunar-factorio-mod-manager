@@ -12,7 +12,6 @@ let appManager;
 let mainWindow;
 let profileManager;
 let modManager;
-let config;
 
 const helpers = require('./inc/helpers.js');
 
@@ -23,12 +22,12 @@ const helpers = require('./inc/helpers.js');
 app.on('ready', init);
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
-        appManager.closeProgram(app, config, profileManager);
+        appManager.closeProgram(app, profileManager);
     }
 });
 app.on('activate', function () {
     if (mainWindow === null) {
-        mainWindow = appManager.createWindow(config);
+        mainWindow = appManager.createWindow();
     }
 });
 
@@ -60,6 +59,10 @@ appMessager.on('requestAllProfiles', function() {
 });
 appMessager.on('requestActiveProfile', function() {
     profileManager.sendActiveProfile(mainWindow);
+});
+
+appMessager.on('requestAppConfig', function() {
+    appManager.sendAppConfig(mainWindow);
 });
 
 appMessager.on('newProfile', function() {
@@ -156,7 +159,7 @@ appMessager.on('requestDownload', function(event, modID, modName) {
 
 appMessager.on('startGame', function() {
     try {
-        appManager.startGame(app, config, profileManager);
+        appManager.startGame(app, profileManager);
     }
     catch(error) {
         helpers.log(`Error when starting Factorio: ${error}`);
@@ -171,6 +174,9 @@ appMessager.on('changePage', function(event, newPage) {
         helpers.log(`Error when changing the page: ${error}`);
         app.exit(-1);
     }
+});
+appMessager.on('updateConfig', function(event, data) {
+    appManager.config = data;
 });
 
 customEvents.on('onlineModsLoaded', function(finished, page, pageCount) {
@@ -202,7 +208,7 @@ function init() {
         app.exit(-1);
     }
 
-    config = appManager.loadConfig(electron, screenSize.width, screenSize.height);
+    let config = appManager.loadConfig(electron, screenSize.width, screenSize.height);
     if(!config) app.exit(-1);
 
     try {
@@ -224,7 +230,7 @@ function init() {
         }
 
         try {
-            mainWindow = appManager.createWindow(config);
+            mainWindow = appManager.createWindow(screenSize.width, screenSize.height);
         }
         catch(error) {
             helpers.log(`Error creating the window. Error: ${error.message}`);
@@ -233,6 +239,16 @@ function init() {
 
         mainWindow.webContents.session.on('will-download', function(event, item, webContents) {
             modManager.manageDownload(item, webContents, profileManager);
+        });
+        mainWindow.on('resize', function(event) {
+            let newSize = mainWindow.getSize();
+            appManager.config.width = newSize[0];
+            appManager.config.height = newSize[1];
+        });
+        mainWindow.on('move', function(event) {
+            let newLoc = mainWindow.getPosition();
+            appManager.config.x_loc = newLoc[0];
+            appManager.config.y_loc = newLoc[1];
         });
 
 

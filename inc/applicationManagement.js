@@ -7,6 +7,7 @@ module.exports = {
 
 function AppManager(configPath) {
     this.configPath = configPath;
+    this.config;
 
     this.appVersion = this.loadAppMetaInfo().version;
     this.latestVersion;
@@ -20,10 +21,19 @@ function AppManager(configPath) {
 // Sending data to the client
 AppManager.prototype.sendAppVersion = function(window) {
     window.webContents.send('dataAppVersion', this.appVersion, this.latestVersion, this.latestVersionLink);
-}
+};
+AppManager.prototype.sendAppConfig = function(window) {
+    window.webContents.send('dataAppConfig', this.config);
+};
 
 //---------------------------------------------------------
 // File-Management
+
+AppManager.prototype.saveConfig = function() {
+    let file = require('fs');
+    file.writeFileSync(this.configPath, JSON.stringify(this.config, null, 4));
+    helpers.log('Saved application configuration.');
+};
 
 AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHeight) {
     let file = require('fs');
@@ -55,16 +65,16 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
         return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
     }
 
-    if(!data.hasOwnProperty('minWidth') || typeof data.minWidth !== 'number') {
-        // The value of this property isn't critical, nothing excessive needed
-        helpers.log('minWidth not found parsing config, setting a default value and continuing.');
-        data.minWidth = 0;
-    }
-    if(!data.hasOwnProperty('minHeight') || typeof data.minHeight !== 'number') {
-        // The value of this property isn't critical, nothing excessive needed
-        helpers.log('minHeight not found parsing config, setting a default value and continuing.');
-        data.minHeight = 0;
-    }
+    // if(!data.hasOwnProperty('minWidth') || typeof data.minWidth !== 'number') {
+    //     // The value of this property isn't critical, nothing excessive needed
+    //     helpers.log('minWidth not found parsing config, setting a default value and continuing.');
+    //     data.minWidth = 0;
+    // }
+    // if(!data.hasOwnProperty('minHeight') || typeof data.minHeight !== 'number') {
+    //     // The value of this property isn't critical, nothing excessive needed
+    //     helpers.log('minHeight not found parsing config, setting a default value and continuing.');
+    //     data.minHeight = 0;
+    // }
     if(!data.hasOwnProperty('width') || typeof data.width !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
         helpers.log('width not found parsing config, setting a default value and continuing.');
@@ -75,6 +85,9 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
         helpers.log('height not found parsing config, setting a default value and continuing.');
         data.height = 0;
     }
+    if(data.width < (screenWidth / 2)) data.width = screenWidth / 2;
+    if(data.height < (screenHeight / 1.25)) data.height = screenHeight / 1.25;
+
     if(!data.hasOwnProperty('x_loc') || typeof data.x_loc !== 'number') {
         // The value of this property isn't critical, nothing excessive needed
         helpers.log('x_loc not found parsing config, setting a default value and continuing.');
@@ -128,6 +141,7 @@ AppManager.prototype.loadConfig = function(electronDialog, screenWidth, screenHe
         return this.buildConfigFile(electronDialog, screenWidth, screenHeight);
     }
 
+    this.config = data;
     return data;
 };
 
@@ -371,7 +385,7 @@ AppManager.prototype.promptForPlayerDataPath = function(electron) {
 //---------------------------------------------------------
 // Application-finishing functions
 
-AppManager.prototype.startGame = function(app, config, profileManager) {
+AppManager.prototype.startGame = function(app, profileManager) {
     helpers.log('Starting Factorio and shutting down app.');
 
     let spawn = require('child_process').spawn;
@@ -386,13 +400,14 @@ AppManager.prototype.startGame = function(app, config, profileManager) {
     this.closeProgram(app, config, profileManager);
 };
 
-AppManager.prototype.closeProgram = function(app, config, profileManager, inError = false) {
+AppManager.prototype.closeProgram = function(app, profileManager, inError = false) {
     if(inError) {
         helpers.log('There was an error. Not saving app data, closing app.');
         app.exit(-1);
     }
     else {
         helpers.log('Beginning application shutdown.');
+        this.saveConfig();
         profileManager.saveProfiles();
         profileManager.updateFactorioModlist();
         helpers.log('Everything taken care of, closing app now.');
@@ -403,17 +418,18 @@ AppManager.prototype.closeProgram = function(app, config, profileManager, inErro
 //---------------------------------------------------------
 // Miscellaneous logic and helpers
 
-AppManager.prototype.createWindow = function(appConfig) {
+AppManager.prototype.createWindow = function(screenWidth, screenHeight) {
     helpers.log('Creating the application window');
     const BrowserWindow = require('electron').BrowserWindow;
+    let config = this.config;
 
     let windowOptions = {
-        minWidth: appConfig['minWidth'],
-        minHeight: appConfig['minHeight'],
-        width: appConfig['width'],
-        height: appConfig['height'],
-        x: appConfig['x-loc'],
-        y: appConfig['y-loc'],
+        minWidth: screenWidth / 2,
+        minHeight: screenHeight / 1.25,
+        width: config.width,
+        height: config.height,
+        x: config.x_loc,
+        y: config.y_loc,
         resizable: true,
         title: 'Lunar\'s [Factorio] Mod Manager',
         icon: __dirname + '/../img/favicon.ico'
@@ -421,7 +437,7 @@ AppManager.prototype.createWindow = function(appConfig) {
 
     let window = new BrowserWindow(windowOptions);
     window.setMenu(null);
-    if(appConfig['debug'] === true) window.webContents.openDevTools();
+    if(this.config['debug'] === true) window.webContents.openDevTools();
 
     window.on('closed', function () {
         window = null;
