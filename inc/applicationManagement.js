@@ -9,12 +9,17 @@ function AppManager(configPath) {
     this.configPath = configPath;
 
     this.appVersion = this.loadAppMetaInfo().version;
+    this.latestVersion;
+    this.latestVersionLink;
+    this.latestVersionDownloadURL;
+
+    this.fetchLatestAppInfo();
 }
 
 //---------------------------------------------------------
 // Sending data to the client
 AppManager.prototype.sendAppVersion = function(window) {
-    window.webContents.send('dataAppVersion', this.appVersion);
+    window.webContents.send('dataAppVersion', this.appVersion, this.latestVersion, this.latestVersionLink);
 }
 
 //---------------------------------------------------------
@@ -213,7 +218,40 @@ AppManager.prototype.loadAppMetaInfo = function() {
         helpers.log(`Unhandled error loading package.json file. Error: ${error.message}`);
         return null;
     }
-}
+};
+
+//---------------------------------------------------------
+// Online calls
+
+AppManager.prototype.fetchLatestAppInfo = function() {
+    let request = require('request');
+    let options = {
+        'url': 'https://api.github.com/repos/AlyxMoon/lunars-factorio-mod-manager/releases/latest',
+        'headers': {
+            'User-Agent': 'request'
+        }
+    };
+
+    let version = this.latestVersion;
+    let versionLink = this.latestVersionLink;
+    let downloadURL = this.latestVersionDownloadURL;
+
+    request(options, (error, response, data) => {
+        if(!error && response.statusCode == 200) {
+            data = JSON.parse(data);
+            this.latestVersion = data.tag_name.slice(1) // Cut off the v at beginning
+            this.latestVersionLink = data.html_url;
+            this.latestVersionDownloadURL = data.assets[0].browser_download_url;
+
+            helpers.log(version);
+        }
+        else {
+            helpers.log(error);
+            helpers.log(`Error fetching latest app version. Error: ${response.statusCode}`);
+        }
+
+    });
+};
 
 //---------------------------------------------------------
 // Startup-related functions
