@@ -1,5 +1,5 @@
 const messager = require('electron').ipcRenderer;
-const helpers = require(`${__dirname}/../inc/helpers.js`);
+const helpers = require(`${__dirname}/../../lib/helpers.js`);
 
 let factorioVersion;
 let installedMods;

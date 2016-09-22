@@ -13,7 +13,7 @@ let mainWindow;
 let profileManager;
 let modManager;
 
-const helpers = require('./inc/helpers.js');
+const helpers = require('./lib/helpers.js');
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -194,14 +194,14 @@ customEvents.on('installedModsLoaded', function() {
 // Application management functions
 
 function init() {
-    let AppManager = require('./inc/applicationManagement.js');
-    let ModManager = require('./inc/modManagement.js');
-    let ProfileManager = require('./inc/profileManagement.js');
+    let AppManager = require('./lib/applicationManagement.js');
+    let ModManager = require('./lib/modManagement.js');
+    let ProfileManager = require('./lib/profileManagement.js');
 
     let screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
 
     try {
-        appManager = new AppManager.Manager(`${__dirname}/lmm_config.json`);
+        appManager = new AppManager.Manager(`${__dirname}/data/lmm_config.json`);
     }
     catch(error) {
         helpers.log(`Error initializating App Manager. Error: ${error.message}`);
@@ -222,7 +222,7 @@ function init() {
     customEvents.once('installedModsLoaded', function(event) {
         helpers.log('Installed mods are loaded.');
         try {
-            profileManager = new ProfileManager.Manager(`${__dirname}/lmm_profiles.json`, config.modlist_path);
+            profileManager = new ProfileManager.Manager(`${__dirname}/data/lmm_profiles.json`, config.modlist_path);
         }
         catch(error) {
             helpers.log(`Error creating Profile Manager class. Error: ${error.message}`);
