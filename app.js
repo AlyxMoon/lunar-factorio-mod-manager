@@ -9,7 +9,7 @@ const appMessager = electron.ipcMain;
 const AppManager = require('./lib/applicationManagement.js');
 const ModManager = require('./lib/modManagement.js');
 const ProfileManager = require('./lib/profileManagement.js');
-const helpers = require('./lib/helpers.js');
+const logger = require('./lib/logger.js');
 
 let appManager;
 let mainWindow;
@@ -72,7 +72,7 @@ appMessager.on('newProfile', function() {
         profileManager.sendAllProfiles(mainWindow);
     }
     catch(error) {
-        helpers.log(`Error when creating new profile: ${error}`);
+        logger.log(4, `Error when creating new profile: ${error}`);
         app.exit(-1);
     }
 });
@@ -83,7 +83,7 @@ appMessager.on('activateProfile', function(event, profileName) {
         profileManager.sendActiveProfile(mainWindow);
     }
     catch(error) {
-        helpers.log(`Error when activating a profile: ${error}`);
+        logger.log(4, `Error when activating a profile: ${error}`);
         app.exit(-1);
     }
 });
@@ -94,7 +94,7 @@ appMessager.on('renameProfile', function(event, newName) {
         profileManager.sendActiveProfile(mainWindow);
     }
     catch(error) {
-        helpers.log(`Error when renaming a profile: ${error}`);
+        logger.log(4, `Error when renaming a profile: ${error}`);
         app.exit(-1);
     }
 });
@@ -105,7 +105,7 @@ appMessager.on('deleteProfile', function() {
         profileManager.sendActiveProfile(mainWindow);
     }
     catch(error) {
-        helpers.log(`Error when deleting a profile: ${error}`);
+        logger.log(4, `Error when deleting a profile: ${error}`);
         app.exit(-1);
     }
 });
@@ -115,7 +115,7 @@ appMessager.on('sortProfile', function(event, direction) {
         profileManager.sendAllProfiles(mainWindow);
     }
     catch(error) {
-        helpers.log(`Error when sorting a profile: ${error}`);
+        logger.log(4, `Error when sorting a profile: ${error}`);
         app.exit(-1);
     }
 });
@@ -124,7 +124,7 @@ appMessager.on('toggleMod', function(event, modName) {
         profileManager.toggleMod(modName);
     }
     catch(error) {
-        helpers.log(`Error when togging a mod: ${error}`);
+        logger.log(4, `Error when togging a mod: ${error}`);
         app.exit(-1);
     }
 });
@@ -134,7 +134,7 @@ appMessager.on('requestInstalledModInfo', function(event, modName) {
         modManager.sendInstalledModInfo(mainWindow, modName);
     }
     catch(error) {
-        helpers.log(`Error when sending installed mod info: ${error}`);
+        logger.log(4, `Error when sending installed mod info: ${error}`);
         app.exit(-1);
     }
 
@@ -144,7 +144,7 @@ appMessager.on('requestOnlineModInfo', function(event, modName) {
         modManager.sendOnlineModInfo(mainWindow, modName);
     }
     catch(error) {
-        helpers.log(`Error when requesting online mod info: ${error}`);
+        logger.log(4, `Error when requesting online mod info: ${error}`);
         app.exit(-1);
     }
 });
@@ -153,7 +153,7 @@ appMessager.on('requestDownload', function(event, modID, modName) {
         modManager.initiateDownload(mainWindow, modID, modName);
     }
     catch(error) {
-        helpers.log(`Error when downloading a mod: ${error}`);
+        logger.log(4, `Error when downloading a mod: ${error}`);
         app.exit(-1);
     }
 });
@@ -163,7 +163,7 @@ appMessager.on('startGame', function() {
         appManager.startGame(app, profileManager);
     }
     catch(error) {
-        helpers.log(`Error when starting Factorio: ${error}`);
+        logger.log(4, `Error when starting Factorio: ${error}`);
         app.exit(-1);
     }
 });
@@ -172,7 +172,7 @@ appMessager.on('changePage', function(event, newPage) {
         appManager.loadPage(mainWindow, newPage, profileManager, modManager);
     }
     catch(error) {
-        helpers.log(`Error when changing the page: ${error}`);
+        logger.log(4, `Error when changing the page: ${error}`);
         app.exit(-1);
     }
 });
@@ -203,7 +203,7 @@ function init() {
         appManager = new AppManager(`${__dirname}/data/lmm_config.json`);
     }
     catch(error) {
-        helpers.log(`Error initializating App Manager. Error: ${error.message}`);
+        logger.log(4, `Error initializating App Manager. Error: ${error.message}`);
         app.exit(-1);
     }
 
@@ -214,17 +214,17 @@ function init() {
         modManager = new ModManager(config.modlist_path, config.mod_directory_path, config.game_path, config.player_data_path, customEvents);
     }
     catch(error) {
-        helpers.log(`Error creating Mod Manager class. Error: ${error.stack}`);
+        logger.log(4, `Error creating Mod Manager class. Error: ${error.stack}`);
         app.exit(-1);
     }
 
     customEvents.once('installedModsLoaded', function(event) {
-        helpers.log('Installed mods are loaded.');
+        logger.log(1, 'Installed mods are loaded.');
         try {
             profileManager = new ProfileManager(`${__dirname}/data/lmm_profiles.json`, config.modlist_path);
         }
         catch(error) {
-            helpers.log(`Error creating Profile Manager class. Error: ${error.message}`);
+            logger.log(4, `Error creating Profile Manager class. Error: ${error.message}`);
             app.exit(-1);
         }
 
@@ -232,7 +232,7 @@ function init() {
             mainWindow = appManager.createWindow(screenSize.width, screenSize.height);
         }
         catch(error) {
-            helpers.log(`Error creating the window. Error: ${error.message}`);
+            logger.log(4, `Error creating the window. Error: ${error.message}`);
             app.exit(-1);
         }
 
