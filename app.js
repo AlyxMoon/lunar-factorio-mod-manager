@@ -16,9 +16,6 @@ let mainWindow;
 let profileManager;
 let modManager;
 let customEvents = new EventEmitter();
-
-
-
 //---------------------------------------------------------
 //---------------------------------------------------------
 // Event listeners for application-related messages
@@ -203,7 +200,7 @@ function init() {
     let screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
 
     try {
-        appManager = new AppManager.Manager(`${__dirname}/data/lmm_config.json`);
+        appManager = new AppManager(`${__dirname}/data/lmm_config.json`);
     }
     catch(error) {
         helpers.log(`Error initializating App Manager. Error: ${error.message}`);
@@ -214,7 +211,7 @@ function init() {
     if(!config) app.exit(-1);
 
     try {
-        modManager = new ModManager.Manager(config.modlist_path, config.mod_directory_path, config.game_path, config.player_data_path, customEvents);
+        modManager = new ModManager(config.modlist_path, config.mod_directory_path, config.game_path, config.player_data_path, customEvents);
     }
     catch(error) {
         helpers.log(`Error creating Mod Manager class. Error: ${error.stack}`);
@@ -224,7 +221,7 @@ function init() {
     customEvents.once('installedModsLoaded', function(event) {
         helpers.log('Installed mods are loaded.');
         try {
-            profileManager = new ProfileManager.Manager(`${__dirname}/data/lmm_profiles.json`, config.modlist_path);
+            profileManager = new ProfileManager(`${__dirname}/data/lmm_profiles.json`, config.modlist_path);
         }
         catch(error) {
             helpers.log(`Error creating Profile Manager class. Error: ${error.message}`);
