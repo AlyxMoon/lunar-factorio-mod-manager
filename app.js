@@ -1,19 +1,23 @@
 //---------------------------------------------------------
 // Global Variable Declarations
+const EventEmitter = require('events');
 
 const electron = require('electron');
 const app = electron.app;
 const appMessager = electron.ipcMain;
 
-const EventEmitter = require('events');
-let customEvents = new EventEmitter();
+const AppManager = require('./lib/applicationManagement.js');
+const ModManager = require('./lib/modManagement.js');
+const ProfileManager = require('./lib/profileManagement.js');
+const helpers = require('./lib/helpers.js');
 
 let appManager;
 let mainWindow;
 let profileManager;
 let modManager;
+let customEvents = new EventEmitter();
 
-const helpers = require('./lib/helpers.js');
+
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -194,9 +198,7 @@ customEvents.on('installedModsLoaded', function() {
 // Application management functions
 
 function init() {
-    let AppManager = require('./lib/applicationManagement.js');
-    let ModManager = require('./lib/modManagement.js');
-    let ProfileManager = require('./lib/profileManagement.js');
+
 
     let screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
 
