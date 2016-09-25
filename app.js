@@ -42,8 +42,8 @@ appMessager.on('requestInstalledMods', function() {
 appMessager.on('requestOnlineMods', function() {
     modManager.sendOnlineMods(mainWindow);
 });
-appMessager.on('areModsLoaded', function() {
-    modManager.sendModLoadStatus(mainWindow);
+appMessager.on('requestModFetchStatus', function() {
+    modManager.sendModFetchStatus(mainWindow);
 });
 appMessager.on('requestPlayerInfo', function() {
     modManager.sendPlayerInfo(mainWindow);
@@ -258,6 +258,6 @@ function init() {
 
     modManager.loadPlayerData();
     modManager.loadInstalledMods();
-    modManager.loadOnlineMods();
+    modManager.fetchOnlineMods();
 
 }

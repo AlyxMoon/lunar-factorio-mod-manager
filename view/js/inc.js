@@ -6,7 +6,12 @@ messager.on('ping', function(event, message) {
     console.log(message);
 });
 
-messager.on('modsLoadedStatus', function(event, loaded, page, pageCount) {
+messager.on('dataModFetchStatus', function(event, loaded, page, pageCount) {
+    if(!loaded) {
+        window.setTimeout(() => {
+            messager.send('requestModFetchStatus');
+        }, 1000);
+    }
     showLoadingStatus(loaded, page, pageCount);
 });
 messager.on('dataPlayerInfo', function(event, username) {
@@ -38,7 +43,7 @@ $('button#page-about').click(function() {
 //---------------------------------------------------------
 //---------------------------------------------------------
 $(document).ready(function() {
-    messager.send('areModsLoaded');
+    messager.send('requestModFetchStatus');
     messager.send('requestPlayerInfo');
     messager.send('requestFactorioVersion');
 
