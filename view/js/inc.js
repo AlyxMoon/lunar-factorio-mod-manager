@@ -12,6 +12,9 @@ messager.on('dataModFetchStatus', function(event, loaded, page, pageCount) {
             messager.send('requestModFetchStatus');
         }, 1000);
     }
+    else {
+        messager.send('requestOnlineMods');
+    }
     showLoadingStatus(loaded, page, pageCount);
 });
 messager.on('dataPlayerInfo', function(event, username) {
