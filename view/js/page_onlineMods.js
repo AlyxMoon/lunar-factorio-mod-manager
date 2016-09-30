@@ -96,14 +96,13 @@ function listOnlineMods() {
         table.append(`<tr><td class="modReleases">${dropdownMenu}</td><td class="modName" id="${mods[i]['id']}">${mods[i]['name']}</td></tr>`);
         if(isModDownloaded(mods[i]['name'])) {
             $('table#mods-list tbody td').last().addClass('downloaded');
-            // Temporary disable until we get it set up with new mod data structure
-            // if(hasUpdate(mods[i])) {
-            //     $('table#mods-list tbody td').last().addClass('hasUpdate');
-            //     $('table#mods-list tbody td').last().prepend('<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> ');
-            // }
-            // else {
-            //     $('table#mods-list tbody td').last().prepend('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> ');
-            // }
+            if(hasUpdate(mods[i])) {
+                $('table#mods-list tbody td').last().addClass('hasUpdate');
+                $('table#mods-list tbody td').last().prepend('<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> ');
+            }
+            else {
+                $('table#mods-list tbody td').last().prepend('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> ');
+            }
 
         }
 
@@ -139,15 +138,12 @@ function showOnlineModInfo() {
     if(!canDownloadMods) {
         tableBody.append(`<tr><th colspan="2">Cannot Download Mods</th></tr>`);
     }
-    else if($(this).hasClass('hasUpdate')) {
-        tableBody.append(`<tr><th id="${mod['id']}" class="center download-mod" colspan="2"><a href="#">Update Mod</a></th></tr>`);
-    }
-    else if($(this).hasClass('downloaded')) {
-        tableBody.append(`<tr><th colspan="2">Already Have Mod</th></tr>`);
+    else if(isModDownloaded(mod.name)) {
+        tableBody.append(`<tr><th colspan="2">Get updates from the 'Installed Mods' page</th></tr>`);
     }
     else {
         if(mod.releases[release].download_url) {
-            tableBody.append(`<tr><th id="${mod['id']}" class="center download-mod" colspan="2"><a href="#">Download Mod</a></th></tr>`);
+            tableBody.append(`<tr><th data-id="${mod.id}" data-url="${mod.releases[release].download_url}" class="center download-mod" colspan="2"><a href="#">Download Mod</a></th></tr>`);
         }
     }
 
@@ -216,7 +212,9 @@ function showOnlineModInfo() {
 }
 
 function requestDownload(event) {
-    messager.send('requestDownload', selectedMod.id, selectedMod.name);
+    let id = $(this).data('id');
+    let url = $(this).data('url');
+    messager.send('requestDownload', id, url);
 }
 
 function showFiltersTags() {
@@ -255,10 +253,14 @@ function hasUpdate(mod) {
     let length = installedMods.length;
     for(let i = 0; i < length; i++) {
         if(installedMods[i].name === mod.name) {
-            if(isVersionHigher(installedMods[i].version, mod.latest_release.version) &&
-                mod.latest_release.factorio_version === factorioVersion) {
-                return true;
+            for(let j = 0; j < mod.releases.length; j++) {
+                if(mod.releases[j].factorio_version === factorioVersion &&
+                isVersionHigher(installedMods[i].version, mod.releases[j].version) ) {
+                    return true;
+                }
+
             }
+            return false;
         }
     }
     return false;
