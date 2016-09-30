@@ -12,10 +12,11 @@ let factorioVersion;
 messager.on('dataInstalledMods', function(event, mods) {
     installedMods = mods;
     listInstalledMods();
+    if(onlineMods) checkModVersions();
 });
-messager.on('modsLoadedStatus', function(event, loaded, page, pageCount) {
+messager.on('dataModFetchStatus', function(event, loaded, page, pageCount) {
     if(loaded) {
-        messager.on('dataOnlineMods', function(event, mods) {
+        messager.once('dataOnlineMods', function(event, mods) {
             onlineMods = mods;
             checkModVersions();
         });
@@ -31,7 +32,9 @@ messager.on('dataFactorioVersion', function(event, version) {
 // Uses this way to assign events to elements as they will be dynamically generated
 $(document).on('click', 'table#mods-list tbody tr', requestInstalledModInfo);
 $(document).on('click', '.download-mod', function() {
-    messager.send('requestDownload', $(this).attr('id'), selectedMod.name);
+    let id = $(this).data('id');
+    let url = $(this).data('url');
+    messager.send('requestDownload', id, url);
 });
 
 //---------------------------------------------------------
@@ -58,7 +61,6 @@ function listInstalledMods() {
         let dependencies = getMissingDependencies(mods[i]);
         let dependencyIndicator = '<a href="#" class="red" data-toggle="tooltip" title="Missing required dependency"><i class="glyphicon glyphicon-info-sign"></i></a>';
 
-        //table.append(`<tr id="${i}"><td>${mods[i].name}</td><td>${dependencyIndicator}  <span>${mods[i].version}</span></td></tr>`);
         if(!dependencies || dependencies.required.length === 0) {
             table.append(`<tr id="${i}"><td>${mods[i].name}</td><td><span>${mods[i].version}</span></td></tr>`);
         }
@@ -88,10 +90,11 @@ function showInstalledModInfo(mod) {
     table.append('<tbody>');
     let tableBody = $('table#mod-info tbody');
 
-
     let onlineMod = getOnlineModByName(mod.name);
-    if(onlineMod && onlineMod.latest_release.factorio_version === factorioVersion && isVersionHigher(mod.version, onlineMod.latest_release.version)) {
-        tableBody.append(`<tr><th id="${onlineMod.id}" class="center download-mod" colspan="2"><a href="#">Update Mod</a></th></tr>`);
+    let onlineModRelease = getLatestCompatibleRelease(onlineMod);
+    if(onlineModRelease && onlineModRelease.factorio_version === factorioVersion && isVersionHigher(mod.version, onlineModRelease.version)) {
+        // TODO: Rework download behavior before this will work correctly
+        tableBody.append(`<tr><th data-id="${onlineMod.id}" data-url="${onlineModRelease.download_url}" class="center download-mod" colspan="2"><a href="#">Update Mod - Version ${onlineModRelease.version}</a></th></tr>`);
     }
 
     if(mod['version']) {
@@ -157,16 +160,9 @@ function checkModVersions() {
         let mod = $(this).children().first().text();
         let version = $(this).children().last().text();
 
-        for(let i = 0; i < onlineMods.length; i++) {
-            if(onlineMods[i].name === mod) {
-                // Check if latest release is for same Factorio version and if a higher version available
-                if( onlineMods[i].latest_release.factorio_version === factorioVersion &&
-                    isVersionHigher(version, onlineMods[i].latest_release.version)) {
-
-                    let existingHTML = $(this).children().last().html();
-                    $(this).children().last().html(updateIndicator + '  ' + existingHTML);
-                }
-            }
+        if(hasUpdate(getModByName(mod))) {
+            let existingHTML = $(this).children().last().html();
+            $(this).children().last().html(updateIndicator + '  ' + existingHTML);
         }
     });
 
@@ -209,6 +205,22 @@ function getMissingDependencies(mod) {
     return modDependencies;
 }
 
+function hasUpdate(mod) {
+    let length = onlineMods.length;
+    for(let i = 0; i < length; i++) {
+        if(mod.name === onlineMods[i].name) {
+            for(let j = 0; j < onlineMods[i].releases.length; j++) {
+                if(onlineMods[i].releases[j].factorio_version === factorioVersion &&
+                isVersionHigher(mod.version, onlineMods[i].releases[j].version) ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    return false;
+}
+
 function isVersionHigher(currentVersion, checkedVersion) {
     // Expecting version to be the following format: major.minor.patch
     let version1 = currentVersion.split('.');
@@ -222,6 +234,14 @@ function isVersionHigher(currentVersion, checkedVersion) {
 
     // Would be the same version at this point
     return false;
+}
+
+function getLatestCompatibleRelease(onlineMod) {
+    for(let i = 0; i < onlineMod.releases.length; i++) {
+        if(onlineMod.releases[i].factorio_version === factorioVersion) {
+            return onlineMod.releases[i];
+        }
+    }
 }
 
 function isModInstalled(modName) {
