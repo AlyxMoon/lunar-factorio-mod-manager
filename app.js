@@ -37,21 +37,27 @@ app.on('activate', function () {
 //---------------------------------------------------------
 // Event listeners for client messages
 
-appMessager.on('requestInstalledMods', function() {
-    modManager.sendInstalledMods(mainWindow);
+appMessager.on('requestInstalledMods', function(event) {
+    logger.log(0, 'Event called: requestInstalledMods');
+    if(modManager) event.sender.send(modManager.getInstalledMods());
 });
 appMessager.on('requestOnlineMods', function() {
-    modManager.sendOnlineMods(mainWindow);
+    logger.log(0, 'Event called: requestOnlineMods');
+    if(modManager) event.sender.send(modManager.getOnlineMods());
 });
 appMessager.on('requestModFetchStatus', function() {
-    modManager.sendModFetchStatus(mainWindow);
+    logger.log(0, 'Event called: requestModFetchStatus');
+    if(modManager) event.sender.send(modManager.areOnlineModsFetched());
 });
 appMessager.on('requestPlayerInfo', function() {
-    modManager.sendPlayerInfo(mainWindow);
+    logger.log(0, 'Event called: requestPlayerInfo');
+    if(modManager) event.sender.send(modManager.getPlayerUsername());
 });
 appMessager.on('requestFactorioVersion', function() {
-    modManager.sendFactorioVersion(mainWindow);
+    logger.log(0, 'Event called: requestFactorioVersion');
+    if(modManager) event.sender.send(modManager.getFactorioVersion());
 });
+
 appMessager.on('requestAppVersion', function() {
     appManager.sendAppVersion(mainWindow);
 });
@@ -130,25 +136,6 @@ appMessager.on('toggleMod', function(event, modName) {
     }
 });
 
-appMessager.on('requestInstalledModInfo', function(event, modName) {
-    try {
-        modManager.sendInstalledModInfo(mainWindow, modName);
-    }
-    catch(error) {
-        logger.log(4, `Error when sending installed mod info: ${error}`);
-        app.exit(-1);
-    }
-
-});
-appMessager.on('requestOnlineModInfo', function(event, modName) {
-    try {
-        modManager.sendOnlineModInfo(mainWindow, modName);
-    }
-    catch(error) {
-        logger.log(4, `Error when requesting online mod info: ${error}`);
-        app.exit(-1);
-    }
-});
 appMessager.on('requestDownload', function(event, modID, modName) {
     try {
         modManager.initiateDownload(mainWindow, modID, modName);
@@ -183,12 +170,14 @@ appMessager.on('updateConfig', function(event, data) {
 
 customEvents.on('onlineModsLoaded', function(finished, page, pageCount) {
     if(mainWindow && modManager) {
-        modManager.sendOnlineMods(mainWindow);
+        mainWindow.webContents.send('dataOnlineMods', modManager.getOnlineMods());
         mainWindow.webContents.send('modsLoadedStatus', finished, page, pageCount);
     }
 })
 customEvents.on('installedModsLoaded', function() {
-    if(mainWindow && modManager) modManager.sendInstalledMods(mainWindow);
+    if(mainWindow && modManager) {
+        mainWindow.webContents.send('dataInstalledMods', modManager.getInstalledMods());
+    }
 });
 
 //---------------------------------------------------------
