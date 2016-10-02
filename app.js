@@ -1,5 +1,6 @@
 //---------------------------------------------------------
 // Global Variable Declarations
+const path = require('path');
 const EventEmitter = require('events');
 
 const electron = require('electron');
@@ -211,7 +212,8 @@ function init() {
     if(!config) app.exit(-1);
 
     try {
-        modManager = new ModManager(config.modlist_path, config.mod_directory_path, config.game_path, config.player_data_path, customEvents);
+        let baseModPath = path.join(config.game_path, '..', '..', '..', 'data', 'base');
+        modManager = new ModManager(config.modlist_path, config.mod_directory_path, baseModPath, config.player_data_path, customEvents);
     }
     catch(error) {
         logger.log(4, `Error creating Mod Manager class. Error: ${error.stack}`);
