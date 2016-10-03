@@ -39,23 +39,23 @@ app.on('activate', function () {
 
 appMessager.on('requestInstalledMods', function(event) {
     logger.log(0, 'Event called: requestInstalledMods');
-    if(modManager) event.sender.send(modManager.getInstalledMods());
+    if(modManager) event.sender.send('dataInstalledMods', modManager.getInstalledMods());
 });
-appMessager.on('requestOnlineMods', function() {
+appMessager.on('requestOnlineMods', function(event) {
     logger.log(0, 'Event called: requestOnlineMods');
-    if(modManager) event.sender.send(modManager.getOnlineMods());
+    if(modManager) event.sender.send('dataOnlineMods', modManager.getOnlineMods());
 });
-appMessager.on('requestModFetchStatus', function() {
+appMessager.on('requestModFetchStatus', function(event) {
     logger.log(0, 'Event called: requestModFetchStatus');
-    if(modManager) event.sender.send(modManager.areOnlineModsFetched());
+    if(modManager) event.sender.send('dataModFetchStatus', modManager.areOnlineModsFetched(), modManager.getOnlineModFetchedCount(), modManager.getOnlineModCount());
 });
-appMessager.on('requestPlayerInfo', function() {
+appMessager.on('requestPlayerInfo', function(event) {
     logger.log(0, 'Event called: requestPlayerInfo');
-    if(modManager) event.sender.send(modManager.getPlayerUsername());
+    if(modManager) event.sender.send('dataPlayerInfo', modManager.getPlayerUsername());
 });
-appMessager.on('requestFactorioVersion', function() {
+appMessager.on('requestFactorioVersion', function(event) {
     logger.log(0, 'Event called: requestFactorioVersion');
-    if(modManager) event.sender.send(modManager.getFactorioVersion());
+    if(modManager) event.sender.send('dataFactorioVersion', modManager.getFactorioVersion());
 });
 
 appMessager.on('requestAppVersion', function() {
@@ -209,7 +209,12 @@ function init() {
         app.exit(-1);
     }
 
-    customEvents.once('installedModsLoaded', function(event) {
+    modManager.loadInstalledMods((err) => {
+        if(err) {
+            logger.log(4, 'Error when loading installed mods');
+            app.exit(-1);
+        }
+
         logger.log(1, 'Installed mods are loaded.');
         try {
             profileManager = new ProfileManager(`${__dirname}/data/lmm_profiles.json`, config.modlist_path);
@@ -248,7 +253,6 @@ function init() {
     });
 
     modManager.loadPlayerData();
-    modManager.loadInstalledMods();
     modManager.fetchOnlineMods();
 
 }
