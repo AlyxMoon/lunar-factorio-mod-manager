@@ -123,6 +123,7 @@ describe('Mod Manager', function() {
             }, 'Did not throw error when a directory').to.throw(Error);
         });
     });
+
     describe('Setters', function() {
         it('setModListPath() should correctly set value and return true on success', function() {
             var modManager = new ModManager(modListPath, modDirectoryPath, baseModPath, playerDataPath);
@@ -221,6 +222,7 @@ describe('Mod Manager', function() {
             expect(modManager.playerDataPath, 'Value should not have changed').to.equal(playerDataPath);
         });
     });
+
     describe('Getters', function() {
         it('getModListPath() should return that', function() {
             var modManager = new ModManager(modListPath, modDirectoryPath, baseModPath, playerDataPath);
@@ -358,5 +360,5 @@ describe('Mod Manager', function() {
             expect(modManager.getOnlineModNames()).to.eql(['testMod10', 'testMod20']);
         });
     });
-
+    
 });
