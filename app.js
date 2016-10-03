@@ -1,5 +1,6 @@
 //---------------------------------------------------------
 // Global Variable Declarations
+const path = require('path');
 const EventEmitter = require('events');
 
 const electron = require('electron');
@@ -7,7 +8,7 @@ const app = electron.app;
 const appMessager = electron.ipcMain;
 
 const AppManager = require('./lib/applicationManagement.js');
-const ModManager = require('./lib/modManagement.js');
+const ModManager = require('./lib/modManager.js');
 const ProfileManager = require('./lib/profileManagement.js');
 const logger = require('./lib/logger.js');
 
@@ -36,21 +37,27 @@ app.on('activate', function () {
 //---------------------------------------------------------
 // Event listeners for client messages
 
-appMessager.on('requestInstalledMods', function() {
-    modManager.sendInstalledMods(mainWindow);
+appMessager.on('requestInstalledMods', function(event) {
+    logger.log(0, 'Event called: requestInstalledMods');
+    if(modManager) event.sender.send('dataInstalledMods', modManager.getInstalledMods());
 });
-appMessager.on('requestOnlineMods', function() {
-    modManager.sendOnlineMods(mainWindow);
+appMessager.on('requestOnlineMods', function(event) {
+    logger.log(0, 'Event called: requestOnlineMods');
+    if(modManager) event.sender.send('dataOnlineMods', modManager.getOnlineMods());
 });
-appMessager.on('requestModFetchStatus', function() {
-    modManager.sendModFetchStatus(mainWindow);
+appMessager.on('requestModFetchStatus', function(event) {
+    logger.log(0, 'Event called: requestModFetchStatus');
+    if(modManager) event.sender.send('dataModFetchStatus', modManager.areOnlineModsFetched(), modManager.getOnlineModFetchedCount(), modManager.getOnlineModCount());
 });
-appMessager.on('requestPlayerInfo', function() {
-    modManager.sendPlayerInfo(mainWindow);
+appMessager.on('requestPlayerInfo', function(event) {
+    logger.log(0, 'Event called: requestPlayerInfo');
+    if(modManager) event.sender.send('dataPlayerInfo', modManager.getPlayerUsername());
 });
-appMessager.on('requestFactorioVersion', function() {
-    modManager.sendFactorioVersion(mainWindow);
+appMessager.on('requestFactorioVersion', function(event) {
+    logger.log(0, 'Event called: requestFactorioVersion');
+    if(modManager) event.sender.send('dataFactorioVersion', modManager.getFactorioVersion());
 });
+
 appMessager.on('requestAppVersion', function() {
     appManager.sendAppVersion(mainWindow);
 });
@@ -129,25 +136,6 @@ appMessager.on('toggleMod', function(event, modName) {
     }
 });
 
-appMessager.on('requestInstalledModInfo', function(event, modName) {
-    try {
-        modManager.sendInstalledModInfo(mainWindow, modName);
-    }
-    catch(error) {
-        logger.log(4, `Error when sending installed mod info: ${error}`);
-        app.exit(-1);
-    }
-
-});
-appMessager.on('requestOnlineModInfo', function(event, modName) {
-    try {
-        modManager.sendOnlineModInfo(mainWindow, modName);
-    }
-    catch(error) {
-        logger.log(4, `Error when requesting online mod info: ${error}`);
-        app.exit(-1);
-    }
-});
 appMessager.on('requestDownload', function(event, modID, modName) {
     try {
         modManager.initiateDownload(mainWindow, modID, modName);
@@ -182,12 +170,14 @@ appMessager.on('updateConfig', function(event, data) {
 
 customEvents.on('onlineModsLoaded', function(finished, page, pageCount) {
     if(mainWindow && modManager) {
-        modManager.sendOnlineMods(mainWindow);
+        mainWindow.webContents.send('dataOnlineMods', modManager.getOnlineMods());
         mainWindow.webContents.send('modsLoadedStatus', finished, page, pageCount);
     }
 })
 customEvents.on('installedModsLoaded', function() {
-    if(mainWindow && modManager) modManager.sendInstalledMods(mainWindow);
+    if(mainWindow && modManager) {
+        mainWindow.webContents.send('dataInstalledMods', modManager.getInstalledMods());
+    }
 });
 
 //---------------------------------------------------------
@@ -211,14 +201,20 @@ function init() {
     if(!config) app.exit(-1);
 
     try {
-        modManager = new ModManager(config.modlist_path, config.mod_directory_path, config.game_path, config.player_data_path, customEvents);
+        let baseModPath = path.join(config.game_path, '..', '..', '..', 'data', 'base');
+        modManager = new ModManager(config.modlist_path, config.mod_directory_path, baseModPath, config.player_data_path, customEvents);
     }
     catch(error) {
         logger.log(4, `Error creating Mod Manager class. Error: ${error.stack}`);
         app.exit(-1);
     }
 
-    customEvents.once('installedModsLoaded', function(event) {
+    modManager.loadInstalledMods((err) => {
+        if(err) {
+            logger.log(4, 'Error when loading installed mods');
+            app.exit(-1);
+        }
+
         logger.log(1, 'Installed mods are loaded.');
         try {
             profileManager = new ProfileManager(`${__dirname}/data/lmm_profiles.json`, config.modlist_path);
@@ -257,7 +253,6 @@ function init() {
     });
 
     modManager.loadPlayerData();
-    modManager.loadInstalledMods();
     modManager.fetchOnlineMods();
 
 }
