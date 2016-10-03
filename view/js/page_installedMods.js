@@ -91,7 +91,8 @@ function showInstalledModInfo(mod) {
     let tableBody = $('table#mod-info tbody');
 
     let onlineMod = getOnlineModByName(mod.name);
-    let onlineModRelease = getLatestCompatibleRelease(onlineMod);
+    let onlineModRelease;
+    if(onlineMod) onlineModsRelease = getLatestCompatibleRelease(onlineMod);
     if(onlineModRelease && onlineModRelease.factorio_version === factorioVersion && isVersionHigher(mod.version, onlineModRelease.version)) {
         // TODO: Rework download behavior before this will work correctly
         tableBody.append(`<tr><th data-id="${onlineMod.id}" data-url="${onlineModRelease.download_url}" class="center download-mod" colspan="2"><a href="#">Update Mod - Version ${onlineModRelease.version}</a></th></tr>`);
