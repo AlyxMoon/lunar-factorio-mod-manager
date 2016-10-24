@@ -26,6 +26,7 @@ messager.on('dataModFetchStatus', function(event, loaded, page, pageCount) {
 });
 
 messager.on('dataFactorioVersion', function(event, version) {
+    console.log(version);
     factorioVersion = version;
 });
 
@@ -35,6 +36,25 @@ $(document).on('click', '.download-mod', function() {
     let id = $(this).data('id');
     let url = $(this).data('url');
     messager.send('requestDownload', id, url);
+});
+$(document).on('click', '.delete', function() {
+    $(this).text('Are you sure?');
+    $(this).removeClass('delete');
+    $(this).addClass('delete-sure');
+});
+$(document).on('click', '.delete-sure', function() {
+    // Send request to delete
+    let modName = selectedMod.name;
+    let modVersion = selectedMod.version;
+    messager.send('deleteMod', modName, modVersion);
+
+    // Deselect mod and set the page to initial state
+    selectedMod = null;
+    $('table#mods-list tbody tr').removeClass('info');
+
+    let table = $('table#mod-info');
+    table.children().remove();
+    table.append(`<thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead>`);
 });
 
 //---------------------------------------------------------
@@ -90,8 +110,13 @@ function showInstalledModInfo(mod) {
     table.append('<tbody>');
     let tableBody = $('table#mod-info tbody');
 
+    if(mod.name !== 'base') { // Don't want users deleting this one!
+        tableBody.append(`<tr><td colspan="2"><button type="button" class="btn btn-block btn-danger delete">Delete Mod</button></td></tr>`);
+    }
+
     let onlineMod = getOnlineModByName(mod.name);
-    let onlineModRelease = getLatestCompatibleRelease(onlineMod);
+    let onlineModRelease;
+    if(onlineMod) onlineModsRelease = getLatestCompatibleRelease(onlineMod);
     if(onlineModRelease && onlineModRelease.factorio_version === factorioVersion && isVersionHigher(mod.version, onlineModRelease.version)) {
         // TODO: Rework download behavior before this will work correctly
         tableBody.append(`<tr><th data-id="${onlineMod.id}" data-url="${onlineModRelease.download_url}" class="center download-mod" colspan="2"><a href="#">Update Mod - Version ${onlineModRelease.version}</a></th></tr>`);
