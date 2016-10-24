@@ -110,7 +110,9 @@ function showInstalledModInfo(mod) {
     table.append('<tbody>');
     let tableBody = $('table#mod-info tbody');
 
-    tableBody.append(`<tr><td colspan="2"><button type="button" class="btn btn-block btn-danger delete">Delete Mod</button></td></tr>`);
+    if(mod.name !== 'base') { // Don't want users deleting this one!
+        tableBody.append(`<tr><td colspan="2"><button type="button" class="btn btn-block btn-danger delete">Delete Mod</button></td></tr>`);
+    }
 
     let onlineMod = getOnlineModByName(mod.name);
     let onlineModRelease;
