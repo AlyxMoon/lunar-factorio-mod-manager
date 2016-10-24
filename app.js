@@ -145,6 +145,13 @@ appMessager.on('requestDownload', function(event, modID, modName) {
         app.exit(-1);
     }
 });
+appMessager.on('deleteMod', function(event, modName, modVersion) {
+    modManager.deleteMod(modName, modVersion, function() {
+        event.sender.send('dataInstalledMods', modManager.getInstalledMods());
+        profileManager.removeDeletedMods(modManager.getInstalledModNames());
+    });
+
+});
 
 appMessager.on('startGame', function() {
     try {

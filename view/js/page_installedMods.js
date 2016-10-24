@@ -26,6 +26,7 @@ messager.on('dataModFetchStatus', function(event, loaded, page, pageCount) {
 });
 
 messager.on('dataFactorioVersion', function(event, version) {
+    console.log(version);
     factorioVersion = version;
 });
 
@@ -35,6 +36,25 @@ $(document).on('click', '.download-mod', function() {
     let id = $(this).data('id');
     let url = $(this).data('url');
     messager.send('requestDownload', id, url);
+});
+$(document).on('click', '.delete', function() {
+    $(this).text('Are you sure?');
+    $(this).removeClass('delete');
+    $(this).addClass('delete-sure');
+});
+$(document).on('click', '.delete-sure', function() {
+    // Send request to delete
+    let modName = selectedMod.name;
+    let modVersion = selectedMod.version;
+    messager.send('deleteMod', modName, modVersion);
+
+    // Deselect mod and set the page to initial state
+    selectedMod = null;
+    $('table#mods-list tbody tr').removeClass('info');
+
+    let table = $('table#mod-info');
+    table.children().remove();
+    table.append(`<thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead>`);
 });
 
 //---------------------------------------------------------
@@ -89,6 +109,8 @@ function showInstalledModInfo(mod) {
     table.append(`<thead><tr class="bg-info"><th colspan="2">${mod['title']}</th></tr></thead>`);
     table.append('<tbody>');
     let tableBody = $('table#mod-info tbody');
+
+    tableBody.append(`<tr><td colspan="2"><button type="button" class="btn btn-block btn-danger delete">Delete Mod</button></td></tr>`);
 
     let onlineMod = getOnlineModByName(mod.name);
     let onlineModRelease;
