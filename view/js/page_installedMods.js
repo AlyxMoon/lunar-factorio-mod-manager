@@ -26,7 +26,6 @@ messager.on('dataModFetchStatus', function(event, loaded, page, pageCount) {
 });
 
 messager.on('dataFactorioVersion', function(event, version) {
-    console.log(version);
     factorioVersion = version;
 });
 
@@ -60,7 +59,6 @@ $(document).on('click', '.delete-sure', function() {
 //---------------------------------------------------------
 //---------------------------------------------------------
 $(document).ready(function() {
-    messager.send('requestFactorioVersion');
     messager.send('requestInstalledMods');
 
 });
@@ -116,9 +114,8 @@ function showInstalledModInfo(mod) {
 
     let onlineMod = getOnlineModByName(mod.name);
     let onlineModRelease;
-    if(onlineMod) onlineModsRelease = getLatestCompatibleRelease(onlineMod);
-    if(onlineModRelease && onlineModRelease.factorio_version === factorioVersion && isVersionHigher(mod.version, onlineModRelease.version)) {
-        // TODO: Rework download behavior before this will work correctly
+    if(onlineMod) onlineModRelease = getLatestCompatibleRelease(onlineMod);
+    if(onlineModRelease && isSameMajorVersion(onlineModRelease.factorio_version, factorioVersion) && isVersionHigher(mod.version, onlineModRelease.version)) {
         tableBody.append(`<tr><th data-id="${onlineMod.id}" data-url="${onlineModRelease.download_url}" class="center download-mod" colspan="2"><a href="#">Update Mod - Version ${onlineModRelease.version}</a></th></tr>`);
     }
 
@@ -235,7 +232,7 @@ function hasUpdate(mod) {
     for(let i = 0; i < length; i++) {
         if(mod.name === onlineMods[i].name) {
             for(let j = 0; j < onlineMods[i].releases.length; j++) {
-                if(onlineMods[i].releases[j].factorio_version === factorioVersion &&
+                if(isSameMajorVersion(onlineMods[i].releases[j].factorio_version, factorioVersion) &&
                 isVersionHigher(mod.version, onlineMods[i].releases[j].version) ) {
                     return true;
                 }
@@ -261,9 +258,17 @@ function isVersionHigher(currentVersion, checkedVersion) {
     return false;
 }
 
+// Checks if versions are the same, ignoring the patch number
+function isSameMajorVersion(version1, version2) {
+    version1 = version1.split('.');
+    version2 = version2.split('.');
+
+    return version1[0] === version2[0] && version1[1] === version2[1];
+}
+
 function getLatestCompatibleRelease(onlineMod) {
     for(let i = 0; i < onlineMod.releases.length; i++) {
-        if(onlineMod.releases[i].factorio_version === factorioVersion) {
+        if(isSameMajorVersion(onlineMod.releases[i].factorio_version, factorioVersion)) {
             return onlineMod.releases[i];
         }
     }
