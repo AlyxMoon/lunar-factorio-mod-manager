@@ -174,19 +174,6 @@ appMessager.on('changePage', function(event, newPage) {
 appMessager.on('updateConfig', function(event, data) {
     appManager.config = data;
 });
-
-customEvents.on('onlineModsLoaded', function(finished, page, pageCount) {
-    if(mainWindow && modManager) {
-        mainWindow.webContents.send('dataOnlineMods', modManager.getOnlineMods());
-        mainWindow.webContents.send('modsLoadedStatus', finished, page, pageCount);
-    }
-})
-customEvents.on('installedModsLoaded', function() {
-    if(mainWindow && modManager) {
-        mainWindow.webContents.send('dataInstalledMods', modManager.getInstalledMods());
-    }
-});
-
 //---------------------------------------------------------
 //---------------------------------------------------------
 // Application management functions
