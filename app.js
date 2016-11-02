@@ -16,7 +16,6 @@ let appManager;
 let mainWindow;
 let profileManager;
 let modManager;
-let customEvents = new EventEmitter();
 //---------------------------------------------------------
 //---------------------------------------------------------
 // Event listeners for application-related messages
@@ -196,7 +195,7 @@ function init() {
 
     try {
         let baseModPath = path.join(config.game_path, '..', '..', '..', 'data', 'base');
-        modManager = new ModManager(config.modlist_path, config.mod_directory_path, baseModPath, config.player_data_path, customEvents);
+        modManager = new ModManager(config.modlist_path, config.mod_directory_path, baseModPath, config.player_data_path);
     }
     catch(error) {
         logger.log(4, `Error creating Mod Manager class. Error: ${error.stack}`);
