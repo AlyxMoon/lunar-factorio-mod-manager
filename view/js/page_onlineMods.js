@@ -8,7 +8,8 @@ let canDownloadMods = false;
 
 let selectedMod;
 let sortingOption = 'alpha-asc';
-let filterOption = 'all';
+let filterTag = 'all';
+let filterDownload = 'all';
 let tags;
 
 //---------------------------------------------------------
@@ -51,7 +52,12 @@ $('a.sort-mods').click(function() {
     listOnlineMods();
 });
 $(document).on('click', 'a.filter-mods', function() {
-    filterOption = $(this).attr('id');
+    let newFilter = $(this).data('filter');
+    let filterType = $(this).data('type');
+
+    if(filterType === 'download') filterDownload = newFilter;
+    else if(filterType === 'tag') filterTag = newFilter;
+
     listOnlineMods();
 });
 
@@ -82,7 +88,7 @@ function listOnlineMods() {
     let table = $('table#mods-list');
     table.children().remove();
 
-    table.append(`<thead><tr class="bg-primary"><th colspan="2">Online Mods: ${filterOption}</th></tr></thead>`);
+    table.append(`<thead><tr class="bg-primary"><th colspan="2">Online Mods: ${filterDownload} | ${filterTag}</th></tr></thead>`);
     table.append('<tbody>');
 
     for(let i = 0; i < mods.length; i++) {
@@ -221,10 +227,15 @@ function showFiltersTags() {
     let filterMenu = $("#filter-menu");
     filterMenu.children().remove();
 
+    filterMenu.append('<li class="dropdown-header">Download Status</li>');
+    filterMenu.append(`<li><a data-type="download" data-filter="all" class="filter-mods" href="#">All</a></li>`);
+    filterMenu.append(`<li><a data-type="download" data-filter="downloaded" class="filter-mods" href="#">Downloaded</a></li>`);
+    filterMenu.append(`<li><a data-type="download" data-filter="not-downloaded" class="filter-mods" href="#">Not Downloaded</a></li>`);
+
     filterMenu.append('<li class="dropdown-header">Tags</li>');
-    filterMenu.append(`<li><a id="all" class="filter-mods" href="#">All</a></li>`);
+    filterMenu.append(`<li><a data-type="tag" data-filter="all" class="filter-mods" href="#">All</a></li>`);
     for(let i = 0; i < tags.length; i++) {
-        filterMenu.append(`<li><a id="${tags[i].name}" class="filter-mods" href="#">${tags[i].title}</a></li>`);
+        filterMenu.append(`<li><a data-type="tag" data-filter="${tags[i].name}" class="filter-mods" href="#">${tags[i].title}</a></li>`);
     }
 
 }
@@ -337,11 +348,28 @@ function sortMods(mods) {
 }
 
 function filterMods(mods) {
-    if(filterOption !== 'all') {
+    if(filterDownload !== 'all') {
+        for(let i = 0; i < mods.length;) {
+            let modInstalled = false;
+            for(let j = 0; j < installedMods.length; j++) {
+                if(mods[i].name === installedMods[j].name) {
+                    modInstalled = true;
+                    break;
+                }
+            }
+            if( (modInstalled && filterDownload === "not-downloaded") ||
+                (!modInstalled && filterDownload === "downloaded")) {
+                mods.splice(i, 1);
+            }
+            else i++;
+        }
+    }
+
+    if(filterTag !== 'all') {
         for(let i = 0; i < mods.length;) {
             let containsTag = false;
             for(let j = 0; j < mods[i].tags.length; j++) {
-                if(mods[i].tags[j].name === filterOption) {
+                if(mods[i].tags[j].name === filterTag) {
                     containsTag = true;
                     break;
                 }
