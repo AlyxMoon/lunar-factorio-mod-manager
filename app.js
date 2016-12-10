@@ -9,7 +9,7 @@ const appMessager = electron.ipcMain;
 
 const AppManager = require('./lib/appManager.js');
 const ModManager = require('./lib/modManager.js');
-const ProfileManager = require('./lib/profileManagement.js');
+const ProfileManager = require('./lib/ProfileManager.js');
 const logger = require('./lib/logger.js');
 
 let appManager;
