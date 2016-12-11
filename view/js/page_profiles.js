@@ -41,10 +41,10 @@ function listActiveProfile(event, profile) {
     for(let i = 0; i < numMods; i++) {
         mod = profile.mods[i];
         if(mod.enabled === "true") {
-            table.append(`<tr><td><input class="checkbox" type="checkbox" data-index="${i}" checked="checked"</input></td><td>${mod.name}</td></tr>`);
+            table.append(`<tr><td class="small-cell"><input class="checkbox" type="checkbox" data-index="${i}" checked="checked"</input></td><td>${mod.name}</td></tr>`);
         }
         else {
-            table.append(`<tr><td><input class="checkbox" type="checkbox" data-index="${i}"</input></td><td>${mod.name}</td></tr>`);
+            table.append(`<tr><td class="small-cell"><input class="checkbox" type="checkbox" data-index="${i}"</input></td><td>${mod.name}</td></tr>`);
             $('table#active-profile tbody tr').last().addClass('danger');
         }
     }

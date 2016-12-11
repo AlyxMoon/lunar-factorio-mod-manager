@@ -80,6 +80,7 @@ table {
 }
 td {
     cursor: pointer;
+    vertical-align: middle;
 }
 tr {
     -webkit-user-select: none;
@@ -87,6 +88,10 @@ tr {
 #tbl-mod-info td {
     cursor: text;
     -webkit-user-select: text;
+}
+
+td.small-cell {
+    width: 15px;
 }
 
 .profile-buttons {
@@ -97,6 +102,12 @@ tr {
 
 #pageButtons {
     margin: 10px 5px;
+}
+
+input[type=checkbox] {
+    width: 15px;
+    height: 15px;
+    margin: 1px 0 0;
 }
 
 /* --- Miscellaneous Helpers --- */
