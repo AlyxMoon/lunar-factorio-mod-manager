@@ -79,18 +79,20 @@ appMessager.on('updateConfig', function(event, data) {
 
 //------------------------------
 // Handled by ProfileManager
-appMessager.on('requestAllProfiles', function() {
-    profileManager.sendAllProfiles(mainWindow);
+appMessager.on('requestAllProfiles', function(event) {
+    logger.log(0, 'Event called: requestAllProfiles');
+    event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
 });
 
-appMessager.on('requestActiveProfile', function() {
-    profileManager.sendActiveProfile(mainWindow);
+appMessager.on('requestActiveProfile', function(event) {
+    logger.log(0, 'Event called: requestActiveProfile');
+    event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
 });
 
 appMessager.on('newProfile', function() {
     try {
         profileManager.createProfile(modManager.getInstalledModNames());
-        profileManager.sendAllProfiles(mainWindow);
+        event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
     }
     catch(error) {
         logger.log(4, `Error when creating new profile: ${error}`);
@@ -101,8 +103,8 @@ appMessager.on('newProfile', function() {
 appMessager.on('activateProfile', function(event, profileName) {
     try {
         profileManager.activateProfile(profileName);
-        profileManager.sendAllProfiles(mainWindow);
-        profileManager.sendActiveProfile(mainWindow);
+        event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
+        event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
     }
     catch(error) {
         logger.log(4, `Error when activating a profile: ${error}`);
@@ -113,8 +115,8 @@ appMessager.on('activateProfile', function(event, profileName) {
 appMessager.on('renameProfile', function(event, newName) {
     try {
         profileManager.renameActiveProfile(newName);
-        profileManager.sendAllProfiles(mainWindow);
-        profileManager.sendActiveProfile(mainWindow);
+        event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
+        event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
     }
     catch(error) {
         logger.log(4, `Error when renaming a profile: ${error}`);
@@ -125,8 +127,8 @@ appMessager.on('renameProfile', function(event, newName) {
 appMessager.on('deleteProfile', function() {
     try {
         profileManager.deleteActiveProfile(modManager.getInstalledModNames());
-        profileManager.sendAllProfiles(mainWindow);
-        profileManager.sendActiveProfile(mainWindow);
+        event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
+        event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
     }
     catch(error) {
         logger.log(4, `Error when deleting a profile: ${error}`);
@@ -137,7 +139,7 @@ appMessager.on('deleteProfile', function() {
 appMessager.on('sortProfile', function(event, direction) {
     try {
         profileManager.moveActiveProfile(direction);
-        profileManager.sendAllProfiles(mainWindow);
+        event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
     }
     catch(error) {
         logger.log(4, `Error when sorting a profile: ${error}`);
