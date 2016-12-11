@@ -53,7 +53,7 @@ appMessager.on('requestAppVersionInfo', function(event) {
     event.sender.send('dataAppVersionInfo', currentVersion, latestVersion, versionLink);
 });
 
-appMessager.on('startGame', function() {
+appMessager.on('startGame', function(event) {
     try {
         appManager.startGame(app, profileManager);
     }
@@ -89,7 +89,7 @@ appMessager.on('requestActiveProfile', function(event) {
     event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
 });
 
-appMessager.on('newProfile', function() {
+appMessager.on('newProfile', function(event) {
     try {
         profileManager.createProfile(modManager.getInstalledModNames());
         event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
@@ -124,7 +124,7 @@ appMessager.on('renameProfile', function(event, newName) {
     }
 });
 
-appMessager.on('deleteProfile', function() {
+appMessager.on('deleteProfile', function(event) {
     try {
         profileManager.deleteActiveProfile(modManager.getInstalledModNames());
         event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
