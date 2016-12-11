@@ -124,9 +124,9 @@ appMessager.on('renameProfile', function(event, newName) {
     }
 });
 
-appMessager.on('deleteProfile', function(event) {
+appMessager.on('deleteProfile', function(event, index) {
     try {
-        profileManager.deleteActiveProfile(modManager.getInstalledModNames());
+        profileManager.deleteProfile(index, modManager.getInstalledModNames());
         event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
         event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
     }

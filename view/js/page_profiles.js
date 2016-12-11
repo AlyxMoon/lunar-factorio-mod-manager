@@ -14,10 +14,12 @@ $(document).on('change', '.checkbox', function() {
 $(document).on('click', '.sort-profile', function() {
     sortProfile($(this).data('index'), $(this).data('direction'));
 });
+$(document).on('click', '.delete-profile', function() {
+    deleteProfile($(this).data('index'));
+});
 
 $('button#profile-new').click(profileNew);
 $('button#profile-rename').click(profileRename);
-$('button#profile-delete').click(profileDelete);
 $('button').click(function() { $(this).blur() });
 
 //---------------------------------------------------------
@@ -61,25 +63,29 @@ function listAllProfiles(event, profiles) {
 
     let arrowUp = '<span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>';
     let arrowDown = '<span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>';
+    let deleteIcon = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span>';
 
     for(let i = 0; i < profiles.length; i++) {
         tableBody.append(`<tr><td class="profile-name">${profiles[i].name}</td></tr>`);
+        let row = $('table#profiles-list tbody tr').last();
 
         if(i < profiles.length - 1) {
-            $('table#profiles-list tbody tr').last().append(`<td data-index="${i}" data-direction="down" class="small-cell sort-profile">${arrowDown}</td>`);
+            row.append(`<td data-index="${i}" data-direction="down" class="small-cell sort-profile">${arrowDown}</td>`);
         }
         else {
-            $('table#profiles-list tbody tr').last().append(`<td class="small-cell"></td>`);
+            row.append(`<td class="small-cell"></td>`);
         }
         if(i > 0) {
-            $('table#profiles-list tbody tr').last().append(`<td data-index="${i}" data-direction="up" class="small-cell sort-profile">${arrowUp}</td>`);
+            row.append(`<td data-index="${i}" data-direction="up" class="small-cell sort-profile">${arrowUp}</td>`);
         }
         else {
-            $('table#profiles-list tbody tr').last().append(`<td class="small-cell"></td>`);
+            row.append(`<td class="small-cell"></td>`);
         }
 
+        row.append(`<td data-index="${i}" class="small-cell delete-profile">${deleteIcon}</td>`);
+
         if(profiles[i]['enabled']) {
-            $('table#profiles-list tbody tr').last().addClass('info');
+            row.addClass('info');
         }
     }
 }
@@ -116,12 +122,13 @@ function profileRename() {
     $('#rename-submit').on('click', function() { messager.send('renameProfile', $('textarea').val()) });
     $('textarea').focus().select();
 }
-function profileDelete() {
-    messager.send('deleteProfile');
-}
 
 function sortProfile(index, direction) {
     messager.send('sortProfile', index, direction);
+}
+
+function deleteProfile(index) {
+    messager.send('deleteProfile', index);
 }
 
 //---------------------------------------------------------
