@@ -136,9 +136,9 @@ appMessager.on('deleteProfile', function(event) {
     }
 });
 
-appMessager.on('sortProfile', function(event, direction) {
+appMessager.on('sortProfile', function(event, index, direction) {
     try {
-        profileManager.moveActiveProfile(direction);
+        profileManager.moveProfile(index, direction);
         event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
     }
     catch(error) {

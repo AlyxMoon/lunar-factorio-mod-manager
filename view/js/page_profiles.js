@@ -7,16 +7,17 @@ messager.on('dataActiveProfile', listActiveProfile);
 messager.on('dataAllProfiles', listAllProfiles);
 
 // Uses this way to assign events to elements as they will be dynamically generated
-$(document).on('click', 'table#profiles-list td', activateProfile);
+$(document).on('click', '.profile-name', activateProfile);
 $(document).on('change', '.checkbox', function() {
     toggleMod(this.checked, $(this).data('index'));
+});
+$(document).on('click', '.sort-profile', function() {
+    sortProfile($(this).data('index'), $(this).data('direction'));
 });
 
 $('button#profile-new').click(profileNew);
 $('button#profile-rename').click(profileRename);
 $('button#profile-delete').click(profileDelete);
-$('button#profile-sort-up').click(profileSortUp);
-$('button#profile-sort-down').click(profileSortDown);
 $('button').click(function() { $(this).blur() });
 
 //---------------------------------------------------------
@@ -55,12 +56,27 @@ function listActiveProfile(event, profile) {
 // One argument, an array of a objects, each containing:
 //      The Factorio mod list with key "mods", a bool with key "enabled", and a string with key "name"
 function listAllProfiles(event, profiles) {
-    console.log(profiles);
     let tableBody = $('table#profiles-list tbody');
     tableBody.children().remove();
 
+    let arrowUp = '<span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>';
+    let arrowDown = '<span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>';
+
     for(let i = 0; i < profiles.length; i++) {
-        tableBody.append('<tr><td>' + profiles[i]['name'] + '</td></tr>');
+        tableBody.append(`<tr><td class="profile-name">${profiles[i].name}</td></tr>`);
+
+        if(i < profiles.length - 1) {
+            $('table#profiles-list tbody tr').last().append(`<td data-index="${i}" data-direction="down" class="small-cell sort-profile">${arrowDown}</td>`);
+        }
+        else {
+            $('table#profiles-list tbody tr').last().append(`<td class="small-cell"></td>`);
+        }
+        if(i > 0) {
+            $('table#profiles-list tbody tr').last().append(`<td data-index="${i}" data-direction="up" class="small-cell sort-profile">${arrowUp}</td>`);
+        }
+        else {
+            $('table#profiles-list tbody tr').last().append(`<td class="small-cell"></td>`);
+        }
 
         if(profiles[i]['enabled']) {
             $('table#profiles-list tbody tr').last().addClass('info');
@@ -103,11 +119,9 @@ function profileRename() {
 function profileDelete() {
     messager.send('deleteProfile');
 }
-function profileSortUp() {
-    messager.send('sortProfile', 'up');
-}
-function profileSortDown() {
-    messager.send('sortProfile', 'down');
+
+function sortProfile(index, direction) {
+    messager.send('sortProfile', index, direction);
 }
 
 //---------------------------------------------------------
