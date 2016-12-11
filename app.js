@@ -36,25 +36,11 @@ app.on('activate', function () {
 //---------------------------------------------------------
 // Event listeners for client messages
 
-appMessager.on('requestInstalledMods', function(event) {
-    logger.log(0, 'Event called: requestInstalledMods');
-    if(modManager) event.sender.send('dataInstalledMods', modManager.getInstalledMods());
-});
-appMessager.on('requestOnlineMods', function(event) {
-    logger.log(0, 'Event called: requestOnlineMods');
-    if(modManager) event.sender.send('dataOnlineMods', modManager.getOnlineMods());
-});
-appMessager.on('requestModFetchStatus', function(event) {
-    logger.log(0, 'Event called: requestModFetchStatus');
-    if(modManager) event.sender.send('dataModFetchStatus', modManager.areOnlineModsFetched(), modManager.getOnlineModFetchedCount(), modManager.getOnlineModCount());
-});
-appMessager.on('requestPlayerInfo', function(event) {
-    logger.log(0, 'Event called: requestPlayerInfo');
-    if(modManager) event.sender.send('dataPlayerInfo', modManager.getPlayerUsername());
-});
-appMessager.on('requestFactorioVersion', function(event) {
-    logger.log(0, 'Event called: requestFactorioVersion');
-    if(modManager) event.sender.send('dataFactorioVersion', modManager.getFactorioVersion());
+//------------------------------
+// Handled by AppManager
+appMessager.on('requestAppConfig', function(event) {
+    logger.log(0, 'Event called: requestAppConfig');
+    event.sender.send('dataAppConfig', appManager.getAppConfig());
 });
 
 appMessager.on('requestAppVersionInfo', function(event) {
@@ -67,16 +53,38 @@ appMessager.on('requestAppVersionInfo', function(event) {
     event.sender.send('dataAppVersionInfo', currentVersion, latestVersion, versionLink);
 });
 
+appMessager.on('startGame', function() {
+    try {
+        appManager.startGame(app, profileManager);
+    }
+    catch(error) {
+        logger.log(4, `Error when starting Factorio: ${error}`);
+        app.exit(-1);
+    }
+});
+
+appMessager.on('changePage', function(event, newPage) {
+    try {
+        appManager.loadPage(mainWindow, newPage, profileManager, modManager);
+    }
+    catch(error) {
+        logger.log(4, `Error when changing the page: ${error}`);
+        app.exit(-1);
+    }
+});
+
+appMessager.on('updateConfig', function(event, data) {
+    appManager.config = data;
+});
+
+//------------------------------
+// Handled by ProfileManager
 appMessager.on('requestAllProfiles', function() {
     profileManager.sendAllProfiles(mainWindow);
 });
+
 appMessager.on('requestActiveProfile', function() {
     profileManager.sendActiveProfile(mainWindow);
-});
-
-appMessager.on('requestAppConfig', function(event) {
-    logger.log(0, 'Event called: requestAppConfig');
-    event.sender.send('dataAppConfig', appManager.getAppConfig());
 });
 
 appMessager.on('newProfile', function() {
@@ -89,6 +97,7 @@ appMessager.on('newProfile', function() {
         app.exit(-1);
     }
 });
+
 appMessager.on('activateProfile', function(event, profileName) {
     try {
         profileManager.activateProfile(profileName);
@@ -100,6 +109,7 @@ appMessager.on('activateProfile', function(event, profileName) {
         app.exit(-1);
     }
 });
+
 appMessager.on('renameProfile', function(event, newName) {
     try {
         profileManager.renameActiveProfile(newName);
@@ -111,6 +121,7 @@ appMessager.on('renameProfile', function(event, newName) {
         app.exit(-1);
     }
 });
+
 appMessager.on('deleteProfile', function() {
     try {
         profileManager.deleteActiveProfile(modManager.getInstalledModNames());
@@ -122,6 +133,7 @@ appMessager.on('deleteProfile', function() {
         app.exit(-1);
     }
 });
+
 appMessager.on('sortProfile', function(event, direction) {
     try {
         profileManager.moveActiveProfile(direction);
@@ -132,6 +144,7 @@ appMessager.on('sortProfile', function(event, direction) {
         app.exit(-1);
     }
 });
+
 appMessager.on('toggleMod', function(event, modName) {
     try {
         profileManager.toggleMod(modName);
@@ -140,6 +153,34 @@ appMessager.on('toggleMod', function(event, modName) {
         logger.log(4, `Error when togging a mod: ${error}`);
         app.exit(-1);
     }
+});
+
+//------------------------------
+// Handled by ModManager
+appMessager.on('requestInstalledMods', function(event) {
+    logger.log(0, 'Event called: requestInstalledMods');
+    if(modManager) event.sender.send('dataInstalledMods', modManager.getInstalledMods());
+});
+
+appMessager.on('requestOnlineMods', function(event) {
+    logger.log(0, 'Event called: requestOnlineMods');
+    if(modManager) event.sender.send('dataOnlineMods', modManager.getOnlineMods());
+});
+
+appMessager.on('requestModFetchStatus', function(event) {
+    logger.log(0, 'Event called: requestModFetchStatus');
+    if(modManager) event.sender.send('dataModFetchStatus', modManager.areOnlineModsFetched(), modManager.getOnlineModFetchedCount(), modManager.getOnlineModCount());
+});
+
+appMessager.on('requestPlayerInfo', function(event) {
+
+    logger.log(0, 'Event called: requestPlayerInfo');
+    if(modManager) event.sender.send('dataPlayerInfo', modManager.getPlayerUsername());
+});
+
+appMessager.on('requestFactorioVersion', function(event) {
+    logger.log(0, 'Event called: requestFactorioVersion');
+    if(modManager) event.sender.send('dataFactorioVersion', modManager.getFactorioVersion());
 });
 
 appMessager.on('requestDownload', function(event, modID, modName) {
@@ -151,6 +192,7 @@ appMessager.on('requestDownload', function(event, modID, modName) {
         app.exit(-1);
     }
 });
+
 appMessager.on('deleteMod', function(event, modName, modVersion) {
     modManager.deleteMod(modName, modVersion, function() {
         event.sender.send('dataInstalledMods', modManager.getInstalledMods());
@@ -159,27 +201,6 @@ appMessager.on('deleteMod', function(event, modName, modVersion) {
 
 });
 
-appMessager.on('startGame', function() {
-    try {
-        appManager.startGame(app, profileManager);
-    }
-    catch(error) {
-        logger.log(4, `Error when starting Factorio: ${error}`);
-        app.exit(-1);
-    }
-});
-appMessager.on('changePage', function(event, newPage) {
-    try {
-        appManager.loadPage(mainWindow, newPage, profileManager, modManager);
-    }
-    catch(error) {
-        logger.log(4, `Error when changing the page: ${error}`);
-        app.exit(-1);
-    }
-});
-appMessager.on('updateConfig', function(event, data) {
-    appManager.config = data;
-});
 //---------------------------------------------------------
 //---------------------------------------------------------
 // Application management functions
