@@ -196,10 +196,14 @@ function showOnlineModInfo() {
 
     if(modInfo['dependencies'] && modInfo['dependencies'].length > 0) {
         let dependencies = modInfo['dependencies'];
-        tableBody.append(`<tr><td>Dependencies</td><td>${dependencies[0]}</td></tr>`);
-        for(let i = 1; i < dependencies.length; i++) {
-            tableBody.append(`<tr><td></td><td>${dependencies[i]}</td></tr>`);
+
+        if(Array.isArray(dependencies)) {
+            tableBody.append(`<tr><td>Dependencies</td><td>${dependencies[0]}</td></tr>`);
+            for(let i = 1; i < dependencies.length; i++) {
+                tableBody.append(`<tr><td></td><td>${dependencies[i]}</td></tr>`);
+            }
         }
+        else tableBody.append(`<tr><td>Dependencies</td><td>${dependencies}</td></tr>`);
     }
     else {
         tableBody.append(`<tr><td>Dependencies</td><td>None specified</td></tr>`);
