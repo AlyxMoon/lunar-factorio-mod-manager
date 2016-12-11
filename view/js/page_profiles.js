@@ -7,8 +7,10 @@ messager.on('dataActiveProfile', listActiveProfile);
 messager.on('dataAllProfiles', listAllProfiles);
 
 // Uses this way to assign events to elements as they will be dynamically generated
-$(document).on('click', 'table#active-profile tbody tr', toggleMod);
 $(document).on('click', 'table#profiles-list td', activateProfile);
+$(document).on('change', '.checkbox', function() {
+    toggleMod(this.checked, $(this).data('index'));
+});
 
 $('button#profile-new').click(profileNew);
 $('button#profile-rename').click(profileRename);
@@ -32,15 +34,17 @@ function listActiveProfile(event, profile) {
     let table = $('table#active-profile');
     table.children().remove();
 
-    table.append('<thead><tr class="bg-info"><th colspan="2">' + profile['name'] + '</th></tr></thead>');
+    table.append(`<thead><tr class="bg-info"><th colspan="2">${profile.name}</th></tr></thead>`);
     table.append('<tbody>');
 
     let numMods = profile['mods'].length;
     for(let i = 0; i < numMods; i++) {
-        mod = profile['mods'][i];
-        table.append('<tr><td>' + mod['name'] + '</td><td>' + mod['enabled'] + '</td></tr>');
-
-        if(mod['enabled'] === 'false') {
+        mod = profile.mods[i];
+        if(mod.enabled === "true") {
+            table.append(`<tr><td><input class="checkbox" type="checkbox" data-index="${i}" checked="checked"</input></td><td>${mod.name}</td></tr>`);
+        }
+        else {
+            table.append(`<tr><td><input class="checkbox" type="checkbox" data-index="${i}"</input></td><td>${mod.name}</td></tr>`);
             $('table#active-profile tbody tr').last().addClass('danger');
         }
     }
@@ -66,25 +70,10 @@ function listAllProfiles(event, profiles) {
 
 // Used as callback function
 // Takes no extra arguments
-function toggleMod(event) {
-    event.stopPropagation();
-    $(this).toggleClass('danger');
-
-    let data = {};
-    data['profile'] = $(this).parent().prev().text();
-    data['mod'] = $(this).children().first().text();
-    data['enabled'] = $(this).children().first().next().text();
-
-    if(data['enabled'] === 'true') {
-        data['enabled'] = 'false';
-        $(this).children().first().next().text('false')
-    }
-    else {
-        data['enabled'] = 'true';
-        $(this).children().first().next().text('true')
-    }
-
-    messager.send('toggleMod', data['mod']);
+function toggleMod(checked, index) {
+    let selectedRow = $('table#active-profile tbody tr').eq(index);
+    selectedRow.toggleClass('danger');
+    messager.send('toggleMod', selectedRow.children().eq(1).text());
 }
 
 // Used as callback function
