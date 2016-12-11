@@ -57,8 +57,14 @@ appMessager.on('requestFactorioVersion', function(event) {
     if(modManager) event.sender.send('dataFactorioVersion', modManager.getFactorioVersion());
 });
 
-appMessager.on('requestAppVersion', function() {
-    appManager.sendAppVersion(mainWindow);
+appMessager.on('requestAppVersionInfo', function(event) {
+    logger.log(0, 'Event called: requestAppVersionInfo');
+
+    let currentVersion  = appManager.getCurrentAppVersion();
+    let latestVersion   = appManager.getLatestAppVersion();
+    let versionLink     = appManager.getLatestAppVersionLink();
+
+    event.sender.send('dataAppVersionInfo', currentVersion, latestVersion, versionLink);
 });
 
 appMessager.on('requestAllProfiles', function() {
@@ -68,8 +74,9 @@ appMessager.on('requestActiveProfile', function() {
     profileManager.sendActiveProfile(mainWindow);
 });
 
-appMessager.on('requestAppConfig', function() {
-    appManager.sendAppConfig(mainWindow);
+appMessager.on('requestAppConfig', function(event) {
+    logger.log(0, 'Event called: requestAppConfig');
+    event.sender.send('dataAppConfig', appManager.getAppConfig());
 });
 
 appMessager.on('newProfile', function() {

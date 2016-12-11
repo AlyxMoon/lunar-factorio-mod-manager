@@ -2,7 +2,7 @@ const messager = require('electron').ipcRenderer;
 const shell = require('electron').shell;
 //---------------------------------------------------------
 // Event listeners for client and server events
-messager.on('dataAppVersion', function(event, version, latestVersion, latestVersionLink) {
+messager.on('dataAppVersionInfo', function(event, version, latestVersion, latestVersionLink) {
     showAppVersion(version, latestVersion, latestVersionLink);
 });
 
@@ -14,7 +14,7 @@ $(document).on('click', 'a', function(event) {
 //---------------------------------------------------------
 //---------------------------------------------------------
 $(document).ready(function() {
-    messager.send('requestAppVersion');
+    messager.send('requestAppVersionInfo');
 });
 
 function showAppVersion(version, latestVersion, latestVersionLink) {
