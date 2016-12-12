@@ -7,9 +7,12 @@ messager.on('dataActiveProfile', listActiveProfile);
 messager.on('dataAllProfiles', listAllProfiles);
 
 // Uses this way to assign events to elements as they will be dynamically generated
-$(document).on('click', '.profile-name', activateProfile);
+// $(document).on('click', '.profile-name', activateProfile);
 $(document).on('change', '.checkbox', function() {
     toggleMod(this.checked, $(this).data('index'));
+});
+$(document).on('click', '.select-profile', function() {
+    activateProfile($(this).data('index'));
 });
 $(document).on('click', '.sort-profile', function() {
     sortProfile($(this).data('index'), $(this).data('direction'));
@@ -37,7 +40,7 @@ function listActiveProfile(event, profile) {
     let table = $('table#active-profile');
     table.children().remove();
 
-    table.append(`<thead><tr class="bg-info"><th colspan="2">${profile.name}</th></tr></thead>`);
+    table.append(`<thead><tr class="bg-info"><th colspan="2">${profile.name} <span class="glyphicon glyphicon-pencil rename-profile"></span></th></tr></thead>`);
     table.append('<tbody>');
 
     let numMods = profile['mods'].length;
@@ -66,27 +69,29 @@ function listAllProfiles(event, profiles) {
     let deleteIcon = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span>';
 
     for(let i = 0; i < profiles.length; i++) {
-        tableBody.append(`<tr><td class="profile-name">${profiles[i].name}</td></tr>`);
-        let row = $('table#profiles-list tbody tr').last();
+        let row = $('<tr></tr>');
 
-        if(i < profiles.length - 1) {
-            row.append(`<td data-index="${i}" data-direction="down" class="small-cell sort-profile">${arrowDown}</td>`);
-        }
-        else {
-            row.append(`<td class="small-cell"></td>`);
-        }
-        if(i > 0) {
-            row.append(`<td data-index="${i}" data-direction="up" class="small-cell sort-profile">${arrowUp}</td>`);
-        }
-        else {
-            row.append(`<td class="small-cell"></td>`);
-        }
+        if(profiles[i].enabled) row.append(`<td class="small-cell"><input type="radio" name="active" checked="true"></td>`);
+        else                    row.append(`<td class="small-cell"><input data-index="${i}" class="select-profile" type="radio" name="active"></td>`);
+
+
+        row.append(`<td class="profile-name">${profiles[i].name}</td>`);
+
+        // Don't show down arrow if it's already on bottom
+        if(i < profiles.length - 1) row.append(`<td data-index="${i}" data-direction="down" class="small-cell sort-profile">${arrowDown}</td>`);
+        else                        row.append(`<td class="small-cell"></td>`);
+
+        // Don't show up arrow if it's already on top
+        if(i > 0)   row.append(`<td data-index="${i}" data-direction="up" class="small-cell sort-profile">${arrowUp}</td>`);
+        else        row.append(`<td class="small-cell"></td>`);
 
         row.append(`<td data-index="${i}" class="small-cell delete-profile">${deleteIcon}</td>`);
 
         if(profiles[i]['enabled']) {
             row.addClass('info');
         }
+
+        tableBody.append(row);
     }
 }
 
@@ -98,12 +103,7 @@ function toggleMod(checked, index) {
     messager.send('toggleMod', selectedRow.children().eq(1).text());
 }
 
-// Used as callback function
-// Takes no extra arguments
-function activateProfile(event) {
-    event.stopPropagation();
-    messager.send('activateProfile', $(this).text());
-}
+
 
 //---------------------------------------------------------
 // Button listeners for profile management
@@ -121,6 +121,10 @@ function profileRename() {
 
     $('#rename-submit').on('click', function() { messager.send('renameProfile', $('textarea').val()) });
     $('textarea').focus().select();
+}
+
+function activateProfile(index) {
+    messager.send('activateProfile', index);
 }
 
 function sortProfile(index, direction) {

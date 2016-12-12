@@ -100,9 +100,9 @@ appMessager.on('newProfile', function(event) {
     }
 });
 
-appMessager.on('activateProfile', function(event, profileName) {
+appMessager.on('activateProfile', function(event, index) {
     try {
-        profileManager.activateProfile(profileName);
+        profileManager.activateProfile(index);
         event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
         event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
     }

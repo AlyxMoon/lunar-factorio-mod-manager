@@ -104,7 +104,7 @@ td.small-cell {
     margin: 10px 5px;
 }
 
-input[type=checkbox] {
+input[type=checkbox], input[type=radio] {
     width: 15px;
     height: 15px;
     margin: 1px 0 0;
