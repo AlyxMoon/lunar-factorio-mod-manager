@@ -29,16 +29,14 @@
 
         <!-- Second column, shows profile management options and list of profiles -->
         <div class="col-xs-6 height-100">
-            <!-- Sub-section, shows the profile management options -->
-            <div id="button-section" class="view-section height-20">
-                <button type="button" id="profile-new" class="btn btn-info btn-block">New Profile</button>
-            </div> <!-- End of profile management sub-section -->
-
             <!-- Sub-section, shows the list of profiles and sorting options -->
-            <div class="view-section scroll height-80">
+            <div class="view-section scroll height-50">
                 <!-- List of profiles -->
                 <table id="profiles-list" class="table table-condensed table-hover">
-                    <thead><tr><th class="bg-primary" colspan="5">Profiles:</th></tr></thead>
+                    <thead><tr class="bg-primary">
+                        <th><span class="glyphicon glyphicon-plus add-profile" aria-hidden="true"></span></th>
+                        <th colspan="4">Profiles:</th>
+                    </tr></thead>
                     <tbody></tbody>
                 </table> <!-- End of profiles list -->
             </div> <!-- End of the sub-section for profiles list and sorting options -->

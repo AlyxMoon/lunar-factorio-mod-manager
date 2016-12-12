@@ -42,8 +42,8 @@ $(document).on('focusout', '.profile-name', function() {
     if(oldName !== newName) messager.send('renameProfile', index, newName);
 });
 
-$('button#profile-new').click(profileNew);
-$('button#profile-rename').click(profileRename);
+$('.add-profile').click(profileNew);
+
 $('button').click(function() { $(this).blur() });
 
 //---------------------------------------------------------

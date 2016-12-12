@@ -89,6 +89,10 @@ tr {
     -webkit-user-select: text;
 }
 
+table#profiles-list .glyphicon {
+    cursor: pointer;
+}
+
 td.small-cell {
     width: 15px;
 }
@@ -121,6 +125,9 @@ input[type=checkbox], input[type=radio] {
 }
 .height-75 {
     height: 75%;
+}
+.height-50 {
+    height: 50%;
 }
 .height-25 {
     height: 25%;
