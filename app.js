@@ -112,9 +112,9 @@ appMessager.on('activateProfile', function(event, index) {
     }
 });
 
-appMessager.on('renameProfile', function(event, newName) {
+appMessager.on('renameProfile', function(event, index, newName) {
     try {
-        profileManager.renameActiveProfile(newName);
+        profileManager.renameProfile(index, newName);
         event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
         event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
     }

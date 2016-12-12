@@ -1,5 +1,8 @@
 const messager = require('electron').ipcRenderer;
 
+let profiles;
+let activeProfile;
+
 //---------------------------------------------------------
 // Event listeners for client and server events
 
@@ -21,6 +24,24 @@ $(document).on('click', '.delete-profile', function() {
     deleteProfile($(this).data('index'));
 });
 
+// Events to manage editing the profile names
+$(document).on('focusin', '.profile-name', function() {
+    $(this).keypress( (event) => {
+        if(event.which === 13) {
+            event.preventDefault();
+            $(this).blur();
+        }
+    });
+});
+$(document).on('focusout', '.profile-name', function() {
+    $(this).unbind('keypress');
+    let index = $(this).data('index');
+    let oldName = profiles[index].name;
+    let newName = $(this).text();
+
+    if(oldName !== newName) messager.send('renameProfile', index, newName);
+});
+
 $('button#profile-new').click(profileNew);
 $('button#profile-rename').click(profileRename);
 $('button').click(function() { $(this).blur() });
@@ -35,17 +56,18 @@ $(document).ready(function() {
 // Used as callback function
 // One argument, an array of a single object containing:
 //      The Factorio mod list with key "mods", a bool with key "enabled", and a string with key "name"
-function listActiveProfile(event, profile) {
-    console.log(profile);
+function listActiveProfile(event, data) {
+    activeProfile = data;
+
     let table = $('table#active-profile');
     table.children().remove();
 
-    table.append(`<thead><tr class="bg-info"><th colspan="2">${profile.name} <span class="glyphicon glyphicon-pencil rename-profile"></span></th></tr></thead>`);
+    table.append(`<thead><tr class="bg-info"><th colspan="2">${activeProfile.name}</th></tr></thead>`);
     table.append('<tbody>');
 
-    let numMods = profile['mods'].length;
+    let numMods = activeProfile['mods'].length;
     for(let i = 0; i < numMods; i++) {
-        mod = profile.mods[i];
+        mod = activeProfile.mods[i];
         if(mod.enabled === "true") {
             table.append(`<tr><td class="small-cell"><input class="checkbox" type="checkbox" data-index="${i}" checked="checked"</input></td><td>${mod.name}</td></tr>`);
         }
@@ -60,7 +82,9 @@ function listActiveProfile(event, profile) {
 // Used as callback function
 // One argument, an array of a objects, each containing:
 //      The Factorio mod list with key "mods", a bool with key "enabled", and a string with key "name"
-function listAllProfiles(event, profiles) {
+function listAllProfiles(event, data) {
+    profiles = data;
+
     let tableBody = $('table#profiles-list tbody');
     tableBody.children().remove();
 
@@ -75,7 +99,7 @@ function listAllProfiles(event, profiles) {
         else                    row.append(`<td class="small-cell"><input data-index="${i}" class="select-profile" type="radio" name="active"></td>`);
 
 
-        row.append(`<td class="profile-name">${profiles[i].name}</td>`);
+        row.append(`<td data-index="${i}" class="profile-name editable" contenteditable="true">${profiles[i].name}</td>`);
 
         // Don't show down arrow if it's already on bottom
         if(i < profiles.length - 1) row.append(`<td data-index="${i}" data-direction="down" class="small-cell sort-profile">${arrowDown}</td>`);
