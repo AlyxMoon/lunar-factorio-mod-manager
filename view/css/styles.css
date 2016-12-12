@@ -79,7 +79,6 @@ table {
     font-size: 12px;
 }
 td {
-    cursor: pointer;
     vertical-align: middle;
 }
 tr {
@@ -88,6 +87,10 @@ tr {
 #tbl-mod-info td {
     cursor: text;
     -webkit-user-select: text;
+}
+
+table#profiles-list .glyphicon {
+    cursor: pointer;
 }
 
 td.small-cell {
@@ -104,7 +107,7 @@ td.small-cell {
     margin: 10px 5px;
 }
 
-input[type=checkbox] {
+input[type=checkbox], input[type=radio] {
     width: 15px;
     height: 15px;
     margin: 1px 0 0;
@@ -122,6 +125,9 @@ input[type=checkbox] {
 }
 .height-75 {
     height: 75%;
+}
+.height-50 {
+    height: 50%;
 }
 .height-25 {
     height: 25%;
@@ -146,6 +152,10 @@ input[type=checkbox] {
 
 .red {
     color: red;
+}
+
+.editable {
+    cursor: text;
 }
 
 .temporary {

@@ -100,9 +100,9 @@ appMessager.on('newProfile', function(event) {
     }
 });
 
-appMessager.on('activateProfile', function(event, profileName) {
+appMessager.on('activateProfile', function(event, index) {
     try {
-        profileManager.activateProfile(profileName);
+        profileManager.activateProfile(index);
         event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
         event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
     }
@@ -112,9 +112,9 @@ appMessager.on('activateProfile', function(event, profileName) {
     }
 });
 
-appMessager.on('renameProfile', function(event, newName) {
+appMessager.on('renameProfile', function(event, index, newName) {
     try {
-        profileManager.renameActiveProfile(newName);
+        profileManager.renameProfile(index, newName);
         event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
         event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
     }
@@ -124,9 +124,9 @@ appMessager.on('renameProfile', function(event, newName) {
     }
 });
 
-appMessager.on('deleteProfile', function(event) {
+appMessager.on('deleteProfile', function(event, index) {
     try {
-        profileManager.deleteActiveProfile(modManager.getInstalledModNames());
+        profileManager.deleteProfile(index, modManager.getInstalledModNames());
         event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
         event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
     }
@@ -136,9 +136,9 @@ appMessager.on('deleteProfile', function(event) {
     }
 });
 
-appMessager.on('sortProfile', function(event, direction) {
+appMessager.on('sortProfile', function(event, index, direction) {
     try {
-        profileManager.moveActiveProfile(direction);
+        profileManager.moveProfile(index, direction);
         event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
     }
     catch(error) {
