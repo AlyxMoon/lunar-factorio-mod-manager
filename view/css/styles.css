@@ -36,7 +36,7 @@ body {
 #header {
     height: 8%;
 }
-#main-view {
+.main-view {
     height: 88%;
 }
 #footer {
