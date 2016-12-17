@@ -46,6 +46,12 @@ $('button#page-about').click(function() {
 //---------------------------------------------------------
 //---------------------------------------------------------
 $(document).ready(function() {
+    messager.send('requestAllProfiles');
+    messager.send('requestActiveProfile');
+
+    messager.send('requestInstalledMods');
+    messager.send('requestOnlineMods');
+
     messager.send('requestModFetchStatus');
     messager.send('requestPlayerInfo');
     messager.send('requestFactorioVersion');

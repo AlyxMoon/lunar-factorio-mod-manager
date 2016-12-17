@@ -71,13 +71,6 @@ $(document).on('change', 'select', function() {
 
 //---------------------------------------------------------
 //---------------------------------------------------------
-$(document).ready(function() {
-    messager.send('requestFactorioVersion');
-    messager.send('requestPlayerInfo');
-    messager.send('requestInstalledMods');
-    messager.send('requestModFetchStatus');
-    messager.send('requestOnlineMods');
-});
 
 // Used as callback function
 // One argument, an array of strings, representing the names of online mods

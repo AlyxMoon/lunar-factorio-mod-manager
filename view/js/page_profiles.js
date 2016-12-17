@@ -48,10 +48,6 @@ $('button').click(function() { $(this).blur() });
 
 //---------------------------------------------------------
 //---------------------------------------------------------
-$(document).ready(function() {
-    messager.send('requestAllProfiles');
-    messager.send('requestActiveProfile');
-});
 
 // Used as callback function
 // One argument, an array of a single object containing:

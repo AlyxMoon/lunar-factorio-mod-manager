@@ -58,10 +58,6 @@ $(document).on('click', '.delete-sure', function() {
 
 //---------------------------------------------------------
 //---------------------------------------------------------
-$(document).ready(function() {
-    messager.send('requestInstalledMods');
-
-});
 
 // Used as callback function
 // One argument, an array of strings, representing the names of mods installed
