@@ -1,11 +1,28 @@
 const messager = require('electron').ipcRenderer;
 
+let allProfiles;
+let activeProfile;
+
 //---------------------------------------------------------
-// Event listeners for client and server events needed for all pages
+//---------------------------------------------------------
+// Event listeners for client and server events
 messager.on('ping', function(event, message) {
     console.log(message);
 });
 
+//------------------------------
+// Related to header
+$('button#start-factorio').click(function() {
+    messager.send('startGame');
+});
+
+$('button.changeView').click(function() {
+    let view = $(this).data('view');
+    changeView(view);
+});
+
+//------------------------------
+// Related to footer
 messager.on('dataModFetchStatus', function(event, loaded, page, pageCount) {
     if(!loaded) {
         window.setTimeout(() => {
@@ -17,6 +34,7 @@ messager.on('dataModFetchStatus', function(event, loaded, page, pageCount) {
     }
     showLoadingStatus(loaded, page, pageCount);
 });
+
 messager.on('dataPlayerInfo', function(event, username) {
     showPlayerInfo(username);
 });
@@ -25,14 +43,18 @@ messager.on('dataModDownloadStatus', function(event, status, modName) {
     showModDownloadStatus(status, modName);
 });
 
-$('button#start-factorio').click(function() {
-    messager.send('startGame');
+//------------------------------
+// Related to profiles
+messager.on('dataActiveProfile', function(event, profile) {
+    activeProfile = profile;
+    listActiveProfile()
 });
 
-$('button.changeView').click(function() {
-    let view = $(this).data('view');
-    changeView(view);
+messager.on('dataAllProfiles', function(event, profiles) {
+    allProfiles = profiles;
+    listAllProfiles()
 });
+
 //---------------------------------------------------------
 //---------------------------------------------------------
 $(document).ready(function() {
@@ -49,6 +71,103 @@ $(document).ready(function() {
     $(function () { $('[data-toggle="tooltip"]').tooltip() });
 });
 
+//---------------------------------------------------------
+//---------------------------------------------------------
+// Related to profiles
+
+function listActiveProfile() {
+    let table = $('table').filter('#active-profile');
+    let tableBody = table.find('tbody').empty();
+
+    table.find('th').text(activeProfile.name);
+
+    for(let i = 0, bound = activeProfile.mods.length; i < bound; i++) {
+        let mod = activeProfile.mods[i];
+
+        tableBody.append(
+            $('<tr />')
+                .addClass(() => {if(mod.enabled === 'false') return 'danger'})
+                .append(
+                    $('<td />')
+                        .addClass('small-cell')
+                        .append(
+                            $('<input type="checkbox" />')
+                                .addClass('checkbox')
+                                .data('index', i)
+                                .prop('checked', mod.enabled === "true")
+                        )
+                )
+                .append(
+                    $('<td />')
+                        .text(mod.name)
+                )
+        );
+    }
+};
+
+function listAllProfiles() {
+    let tableBody = $('table').filter('#profiles-list').find('tbody').empty();
+
+    for(let i = 0, bound = allProfiles.length; i < bound; i++) {
+        tableBody.append(
+            $('<tr />')
+                .addClass(() => {if(allProfiles[i].enabled) return 'info'})
+                .append(
+                    $('<td />')
+                        .addClass('small-cell')
+                        .append(
+                            $('<input type="radio" />')
+                                .attr('name', 'profileChoice')
+                                .data('index', i)
+                                .addClass(() => {if(allProfiles[i].enabled) return 'select-profile'})
+                                .prop('checked', allProfiles[i].enabled)
+                        )
+                )
+                .append(
+                    $('<td />')
+                        .addClass('profile-name editable')
+                        .data('index', i)
+                        .prop('contenteditable', true)
+                        .text(allProfiles[i].name)
+                )
+                .append(
+                    $('<td />')
+                        .addClass('small-cell sort-profile')
+                        .data('index', i)
+                        .data('direction', 'down')
+                        .append(() => {
+                            if(i < bound - 1) {
+                                return $('<span />')
+                                    .addClass('glyphicon glyphicon-arrow-down')
+                            }
+                        })
+                )
+                .append(
+                    $('<td />')
+                        .addClass('small-cell sort-profile')
+                        .data('index', i)
+                        .data('direction', 'up')
+                        .append(() => {
+                            if(i > 0) {
+                                return $('<span />')
+                                    .addClass('glyphicon glyphicon-arrow-up')
+                            }
+                        })
+                )
+                .append(
+                    $('<td />')
+                        .addClass('small-cell delete-profile')
+                        .data('index', i)
+                        .append(
+                            $('<span />')
+                                .addClass('glyphicon glyphicon-remove text-danger')
+                        )
+                )
+        );
+    }
+}
+
+//---------------------------------------------------------
 //---------------------------------------------------------
 // Misc logic and helpers
 

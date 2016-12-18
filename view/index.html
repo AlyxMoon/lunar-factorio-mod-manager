@@ -24,7 +24,10 @@
     <div id="profiles" class="main-view">
         <!-- First column, only shows active profile -->
         <div class="col-xs-6 height-100"><div class="view-section scroll height-100">
-            <table id="active-profile" class="table table-condensed table-hover"></table>
+            <table id="active-profile" class="table table-condensed table-hover">
+                <thead><tr class="bg-info"><th colspan="2"></th></tr></thead>
+                <tbody></tbody>
+            </table>
         </div></div> <!-- End of first column -->
 
         <!-- Second column, shows profile management options and list of profiles -->
@@ -156,5 +159,4 @@
     <script src='./js/jquery-3.1.0.min.js'></script>
     <script src='./js/bootstrap.min.js'></script>
     <script> require('./js/inc.js') </script>
-    <script> require('./js/page_profiles.js') </script>
 </html>
