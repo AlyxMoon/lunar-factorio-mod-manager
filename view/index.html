@@ -12,16 +12,16 @@
     <div id="header">
         <div id="pageButtons" class="btn-group" role="group" aria-label="...">
             <button type="button" id="start-factorio" class="btn btn-success">Start Factorio</button>
-            <button type="button" id="page-profiles" class="btn btn-primary" disabled="disabled">Profiles</button>
-            <button type="button" id="page-installedMods" class="btn btn-default">Installed Mods</button>
-            <button type="button" id="page-onlineMods" class="btn btn-default">Online Mods</button>
-            <button type="button" id="page-about" class="btn btn-default">About</button>
+            <button type="button" data-view="profiles" class="btn btn-primary changeView" disabled="disabled">Profiles</button>
+            <button type="button" data-view="installedMods" class="btn btn-default changeView">Installed Mods</button>
+            <button type="button" data-view="onlineMods" class="btn btn-default changeView">Online Mods</button>
+            <button type="button" data-view="about" class="btn btn-default changeView">About</button>
         </div>
         <hr>
     </div> <!-- End of the standard header -->
 
-    <!-- Main body section for data -->
-    <div id="page-profiles" class="main-view">
+    <!-- Profiles 'page' -->
+    <div id="profiles" class="main-view">
         <!-- First column, only shows active profile -->
         <div class="col-xs-6 height-100"><div class="view-section scroll height-100">
             <table id="active-profile" class="table table-condensed table-hover"></table>
@@ -44,7 +44,7 @@
     </div> <!-- End of the profiles 'page' -->
 
     <!-- Installed mods 'page' -->
-    <div id="page-installedMods" class="main-view">
+    <div id="installedMods" class="main-view">
         <!-- First column, the list of installed mods -->
         <div class="col-xs-6 height-100"><div class="view-section scroll height-100">
             <table id="mods-list" class="table table-condensed table-hover"></table>
@@ -59,7 +59,7 @@
     </div> <!-- End of installed mods 'page' -->
 
     <!-- Online Mods 'page' -->
-    <div id="page-onlineMods" class="main-view">
+    <div id="onlineMods" class="main-view">
         <!-- First column, the list of online mods (once polled from server) -->
         <div class="col-xs-5 height-100"><div class="view-section scroll height-100">
             <table id="mods-list" class="table table-condensed table-hover">
@@ -106,7 +106,7 @@
     </div> <!-- End of the online mods 'page' -->
 
     <!-- About 'page' -->
-    <div id="page-about" class="main-view">
+    <div id="about" class="main-view">
         <div class='container height-25'>
             <div class="col-xs-3 height-100">
                 <img src="./img/logo.svg" class="img-logo">

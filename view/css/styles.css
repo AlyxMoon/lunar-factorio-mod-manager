@@ -49,6 +49,10 @@ body {
 }
 
 /* --- Tertiary Layout Structure --- */
+#installedMods, #onlineMods, #about {
+    display: none;
+}
+
 .view-section {
 
     margin: 2px;

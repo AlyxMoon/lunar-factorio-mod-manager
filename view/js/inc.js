@@ -28,20 +28,10 @@ messager.on('dataModDownloadStatus', function(event, status, modName) {
 $('button#start-factorio').click(function() {
     messager.send('startGame');
 });
-$('button#page-profiles').click(function() {
-    messager.send('changePage', 'page_profiles');
-});
-$('button#page-installedMods').click(function() {
-    messager.send('changePage', 'page_installedMods');
-});
-$('button#page-onlineMods').click(function() {
-    messager.send('changePage', 'page_onlineMods');
-});
-$('button#page-config').click(function() {
-    messager.send('changePage', 'page_config');
-});
-$('button#page-about').click(function() {
-    messager.send('changePage', 'page_about');
+
+$('button.changeView').click(function() {
+    let view = $(this).data('view');
+    changeView(view);
 });
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -61,6 +51,17 @@ $(document).ready(function() {
 
 //---------------------------------------------------------
 // Misc logic and helpers
+
+function changeView(newView) {
+    let buttons = $('button.changeView');
+    let views = $('.main-view');
+
+    buttons.addClass('btn-default').removeClass('btn-primary').prop('disabled', false);
+    buttons.filter(`[data-view=${newView}]`).addClass('btn-primary').removeClass('btn-default').prop('disabled', true);
+
+    views.css('display', 'none');
+    views.filter(`#${newView}`).css('display', 'block');
+};
 
 function showLoadingStatus(loaded, page, pageCount) {
     if(loaded) {
