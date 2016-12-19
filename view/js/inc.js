@@ -55,6 +55,42 @@ messager.on('dataAllProfiles', function(event, profiles) {
     listAllProfiles()
 });
 
+$('table#active-profile').on('change', '.checkbox', function() {
+    toggleMod(this.checked, $(this).data('index'));
+});
+
+$('table#profiles-list').on('click', '.select-profile', function() {
+    console.log($(this).data('index'));
+    activateProfile($(this).data('index'));
+});
+
+$('table#profiles-list').on('click', '.sort-profile', function() {
+    sortProfile($(this).data('index'), $(this).data('direction'));
+});
+
+$('table#profiles-list').on('click', '.delete-profile', function() {
+    deleteProfile($(this).data('index'));
+});
+
+$('table#profiles-list').on('focusin', '.profile-name', function() {
+    $(this).keypress( (event) => {
+        if(event.which === 13) {
+            event.preventDefault();
+            $(this).blur();
+        }
+    });
+});
+$('table#profiles-list').on('focusout', '.profile-name', function() {
+    $(this).unbind('keypress');
+    let index = $(this).data('index');
+    let oldName = allProfiles[index].name;
+    let newName = $(this).text();
+
+    if(oldName !== newName) messager.send('renameProfile', index, newName);
+});
+
+$('.add-profile').click(profileNew);
+
 //---------------------------------------------------------
 //---------------------------------------------------------
 $(document).ready(function() {
@@ -117,9 +153,9 @@ function listAllProfiles() {
                         .addClass('small-cell')
                         .append(
                             $('<input type="radio" />')
-                                .attr('name', 'profileChoice')
+                                .attr('name', 'select-profile')
                                 .data('index', i)
-                                .addClass(() => {if(allProfiles[i].enabled) return 'select-profile'})
+                                .addClass(() => {if(!allProfiles[i].enabled) return 'select-profile'})
                                 .prop('checked', allProfiles[i].enabled)
                         )
                 )
@@ -165,7 +201,29 @@ function listAllProfiles() {
                 )
         );
     }
-}
+};
+
+function profileNew() {
+    messager.send('newProfile');
+};
+
+function deleteProfile(index) {
+    messager.send('deleteProfile', index);
+};
+
+function activateProfile(index) {
+    messager.send('activateProfile', index);
+};
+
+function sortProfile(index, direction) {
+    messager.send('sortProfile', index, direction);
+};
+
+function toggleMod(checked, index) {
+    let selectedRow = $('table#active-profile tbody tr').eq(index);
+    selectedRow.toggleClass('danger');
+    messager.send('toggleMod', selectedRow.children().eq(1).text());
+};
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -198,7 +256,7 @@ function showLoadingStatus(loaded, page, pageCount) {
             $('#modsLoadedStatus').html(`<span class="glyphicon glyphicon-refresh"></span>  Fetching Mods`);
         }
     }
-}
+};
 
 function showPlayerInfo(username) {
     let playerInfoTooltip = $('a#playerInfo');
@@ -216,7 +274,7 @@ function showPlayerInfo(username) {
         playerInfoText.text('Logged In');
         playerInfoTooltip.attr('data-original-title', titleText);
     }
-}
+};
 
 function showModDownloadStatus(status, modName) {
     let display = $('#modDownloadStatus');
@@ -231,4 +289,4 @@ function showModDownloadStatus(status, modName) {
     else if(status === "finished") {
         display.html('<span class="glyphicon glyphicon-ok"></span>  Finished mod download');
     }
-}
+};
