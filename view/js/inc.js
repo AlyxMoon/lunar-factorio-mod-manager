@@ -1,4 +1,5 @@
 const messager = require('electron').ipcRenderer;
+const shell = require('electron').shell;
 
 let allProfiles;
 let activeProfile;
@@ -80,6 +81,7 @@ $('table#profiles-list').on('focusin', '.profile-name', function() {
         }
     });
 });
+
 $('table#profiles-list').on('focusout', '.profile-name', function() {
     $(this).unbind('keypress');
     let index = $(this).data('index');
@@ -90,6 +92,18 @@ $('table#profiles-list').on('focusout', '.profile-name', function() {
 });
 
 $('.add-profile').click(profileNew);
+
+//------------------------------
+// Related to about page
+messager.on('dataAppVersionInfo', function(event, version, latestVersion, latestVersionLink) {
+    showAppVersion(version, latestVersion, latestVersionLink);
+});
+
+$("#about").on('click', 'a', function(event) {
+    event.preventDefault();
+    this.blur();
+    shell.openExternal($(this).attr('href'));
+});
 
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -103,6 +117,8 @@ $(document).ready(function() {
     messager.send('requestModFetchStatus');
     messager.send('requestPlayerInfo');
     messager.send('requestFactorioVersion');
+
+    messager.send('requestAppVersionInfo');
 
     $(function () { $('[data-toggle="tooltip"]').tooltip() });
 });
@@ -227,7 +243,36 @@ function toggleMod(checked, index) {
 
 //---------------------------------------------------------
 //---------------------------------------------------------
+// Related to about page
+
+function showAppVersion(version, latestVersion, latestVersionLink) {
+    $('#app-version').html(() => {
+        if(latestVersion && isVersionHigher(version, latestVersion)) {
+            return `${version} -- Latest: ${latestVersion} (<a id="app-version-link" href="${latestVersionLink}">View it here</a>)`;
+        }
+        else {
+            return `${version} -- Up to date`;
+        }
+    });
+};
+
+//---------------------------------------------------------
+//---------------------------------------------------------
 // Misc logic and helpers
+
+function isVersionHigher(currentVersion, checkedVersion) {
+    // Expecting version to be the following format: major.minor.patch
+    let version1 = currentVersion.split('.');
+    let version2 = checkedVersion.split('.');
+
+    for(i = 0; i < 3; i++) {
+        let temp1 = parseInt(version1[i]), temp2 = parseInt(version2[i]);
+        if(temp1 < temp2) return true;
+        else if(temp1 > temp2) return false;
+    }
+
+    return false;
+};
 
 function changeView(newView) {
     let buttons = $('button.changeView');
