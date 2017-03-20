@@ -480,7 +480,7 @@ function showOnlineModInfo () {
   let modID = $(this).attr('id')
   let mod
   for (let i = onlineMods.length - 1; i >= 0; i--) {
-    if (onlineMods[i]['id'] === modID) {
+    if (onlineMods[i]['id'] === Number(modID)) {
       mod = onlineMods[i]
       selectedOnlineMod = onlineMods[i]
       break
