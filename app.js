@@ -1,271 +1,252 @@
-//---------------------------------------------------------
+// ---------------------------------------------------------
 // Global Variable Declarations
-const path = require('path');
-const EventEmitter = require('events');
+const path = require('path')
 
-const electron = require('electron');
-const app = electron.app;
-const appMessager = electron.ipcMain;
+const electron = require('electron')
+const app = electron.app
+const appMessager = electron.ipcMain
 
-const AppManager = require('./lib/appManager.js');
-const ModManager = require('./lib/modManager.js');
-const ProfileManager = require('./lib/ProfileManager.js');
-const logger = require('./lib/logger.js');
+const AppManager = require('./lib/appManager.js')
+const ModManager = require('./lib/modManager.js')
+const ProfileManager = require('./lib/ProfileManager.js')
+const logger = require('./lib/logger.js')
 
-let appManager;
-let mainWindow;
-let profileManager;
-let modManager;
-//---------------------------------------------------------
-//---------------------------------------------------------
+let appManager
+let mainWindow
+let profileManager
+let modManager
+// ---------------------------------------------------------
+// ---------------------------------------------------------
 // Event listeners for application-related messages
 
-app.on('ready', init);
+app.on('ready', init)
 app.on('window-all-closed', function () {
-    if (process.platform !== 'darwin') {
-        appManager.closeProgram(app, profileManager);
-    }
-});
+  if (process.platform !== 'darwin') {
+    appManager.closeProgram(app, profileManager)
+  }
+})
 app.on('activate', function () {
-    if (mainWindow === null) {
-        mainWindow = appManager.createWindow();
-    }
-});
+  if (mainWindow === null) {
+    mainWindow = appManager.createWindow()
+  }
+})
 
-//---------------------------------------------------------
-//---------------------------------------------------------
+// ---------------------------------------------------------
+// ---------------------------------------------------------
 // Event listeners for client messages
 
-//------------------------------
+// ------------------------------
 // Handled by AppManager
-appMessager.on('requestAppConfig', function(event) {
-    logger.log(0, 'Event called: requestAppConfig');
-    event.sender.send('dataAppConfig', appManager.getAppConfig());
-});
+appMessager.on('requestAppConfig', function (event) {
+  logger.log(0, 'Event called: requestAppConfig')
+  event.sender.send('dataAppConfig', appManager.getAppConfig())
+})
 
-appMessager.on('requestAppVersionInfo', function(event) {
-    logger.log(0, 'Event called: requestAppVersionInfo');
+appMessager.on('requestAppVersionInfo', function (event) {
+  logger.log(0, 'Event called: requestAppVersionInfo')
 
-    let currentVersion  = appManager.getCurrentAppVersion();
-    let latestVersion   = appManager.getLatestAppVersion();
-    let versionLink     = appManager.getLatestAppVersionLink();
+  let currentVersion = appManager.getCurrentAppVersion()
+  let latestVersion = appManager.getLatestAppVersion()
+  let versionLink = appManager.getLatestAppVersionLink()
 
-    event.sender.send('dataAppVersionInfo', currentVersion, latestVersion, versionLink);
-});
+  event.sender.send('dataAppVersionInfo', currentVersion, latestVersion, versionLink)
+})
 
-appMessager.on('startGame', function(event) {
-    try {
-        appManager.startGame(app, profileManager);
-    }
-    catch(error) {
-        logger.log(4, `Error when starting Factorio: ${error}`);
-        app.exit(-1);
-    }
-});
+appMessager.on('startGame', function (event) {
+  try {
+    appManager.startGame(app, profileManager)
+  } catch (error) {
+    logger.log(4, `Error when starting Factorio: ${error}`)
+    app.exit(-1)
+  }
+})
 
-appMessager.on('updateConfig', function(event, data) {
-    appManager.config = data;
-});
+appMessager.on('updateConfig', function (event, data) {
+  appManager.config = data
+})
 
-//------------------------------
+// ------------------------------
 // Handled by ProfileManager
-appMessager.on('requestAllProfiles', function(event) {
-    logger.log(0, 'Event called: requestAllProfiles');
-    event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
-});
+appMessager.on('requestAllProfiles', function (event) {
+  logger.log(0, 'Event called: requestAllProfiles')
+  event.sender.send('dataAllProfiles', profileManager.getAllProfiles())
+})
 
-appMessager.on('requestActiveProfile', function(event) {
-    logger.log(0, 'Event called: requestActiveProfile');
-    event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
-});
+appMessager.on('requestActiveProfile', function (event) {
+  logger.log(0, 'Event called: requestActiveProfile')
+  event.sender.send('dataActiveProfile', profileManager.getActiveProfile())
+})
 
-appMessager.on('newProfile', function(event) {
-    try {
-        profileManager.createProfile(modManager.getInstalledModNames());
-        event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
-    }
-    catch(error) {
-        logger.log(4, `Error when creating new profile: ${error}`);
-        app.exit(-1);
-    }
-});
+appMessager.on('newProfile', function (event) {
+  try {
+    profileManager.createProfile(modManager.getInstalledModNames())
+    event.sender.send('dataAllProfiles', profileManager.getAllProfiles())
+  } catch (error) {
+    logger.log(4, `Error when creating new profile: ${error}`)
+    app.exit(-1)
+  }
+})
 
-appMessager.on('activateProfile', function(event, index) {
-    try {
-        profileManager.activateProfile(index);
-        event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
-        event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
-    }
-    catch(error) {
-        logger.log(4, `Error when activating a profile: ${error}`);
-        app.exit(-1);
-    }
-});
+appMessager.on('activateProfile', function (event, index) {
+  try {
+    profileManager.activateProfile(index)
+    event.sender.send('dataAllProfiles', profileManager.getAllProfiles())
+    event.sender.send('dataActiveProfile', profileManager.getActiveProfile())
+  } catch (error) {
+    logger.log(4, `Error when activating a profile: ${error}`)
+    app.exit(-1)
+  }
+})
 
-appMessager.on('renameProfile', function(event, index, newName) {
-    try {
-        profileManager.renameProfile(index, newName);
-        event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
-        event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
-    }
-    catch(error) {
-        logger.log(4, `Error when renaming a profile: ${error}`);
-        app.exit(-1);
-    }
-});
+appMessager.on('renameProfile', function (event, index, newName) {
+  try {
+    profileManager.renameProfile(index, newName)
+    event.sender.send('dataAllProfiles', profileManager.getAllProfiles())
+    event.sender.send('dataActiveProfile', profileManager.getActiveProfile())
+  } catch (error) {
+    logger.log(4, `Error when renaming a profile: ${error}`)
+    app.exit(-1)
+  }
+})
 
-appMessager.on('deleteProfile', function(event, index) {
-    try {
-        profileManager.deleteProfile(index, modManager.getInstalledModNames());
-        event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
-        event.sender.send('dataActiveProfile', profileManager.getActiveProfile());
-    }
-    catch(error) {
-        logger.log(4, `Error when deleting a profile: ${error}`);
-        app.exit(-1);
-    }
-});
+appMessager.on('deleteProfile', function (event, index) {
+  try {
+    profileManager.deleteProfile(index, modManager.getInstalledModNames())
+    event.sender.send('dataAllProfiles', profileManager.getAllProfiles())
+    event.sender.send('dataActiveProfile', profileManager.getActiveProfile())
+  } catch (error) {
+    logger.log(4, `Error when deleting a profile: ${error}`)
+    app.exit(-1)
+  }
+})
 
-appMessager.on('sortProfile', function(event, index, direction) {
-    try {
-        profileManager.moveProfile(index, direction);
-        event.sender.send('dataAllProfiles', profileManager.getAllProfiles());
-    }
-    catch(error) {
-        logger.log(4, `Error when sorting a profile: ${error}`);
-        app.exit(-1);
-    }
-});
+appMessager.on('sortProfile', function (event, index, direction) {
+  try {
+    profileManager.moveProfile(index, direction)
+    event.sender.send('dataAllProfiles', profileManager.getAllProfiles())
+  } catch (error) {
+    logger.log(4, `Error when sorting a profile: ${error}`)
+    app.exit(-1)
+  }
+})
 
-appMessager.on('toggleMod', function(event, modName) {
-    try {
-        profileManager.toggleMod(modName);
-    }
-    catch(error) {
-        logger.log(4, `Error when togging a mod: ${error}`);
-        app.exit(-1);
-    }
-});
+appMessager.on('toggleMod', function (event, modName) {
+  try {
+    profileManager.toggleMod(modName)
+  } catch (error) {
+    logger.log(4, `Error when togging a mod: ${error}`)
+    app.exit(-1)
+  }
+})
 
-//------------------------------
+// ------------------------------
 // Handled by ModManager
-appMessager.on('requestInstalledMods', function(event) {
-    logger.log(0, 'Event called: requestInstalledMods');
-    if(modManager) event.sender.send('dataInstalledMods', modManager.getInstalledMods());
-});
+appMessager.on('requestInstalledMods', function (event) {
+  logger.log(0, 'Event called: requestInstalledMods')
+  if (modManager) event.sender.send('dataInstalledMods', modManager.getInstalledMods())
+})
 
-appMessager.on('requestOnlineMods', function(event) {
-    logger.log(0, 'Event called: requestOnlineMods');
-    if(modManager) event.sender.send('dataOnlineMods', modManager.getOnlineMods());
-});
+appMessager.on('requestOnlineMods', function (event) {
+  logger.log(0, 'Event called: requestOnlineMods')
+  if (modManager) event.sender.send('dataOnlineMods', modManager.getOnlineMods())
+})
 
-appMessager.on('requestModFetchStatus', function(event) {
-    logger.log(0, 'Event called: requestModFetchStatus');
-    if(modManager) event.sender.send('dataModFetchStatus', modManager.areOnlineModsFetched(), modManager.getOnlineModFetchedCount(), modManager.getOnlineModCount());
-});
+appMessager.on('requestModFetchStatus', function (event) {
+  logger.log(0, 'Event called: requestModFetchStatus')
+  if (modManager) event.sender.send('dataModFetchStatus', modManager.areOnlineModsFetched(), modManager.getOnlineModFetchedCount(), modManager.getOnlineModCount())
+})
 
-appMessager.on('requestPlayerInfo', function(event) {
+appMessager.on('requestPlayerInfo', function (event) {
+  logger.log(0, 'Event called: requestPlayerInfo')
+  if (modManager) event.sender.send('dataPlayerInfo', modManager.getPlayerUsername())
+})
 
-    logger.log(0, 'Event called: requestPlayerInfo');
-    if(modManager) event.sender.send('dataPlayerInfo', modManager.getPlayerUsername());
-});
+appMessager.on('requestFactorioVersion', function (event) {
+  logger.log(0, 'Event called: requestFactorioVersion')
+  if (modManager) event.sender.send('dataFactorioVersion', modManager.getFactorioVersion())
+})
 
-appMessager.on('requestFactorioVersion', function(event) {
-    logger.log(0, 'Event called: requestFactorioVersion');
-    if(modManager) event.sender.send('dataFactorioVersion', modManager.getFactorioVersion());
-});
+appMessager.on('requestDownload', function (event, modID, modName) {
+  try {
+    modManager.initiateDownload(mainWindow, modID, modName)
+  } catch (error) {
+    logger.log(4, `Error when downloading a mod: ${error}`)
+    app.exit(-1)
+  }
+})
 
-appMessager.on('requestDownload', function(event, modID, modName) {
-    try {
-        modManager.initiateDownload(mainWindow, modID, modName);
-    }
-    catch(error) {
-        logger.log(4, `Error when downloading a mod: ${error}`);
-        app.exit(-1);
-    }
-});
+appMessager.on('deleteMod', function (event, modName, modVersion) {
+  modManager.deleteMod(modName, modVersion, function () {
+    event.sender.send('dataInstalledMods', modManager.getInstalledMods())
+    profileManager.removeDeletedMods(modManager.getInstalledModNames())
+  })
+})
 
-appMessager.on('deleteMod', function(event, modName, modVersion) {
-    modManager.deleteMod(modName, modVersion, function() {
-        event.sender.send('dataInstalledMods', modManager.getInstalledMods());
-        profileManager.removeDeletedMods(modManager.getInstalledModNames());
-    });
-
-});
-
-//---------------------------------------------------------
-//---------------------------------------------------------
+// ---------------------------------------------------------
+// ---------------------------------------------------------
 // Application management functions
 
-function init() {
+function init () {
+  let screenSize = electron.screen.getPrimaryDisplay().workAreaSize
 
+  try {
+    appManager = new AppManager(`${__dirname}/data/lmm_config.json`)
+  } catch (error) {
+    logger.log(4, `Error initializating App Manager. Error: ${error.message}`)
+    app.exit(-1)
+  }
 
-    let screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
+  let config = appManager.loadConfig(electron, screenSize.width, screenSize.height)
+  if (!config) app.exit(-1)
+
+  try {
+    let baseModPath = path.join(config.game_path, '..', '..', '..', 'data', 'base')
+    modManager = new ModManager(config.modlist_path, config.mod_directory_path, baseModPath, config.player_data_path)
+  } catch (error) {
+    logger.log(4, `Error creating Mod Manager class. Error: ${error.stack}`)
+    app.exit(-1)
+  }
+
+  modManager.loadInstalledMods((err) => {
+    if (err) {
+      logger.log(4, 'Error when loading installed mods')
+      app.exit(-1)
+    }
+
+    logger.log(1, 'Installed mods are loaded.')
+    try {
+      profileManager = new ProfileManager(`${__dirname}/data/lmm_profiles.json`, config.modlist_path)
+    } catch (error) {
+      logger.log(4, `Error creating Profile Manager class. Error: ${error.message}`)
+      app.exit(-1)
+    }
 
     try {
-        appManager = new AppManager(`${__dirname}/data/lmm_config.json`);
-    }
-    catch(error) {
-        logger.log(4, `Error initializating App Manager. Error: ${error.message}`);
-        app.exit(-1);
-    }
-
-    let config = appManager.loadConfig(electron, screenSize.width, screenSize.height);
-    if(!config) app.exit(-1);
-
-    try {
-        let baseModPath = path.join(config.game_path, '..', '..', '..', 'data', 'base');
-        modManager = new ModManager(config.modlist_path, config.mod_directory_path, baseModPath, config.player_data_path);
-    }
-    catch(error) {
-        logger.log(4, `Error creating Mod Manager class. Error: ${error.stack}`);
-        app.exit(-1);
+      mainWindow = appManager.createWindow(screenSize.width, screenSize.height)
+    } catch (error) {
+      logger.log(4, `Error creating the window. Error: ${error.message}`)
+      app.exit(-1)
     }
 
-    modManager.loadInstalledMods((err) => {
-        if(err) {
-            logger.log(4, 'Error when loading installed mods');
-            app.exit(-1);
-        }
+    mainWindow.webContents.session.on('will-download', function (event, item, webContents) {
+      modManager.manageDownload(item, webContents, profileManager)
+    })
+    mainWindow.on('resize', function (event) {
+      let newSize = mainWindow.getSize()
+      appManager.config.width = newSize[0]
+      appManager.config.height = newSize[1]
+    })
+    mainWindow.on('move', function (event) {
+      let newLoc = mainWindow.getPosition()
+      appManager.config.x_loc = newLoc[0]
+      appManager.config.y_loc = newLoc[1]
+    })
 
-        logger.log(1, 'Installed mods are loaded.');
-        try {
-            profileManager = new ProfileManager(`${__dirname}/data/lmm_profiles.json`, config.modlist_path);
-        }
-        catch(error) {
-            logger.log(4, `Error creating Profile Manager class. Error: ${error.message}`);
-            app.exit(-1);
-        }
+    profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
+    profileManager.removeDeletedMods(modManager.getInstalledModNames())
+    mainWindow.loadURL(`file://${__dirname}/view/index.html`)
+  })
 
-        try {
-            mainWindow = appManager.createWindow(screenSize.width, screenSize.height);
-        }
-        catch(error) {
-            logger.log(4, `Error creating the window. Error: ${error.message}`);
-            app.exit(-1);
-        }
-
-        mainWindow.webContents.session.on('will-download', function(event, item, webContents) {
-            modManager.manageDownload(item, webContents, profileManager);
-        });
-        mainWindow.on('resize', function(event) {
-            let newSize = mainWindow.getSize();
-            appManager.config.width = newSize[0];
-            appManager.config.height = newSize[1];
-        });
-        mainWindow.on('move', function(event) {
-            let newLoc = mainWindow.getPosition();
-            appManager.config.x_loc = newLoc[0];
-            appManager.config.y_loc = newLoc[1];
-        });
-
-
-        profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
-        profileManager.removeDeletedMods(modManager.getInstalledModNames());
-        mainWindow.loadURL(`file://${__dirname}/view/index.html`);
-    });
-
-    modManager.loadPlayerData();
-    modManager.fetchOnlineMods();
-
+  modManager.loadPlayerData()
+  modManager.fetchOnlineMods()
 }

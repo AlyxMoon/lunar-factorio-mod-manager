@@ -6,6 +6,7 @@
   "scripts": {
     "start": "electron .",
     "standard": "standard",
+    "standard:fix": "standard --fix",
     "test": "mocha test --compilers js:babel-core/register --recursive",
     "test:watch": "npm run test -- --watch",
     "clean": "rmdir /s /q dist",
