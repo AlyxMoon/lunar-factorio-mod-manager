@@ -50,12 +50,12 @@
     <div id="installedMods" class="main-view">
         <!-- First column, the list of installed mods -->
         <div class="col-xs-6 height-100"><div class="view-section scroll height-100">
-            <table id="mods-list" class="table table-condensed table-hover"></table>
+            <table id="installed-mods-list" class="table table-condensed table-hover"></table>
         </div></div> <!-- End of first column -->
 
         <!-- Second column, shows info on a selected mod -->
         <div class="col-xs-6 height-100"><div class="view-section scroll height-100">
-            <table id="mod-info" class="table table-bordered">
+            <table id="installed-mod-info" class="table table-bordered">
                 <thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead> <!-- Filler text before data is received -->
             </table>
         </div></div> <!-- End of second column -->
@@ -65,7 +65,7 @@
     <div id="onlineMods" class="main-view">
         <!-- First column, the list of online mods (once polled from server) -->
         <div class="col-xs-5 height-100"><div class="view-section scroll height-100">
-            <table id="mods-list" class="table table-condensed table-hover">
+            <table id="online-mods-list" class="table table-condensed table-hover">
                 <tr><td>Currently polling the mod portal...</td></tr> <!-- Filler text while mods are being polled -->
             </table>
         </div></div> <!-- End of first column -->
@@ -101,7 +101,7 @@
 
             <!-- Sub-section, shows info on selected mod -->
             <div class="view-section scroll height-90">
-                <table id="mod-info" class="table table-bordered">
+                <table id="online-mod-info" class="table table-bordered">
                     <thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead> <!-- Filler text before data is received -->
                 </table>
             </div> <!-- End of mod info sub-section -->
