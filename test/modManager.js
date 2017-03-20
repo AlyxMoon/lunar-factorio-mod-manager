@@ -14,7 +14,7 @@ describe('Mod Manager', function() {
     var playerDataPath = path.join('aPath', 'otherFile.json');
 
     beforeEach(function() {
-        sinon.stub(logger, 'log', function() {});
+        sinon.stub(logger, 'log').callsFake(function() {});
     });
     afterEach(function() {
         logger.log.restore();
@@ -360,5 +360,5 @@ describe('Mod Manager', function() {
             expect(modManager.getOnlineModNames()).to.eql(['testMod10', 'testMod20']);
         });
     });
-    
+
 });
