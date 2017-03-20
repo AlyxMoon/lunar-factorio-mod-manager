@@ -63,16 +63,6 @@ appMessager.on('startGame', function(event) {
     }
 });
 
-appMessager.on('changePage', function(event, newPage) {
-    try {
-        appManager.loadPage(mainWindow, newPage, profileManager, modManager);
-    }
-    catch(error) {
-        logger.log(4, `Error when changing the page: ${error}`);
-        app.exit(-1);
-    }
-});
-
 appMessager.on('updateConfig', function(event, data) {
     appManager.config = data;
 });
@@ -272,7 +262,7 @@ function init() {
 
         profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames());
         profileManager.removeDeletedMods(modManager.getInstalledModNames());
-        appManager.loadPage(mainWindow, 'page_profiles', profileManager, modManager);
+        mainWindow.loadURL(`file://${__dirname}/view/index.html`);
     });
 
     modManager.loadPlayerData();

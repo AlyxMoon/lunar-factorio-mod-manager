@@ -36,7 +36,7 @@ body {
 #header {
     height: 8%;
 }
-#main-view {
+.main-view {
     height: 88%;
 }
 #footer {
@@ -49,6 +49,10 @@ body {
 }
 
 /* --- Tertiary Layout Structure --- */
+#installedMods, #onlineMods, #about {
+    display: none;
+}
+
 .view-section {
 
     margin: 2px;
