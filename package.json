@@ -10,10 +10,10 @@
     "test": "mocha test --compilers js:babel-core/register --recursive",
     "test:watch": "npm run test -- --watch",
     "clean": "rmdir /s /q dist",
-    "package:win": "electron-packager . --overwrite --platform=win32 --arch=all --out=dist --ignore=test --ignore=data/* --ignore=.babelrc --ignore=.gitignore --ignore=README.md",
-    "package:mac": "electron-packager . --overwrite --platform=darwin --arch=all --out=dist --ignore=test --ignore=data/* --ignore=.babelrc --ignore=.gitignore --ignore=README.md",
-    "package:linux": "electron-packager . --overwrite --platform=linux --arch=all--out=dist --ignore=test --ignore=data/* --ignore=.babelrc --ignore=.gitignore --ignore=README.md",
-    "package": "npm run package:win && npm run package:mac && npm run package:linux"
+    "package:win": "electron-packager . --overwrite --prune=true --platform=win32 --arch=all --out=dist --icon=assets/icons/icon.ico --ignore=test --ignore=data/* --ignore=.gitignore --ignore=README.md",
+    "package:mac": "electron-packager . --overwrite --prune=true --platform=darwin --arch=all --out=dist --icon=assets/icons/icon.icns --ignore=test --ignore=data/* --ignore=.gitignore --ignore=README.md",
+    "package:linux": "electron-packager . --overwrite --prune=true --platform=linux --arch=all--out=dist --icon=assets/icons/icon.png --ignore=test --ignore=data/* --ignore=.gitignore --ignore=README.md",
+    "package:all": "npm run package:win && npm run package:mac && npm run package:linux"
   },
   "keywords": [
     "Factorio",
