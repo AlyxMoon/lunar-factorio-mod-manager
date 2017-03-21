@@ -1,6 +1,7 @@
 // ---------------------------------------------------------
 // Global Variable Declarations
 const path = require('path')
+const fs = require('fs')
 
 const electron = require('electron')
 const app = electron.app
@@ -168,10 +169,9 @@ appMessager.on('requestFactorioVersion', function (event) {
 
 appMessager.on('requestDownload', function (event, modID, modName) {
   try {
-    modManager.initiateDownload(mainWindow, modID, modName)
+    manageModDownload(modID, modName)
   } catch (error) {
     logger.log(4, `Error when downloading a mod: ${error}`)
-    app.exit(-1)
   }
 })
 
@@ -228,9 +228,6 @@ function init () {
       app.exit(-1)
     }
 
-    mainWindow.webContents.session.on('will-download', function (event, item, webContents) {
-      modManager.manageDownload(item, webContents, profileManager)
-    })
     mainWindow.on('resize', function (event) {
       let newSize = mainWindow.getSize()
       appManager.config.width = newSize[0]
@@ -249,4 +246,42 @@ function init () {
 
   modManager.loadPlayerData()
   modManager.fetchOnlineMods()
+}
+
+function manageModDownload (modID, modLink) {
+  logger.log(1, `Attempting to download mod, link: ${modLink}`)
+  modManager.getDownloadInfo(modID, modLink, (error, downloadLink, modName, modIndex) => {
+    if (error) logger.log(2, 'Error attempting to download a mod', error)
+
+    if (downloadLink) {
+      mainWindow.webContents.session.once('will-download', (event, item, webContents) => {
+        item.setSavePath(`${modManager.getModDirectoryPath()}/${item.getFilename()}`)
+
+        item.once('done', (event, state) => {
+          if (state === 'completed') {
+            logger.log(1, `Downloaded mod ${modName} successfully`)
+            webContents.send('dataModDownloadStatus', 'finished')
+
+            if (modIndex !== undefined) {
+              let mod = modManager.getInstalledMods()[modIndex]
+              fs.unlinkSync(`${modManager.getModDirectoryPath()}/${mod.name}_${mod.version}.zip`)
+              logger.log(1, 'Deleted mod at: ' + `${modManager.getModDirectoryPath()}/${mod.name}_v${mod.version}.zip`)
+            }
+
+            modManager.loadInstalledMods(() => {
+              profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
+              webContents.send('dataAllProfiles', profileManager.getAllProfiles())
+              webContents.send('dataActiveProfile', profileManager.getActiveProfile())
+              webContents.send('dataInstalledMods', modManager.getInstalledMods())
+            })
+          } else {
+            logger.log(2, `Download failed: ${state}`)
+          }
+        })
+      })
+
+      mainWindow.webContents.send('dataModDownloadStatus', 'starting', modName)
+      mainWindow.webContents.downloadURL(downloadLink)
+    }
+  })
 }

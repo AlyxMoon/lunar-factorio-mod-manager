@@ -62,11 +62,11 @@ messager.on('dataAllProfiles', function (event, profiles) {
 messager.on('dataInstalledMods', function (event, mods) {
   installedMods = mods
   listInstalledMods()
+  if (onlineMods) checkModVersions()
 })
 
 messager.on('dataFactorioVersion', function (event, version) {
   factorioVersion = version
-  console.log(factorioVersion)
 })
 
 messager.on('dataOnlineMods', function (event, mods) {
@@ -134,12 +134,6 @@ $('.add-profile').click(profileNew)
 // ------------------------------
 // Related to installed mods page
 $(document).on('click', 'table#installed-mods-list tbody tr', requestInstalledModInfo)
-
-$(document).on('click', '.download-mod', function () {
-  let id = $(this).data('id')
-  let url = $(this).data('url')
-  messager.send('requestDownload', id, url)
-})
 
 $(document).on('click', '.delete', function () {
   $(this).text('Are you sure?')
