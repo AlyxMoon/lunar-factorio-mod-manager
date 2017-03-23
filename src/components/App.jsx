@@ -2,7 +2,7 @@ import React from 'react'
 import {BrowserRouter} from 'react-router-dom'
 
 export default React.createClass({
-  render: function() {
+  render: function () {
     return (
       <BrowserRouter>
         <div>
