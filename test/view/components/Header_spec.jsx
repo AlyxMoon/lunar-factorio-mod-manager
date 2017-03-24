@@ -9,9 +9,10 @@ import {
   Simulate
 } from 'react-addons-test-utils'
 import Sinon from 'sinon'
+import {fromJS} from 'immutable'
 import {expect} from 'chai'
 
-import {Header} from '../../src/components/Header'
+import {Header} from '../../../src/components/Header'
 
 describe('Components - Header', () => {
   it('renders without exploding', () => {
@@ -24,7 +25,7 @@ describe('Components - Header', () => {
   })
 
   it('renders list of navigation links', () => {
-    const routes = [
+    const routes = fromJS([
       {
         name: 'home',
         pathname: '/'
@@ -33,7 +34,7 @@ describe('Components - Header', () => {
         name: 'page1',
         pathname: '/page1'
       }
-    ]
+    ])
     const component = renderIntoDocument(
       <MemoryRouter>
         <Header routes={routes} />

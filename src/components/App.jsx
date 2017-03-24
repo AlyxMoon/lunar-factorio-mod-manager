@@ -1,16 +1,16 @@
 import React from 'react'
 import {MemoryRouter, Route} from 'react-router-dom'
+import PureRenderMixin from 'react-addons-pure-render-mixin'
+import {connect} from 'react-redux'
 
-import {Header} from './Header'
+import {HeaderContainer} from './Header'
 
 export const App = React.createClass({
-  propTypes: {
-    routes: React.PropTypes.array.isRequired
-  },
+  mixins: [PureRenderMixin],
 
-  getInitialState () {
+  getDefaultProps () {
     return {
-      routes: this.props.routes
+      routes: []
     }
   },
 
@@ -18,13 +18,22 @@ export const App = React.createClass({
     return (
       <MemoryRouter>
         <div>
-          <Header routes={this.state.routes} />
-
-          {this.state.routes.map((route, key) => (
-            <Route key={key} exact path={route.pathname} component={route.component} />
+          <HeaderContainer />
+          {this.props.routes.map((route, key) => (
+            <Route key={key} exact path={route.get('pathname')} component={route.get('component')} />
           ))}
         </div>
       </MemoryRouter>
     )
   }
 })
+
+function mapStateToProps (state) {
+  return {
+    routes: state.get('routes')
+  }
+}
+
+export const AppContainer = connect(
+  mapStateToProps
+)(App)
