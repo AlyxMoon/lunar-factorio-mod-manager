@@ -1,14 +1,30 @@
 import React from 'react'
-import {BrowserRouter} from 'react-router-dom'
+import {MemoryRouter, Route} from 'react-router-dom'
 
-export default React.createClass({
-  render: function () {
+import {Header} from './Header'
+
+export const App = React.createClass({
+  propTypes: {
+    routes: React.PropTypes.array.isRequired
+  },
+
+  getInitialState () {
+    return {
+      routes: this.props.routes
+    }
+  },
+
+  render () {
     return (
-      <BrowserRouter>
+      <MemoryRouter>
         <div>
-          {this.props.children}
+          <Header routes={this.state.routes} />
+
+          {this.state.routes.map((route, key) => (
+            <Route key={key} exact path={route.pathname} component={route.component} />
+          ))}
         </div>
-      </BrowserRouter>
+      </MemoryRouter>
     )
   }
 })
