@@ -1,6 +1,7 @@
 import {Map} from 'immutable'
 
 import * as Profiles from './profiles'
+import * as InstalledMods from './installedMods'
 
 export default function reducer (state = Map(), action) {
   switch (action.type) {
@@ -24,6 +25,13 @@ export default function reducer (state = Map(), action) {
       return Profiles.moveProfileDown(state, action.index)
     case 'TOGGLE_MOD_STATUS':
       return Profiles.toggleModStatus(state, action.profileIndex, action.modIndex)
+
+    case 'SET_INSTALLED_MODS':
+      return InstalledMods.setInstalledMods(state, action.installedMods)
+    case 'SET_SELECTED_INSTALLED_MOD':
+      return InstalledMods.setSelectedInstalledMod(state, action.selectedInstalledMod)
+    case 'DELETE_INSTALLED_MOD':
+      return InstalledMods.deleteInstalledMod(state, action.index)
   }
   return state
 }

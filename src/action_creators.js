@@ -67,3 +67,24 @@ export function toggleModStatus (profileIndex, modIndex) {
     modIndex
   }
 }
+
+export function setInstalledMods (installedMods) {
+  return {
+    type: 'SET_INSTALLED_MODS',
+    installedMods
+  }
+}
+
+export function setSelectedInstalledMod (selectedInstalledMod) {
+  return {
+    type: 'SET_SELECTED_INSTALLED_MOD',
+    selectedInstalledMod
+  }
+}
+
+export function deleteInstalledMod (index) {
+  return {
+    type: 'DELETE_INSTALLED_MOD',
+    index
+  }
+}

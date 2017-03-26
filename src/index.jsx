@@ -4,7 +4,14 @@ import {createStore} from 'redux'
 import {Provider} from 'react-redux'
 
 import reducer from './reducer'
-import {setRoutes, setActiveTab, setProfiles, setActiveProfile} from './action_creators'
+import {
+  setRoutes,
+  setActiveTab,
+  setProfiles,
+  setActiveProfile,
+  setInstalledMods,
+  setSelectedInstalledMod
+} from './action_creators'
 
 import {routes} from './routes.js'
 import {AppContainer} from './components/App'
@@ -14,6 +21,7 @@ store.dispatch(setRoutes(routes))
 store.dispatch(setActiveTab(routes[0].pathname))
 
 // Placeholder data until app is hooked up fully
+const activeProfile = 0
 const profiles = [
   {
     name: 'Profile1',
@@ -28,9 +36,31 @@ const profiles = [
     mods: [{ name: 'Mod5', enabled: true }, { name: 'Mod6', enabled: false }]
   }
 ]
-const activeProfile = 0
+
+const selectedInstalledMod = 0
+const installedMods = [
+  {
+    name: 'Mod1',
+    version: '1.0.0',
+    factorio_version: '0.14',
+    author: 'Placeholder author',
+    contact: 'somecontact@email.com',
+    homepage: 'www.definitelyarealhomepage.com',
+    dependencies: ['base >= 0.14.0', 'Mod2'],
+    description: 'This mod does stuff'
+  },
+  {
+    name: 'Mod2',
+    version: '0.9.0',
+    dependencies: 'Just one dependency'
+  }
+]
+
 store.dispatch(setProfiles(profiles))
 store.dispatch(setActiveProfile(activeProfile))
+
+store.dispatch(setInstalledMods(installedMods))
+store.dispatch(setSelectedInstalledMod(selectedInstalledMod))
 
 ReactDOM.render((
   <Provider store={store}>

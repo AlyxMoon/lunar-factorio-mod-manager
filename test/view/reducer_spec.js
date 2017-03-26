@@ -2,12 +2,12 @@ import {expect} from 'chai'
 import {Map, fromJS} from 'immutable'
 
 import reducer from '../../src/reducer'
+import * as actionCreators from '../../src/action_creators'
 
 describe('client-side reducer', () => {
   it('has an initial state', () => {
     const routes = [{name: 'Profiles', pathname: '/'}]
-    const action = {type: 'SET_ROUTES', routes: routes}
-    const nextState = reducer(undefined, action)
+    const nextState = reducer(undefined, actionCreators.setRoutes(routes))
     expect(nextState).to.equal(fromJS({
       routes: [{name: 'Profiles', pathname: '/'}]
     }))
@@ -18,8 +18,7 @@ describe('client-side reducer', () => {
     const state = fromJS({
       routes: [{name: 'Profiles', pathname: '/'}]
     })
-    const action = {type: 'SET_ROUTES', routes: fullRoutes}
-    const nextState = reducer(state, action)
+    const nextState = reducer(state, actionCreators.setRoutes(fullRoutes))
     expect(nextState).to.equal(fromJS({
       routes: [{name: 'Profiles', pathname: '/'}, {name: 'About', pathname: '/about'}]
     }))
@@ -27,8 +26,7 @@ describe('client-side reducer', () => {
 
   it('handles SET_ACTIVE_TAB', () => {
     const state = fromJS({activeTab: 'profiles'})
-    const action = {type: 'SET_ACTIVE_TAB', tab: 'installedMods'}
-    const nextState = reducer(state, action)
+    const nextState = reducer(state, actionCreators.setActiveTab('installedMods'))
     expect(nextState).to.equal(fromJS({
       activeTab: 'installedMods'
     }))
@@ -39,8 +37,7 @@ describe('client-side reducer', () => {
       { name: 'Profile1' },
       { name: 'Profile2' }
     ]
-    const action = {type: 'SET_PROFILES', profiles: profiles}
-    const nextState = reducer(Map(), action)
+    const nextState = reducer(Map(), actionCreators.setProfiles(profiles))
     expect(nextState).to.equal(fromJS({
       profiles: [{ name: 'Profile1' }, { name: 'Profile2' }]
     }))
@@ -50,8 +47,7 @@ describe('client-side reducer', () => {
     const state = fromJS({
       profiles: [{ name: 'Profile1' }]
     })
-    const action = {type: 'SET_ACTIVE_PROFILE', activeProfile: 0}
-    const nextState = reducer(state, action)
+    const nextState = reducer(state, actionCreators.setActiveProfile(0))
     expect(nextState).to.equal(fromJS({
       profiles: [{ name: 'Profile1' }],
       activeProfile: 0
@@ -62,8 +58,7 @@ describe('client-side reducer', () => {
     const state = fromJS({
       profiles: [{ name: 'Profile1' }]
     })
-    const action = {type: 'ADD_PROFILE'}
-    const nextState = reducer(state, action)
+    const nextState = reducer(state, actionCreators.addProfile())
     expect(nextState).to.equal(fromJS({
       profiles: [{ name: 'Profile1' }, { name: 'New Profile' }]
     }))
@@ -73,8 +68,7 @@ describe('client-side reducer', () => {
     const state = fromJS({
       profiles: [{ name: 'Profile1' }, { name: 'Profile2' }]
     })
-    const action = {type: 'RENAME_PROFILE', index: 0, name: 'Awesome Profile'}
-    const nextState = reducer(state, action)
+    const nextState = reducer(state, actionCreators.renameProfile(0, 'Awesome Profile'))
     expect(nextState).to.equal(fromJS({
       profiles: [{ name: 'Awesome Profile' }, { name: 'Profile2' }]
     }))
@@ -84,8 +78,7 @@ describe('client-side reducer', () => {
     const state = fromJS({
       profiles: [{ name: 'Profile1' }, { name: 'Profile2' }]
     })
-    const action = {type: 'DELETE_PROFILE', index: 0}
-    const nextState = reducer(state, action)
+    const nextState = reducer(state, actionCreators.deleteProfile(0))
     expect(nextState).to.equal(fromJS({
       profiles: [{ name: 'Profile2' }]
     }))
@@ -96,8 +89,7 @@ describe('client-side reducer', () => {
       profiles: [{ name: 'Profile1' }, { name: 'Profile2' }, { name: 'Profile3' }],
       activeProfile: 1
     })
-    const action = {type: 'MOVE_PROFILE_UP', index: 1}
-    const nextState = reducer(state, action)
+    const nextState = reducer(state, actionCreators.moveProfileUp(1))
     expect(nextState).to.equal(fromJS({
       profiles: [{ name: 'Profile2' }, { name: 'Profile1' }, { name: 'Profile3' }],
       activeProfile: 0
@@ -109,8 +101,7 @@ describe('client-side reducer', () => {
       profiles: [{ name: 'Profile1' }, { name: 'Profile2' }, { name: 'Profile3' }],
       activeProfile: 1
     })
-    const action = {type: 'MOVE_PROFILE_DOWN', index: 1}
-    const nextState = reducer(state, action)
+    const nextState = reducer(state, actionCreators.moveProfileDown(1))
     expect(nextState).to.equal(fromJS({
       profiles: [{ name: 'Profile1' }, { name: 'Profile3' }, { name: 'Profile2' }],
       activeProfile: 2
@@ -124,13 +115,43 @@ describe('client-side reducer', () => {
         mods: [{ name: 'Mod1', enabled: true }]
       }]
     })
-    const action = {type: 'TOGGLE_MOD_STATUS', profileIndex: 0, modIndex: 0}
-    const nextState = reducer(state, action)
+    const nextState = reducer(state, actionCreators.toggleModStatus(0, 0))
     expect(nextState).to.equal(fromJS({
       profiles: [{
         name: 'Profile1',
         mods: [{ name: 'Mod1', enabled: false }]
       }]
+    }))
+  })
+
+  it('handles SET_INSTALLED_MODS', () => {
+    const mods = fromJS([
+      { name: 'Mod1' }, { name: 'Mod2' }
+    ])
+    const nextState = reducer(Map(), actionCreators.setInstalledMods(mods))
+    expect(nextState).to.equal(fromJS({
+      installedMods: [{ name: 'Mod1' }, { name: 'Mod2' }]
+    }))
+  })
+
+  it('handles SET_SELECTED_INSTALLED_MOD', () => {
+    const state = fromJS({
+      installedMods: [{ name: 'Mod1' }, { name: 'Mod2' }]
+    })
+    const nextState = reducer(state, actionCreators.setSelectedInstalledMod(0))
+    expect(nextState).to.equal(fromJS({
+      installedMods: [{ name: 'Mod1' }, { name: 'Mod2' }],
+      selectedInstalledMod: 0
+    }))
+  })
+
+  it('handles DELETE_INSTALLED_MOD', () => {
+    const state = fromJS({
+      installedMods: [{ name: 'Mod1' }, { name: 'Mod2' }]
+    })
+    const nextState = reducer(state, actionCreators.deleteInstalledMod(0))
+    expect(nextState).to.equal(fromJS({
+      installedMods: [{ name: 'Mod2' }]
     }))
   })
 })
