@@ -14,43 +14,43 @@ export const InstalledModDetailedView = React.createClass({
     return (
       <div className='installedModDetailedView'>
         {mod ? (
-          <Table condensed>
+          <Table responsive bordered condensed>
             <thead>
               <tr className='selectedInstalledModName'>
-                <th colSpan='2'>
+                <th className='bg-primary' colSpan='2'>
                   {mod.get('name')}
                   <Button
                     bsStyle='danger'
                     className='deleteInstalledMod'
                     onClick={() => deleteInstalledMod(selectedInstalledMod)}
-                  >Delete Mod</Button>
+                  >Delete</Button>
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr className='selectedInstalledModVersion'>
-                <td>Version</td>
+                <th>Version</th>
                 <td>{mod.get('version')}</td>
               </tr>
               <tr className='selectedInstalledModFactorioVersion'>
-                <td>Factorio Version</td>
+                <th>Factorio Version</th>
                 <td>{mod.get('factorio_version')}</td>
               </tr>
               <tr className='selectedInstalledModAuthor'>
-                <td>Author</td>
+                <th>Author</th>
                 <td>{mod.get('author')}</td>
               </tr>
               <tr className='selectedInstalledModContact'>
-                <td>Contact</td>
+                <th>Contact</th>
                 <td>{mod.get('contact')}</td>
               </tr>
               <tr className='selectedInstalledModHomepage'>
-                <td>Homepage</td>
+                <th>Homepage</th>
                 <td>{mod.get('homepage')}</td>
               </tr>
               {this.getDependencyList().map((dependency, key) => (
                 <tr key={key} className='selectedInstalledModDependency'>
-                  <td>{key === 0 ? 'Depdendencies' : ''}</td>
+                  <th>{key === 0 ? 'Dependencies' : ''}</th>
                   <td>{dependency}</td>
                 </tr>
               ))}

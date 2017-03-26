@@ -29,16 +29,9 @@ export const Profiles = React.createClass({
 
   render () {
     return (
-      <Grid className='profiles'>
+      <Grid bsClass='container-fluid' className='profiles'>
         <Row>
-          <Col xs={6}>
-            <ProfileDetailedView
-              profile={this.props.profiles.get(this.props.activeProfile)}
-              activeProfile={this.props.activeProfile}
-              toggleModStatus={this.props.toggleModStatus}
-            />
-          </Col>
-          <Col xs={6}>
+          <Col xs={6} md={4}>
             <ProfileListView
               profiles={this.props.profiles}
               activeProfile={this.props.activeProfile}
@@ -48,6 +41,13 @@ export const Profiles = React.createClass({
               moveProfileDown={this.props.moveProfileDown}
               deleteProfile={this.props.deleteProfile}
               setActiveProfile={this.props.setActiveProfile}
+            />
+          </Col>
+          <Col xs={6} md={8}>
+            <ProfileDetailedView
+              profile={this.props.profiles.get(this.props.activeProfile)}
+              activeProfile={this.props.activeProfile}
+              toggleModStatus={this.props.toggleModStatus}
             />
           </Col>
         </Row>

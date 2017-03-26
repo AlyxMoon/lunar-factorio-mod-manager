@@ -5,6 +5,10 @@ th {
   text-align: center;
 }
 
+tbody > tr > th {
+  text-align: left;
+}
+
 .deleteInstalledMod {
   float: right;
   vertical-align: text-bottom;

@@ -24,16 +24,16 @@ export const InstalledMods = React.createClass({
 
   render () {
     return (
-      <Grid className='installedMods'>
+      <Grid bsClass='container-fluid' className='installedMods'>
         <Row>
-          <Col xs={6}>
+          <Col xs={6} md={4}>
             <InstalledModListView
               installedMods={this.props.installedMods}
               selectedInstalledMod={this.props.selectedInstalledMod}
               setSelectedInstalledMod={this.props.setSelectedInstalledMod}
             />
           </Col>
-          <Col xs={6}>
+          <Col xs={6} md={8}>
             <InstalledModDetailedView
               mod={this.props.installedMods.get(this.props.selectedInstalledMod)}
               selectedInstalledMod={this.props.selectedInstalledMod}
