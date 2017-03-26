@@ -1,13 +1,13 @@
-import {Profiles} from './components/Profiles'
-import {InstalledMods} from './components/InstalledMods'
-import {OnlineMods} from './components/OnlineMods'
-import {About} from './components/About'
+import {ProfilesContainer} from './components/Profiles/Profiles'
+import {InstalledMods} from './components/InstalledMods/InstalledMods'
+import {OnlineMods} from './components/OnlineMods/OnlineMods'
+import {About} from './components/About/About'
 
 export const routes = [
   {
     name: 'Profiles',
     pathname: '/',
-    component: Profiles
+    component: ProfilesContainer
   },
   {
     name: 'Installed Mods',

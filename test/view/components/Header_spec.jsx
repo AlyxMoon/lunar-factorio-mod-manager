@@ -12,7 +12,7 @@ import Sinon from 'sinon'
 import {fromJS} from 'immutable'
 import {expect} from 'chai'
 
-import {Header} from '../../../src/components/Header'
+import {Header} from '../../../src/components/Header/Header'
 
 describe('Components - Header', () => {
   it('renders without exploding', () => {

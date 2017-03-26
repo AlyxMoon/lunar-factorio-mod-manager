@@ -10,3 +10,60 @@ export function setActiveTab (tab) {
     tab
   }
 }
+
+export function setProfiles (profiles) {
+  return {
+    type: 'SET_PROFILES',
+    profiles
+  }
+}
+
+export function setActiveProfile (activeProfile) {
+  return {
+    type: 'SET_ACTIVE_PROFILE',
+    activeProfile
+  }
+}
+
+export function addProfile () {
+  return {
+    type: 'ADD_PROFILE'
+  }
+}
+
+export function renameProfile (index, name) {
+  return {
+    type: 'RENAME_PROFILE',
+    index,
+    name
+  }
+}
+
+export function deleteProfile (index) {
+  return {
+    type: 'DELETE_PROFILE',
+    index
+  }
+}
+
+export function moveProfileUp (index) {
+  return {
+    type: 'MOVE_PROFILE_UP',
+    index
+  }
+}
+
+export function moveProfileDown (index) {
+  return {
+    type: 'MOVE_PROFILE_DOWN',
+    index
+  }
+}
+
+export function toggleModStatus (profileIndex, modIndex) {
+  return {
+    type: 'TOGGLE_MOD_STATUS',
+    profileIndex,
+    modIndex
+  }
+}

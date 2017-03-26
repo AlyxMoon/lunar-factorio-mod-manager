@@ -11,7 +11,8 @@ describe('coding style', function () {
   }))
 
   it('client-side code conforms to standard', standard.files([
-    'src/**/*.jsx'
+    'src/**/**/*.jsx',
+    'src/**/**/*.js'
   ]))
 
   it('tests conform to standard', standard.files([

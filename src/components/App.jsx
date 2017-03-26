@@ -3,7 +3,7 @@ import {MemoryRouter, Route} from 'react-router-dom'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {connect} from 'react-redux'
 
-import {HeaderContainer} from './Header'
+import {HeaderContainer} from './Header/Header'
 
 export const App = React.createClass({
   mixins: [PureRenderMixin],

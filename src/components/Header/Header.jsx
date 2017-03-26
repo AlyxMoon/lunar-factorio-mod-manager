@@ -3,8 +3,8 @@ import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {connect} from 'react-redux'
 import {Nav, Button, ButtonGroup} from 'react-bootstrap'
 
-import * as actionCreators from '../action_creators'
-import {NavItemLink} from './NavItemLink'
+import * as actionCreators from '../../action_creators'
+import {NavItemLink} from './components/NavItemLink'
 
 export const Header = React.createClass({
   mixins: [PureRenderMixin],
