@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {createStore} from 'redux'
+import {createStore, applyMiddleware} from 'redux'
 import {Provider} from 'react-redux'
 
 import reducer from './reducer'
@@ -10,13 +10,20 @@ import {
   setProfiles,
   setActiveProfile,
   setInstalledMods,
-  setSelectedInstalledMod
+  setSelectedInstalledMod,
+  setAppCurrentVersion,
+  setAppLatestVersion
 } from './action_creators'
 
 import {routes} from './routes.js'
 import {AppContainer} from './components/App'
+import openLinkMiddleware from './openLinkMiddleware'
 
-const store = createStore(reducer)
+const createStoreWithMiddleware = applyMiddleware(
+    openLinkMiddleware
+)(createStore)
+const store = createStoreWithMiddleware(reducer)
+
 store.dispatch(setRoutes(routes))
 store.dispatch(setActiveTab(routes[0].pathname))
 
@@ -61,6 +68,9 @@ store.dispatch(setActiveProfile(activeProfile))
 
 store.dispatch(setInstalledMods(installedMods))
 store.dispatch(setSelectedInstalledMod(selectedInstalledMod))
+
+store.dispatch(setAppCurrentVersion('1.0.0'))
+store.dispatch(setAppLatestVersion('2.0.0'))
 
 ReactDOM.render((
   <Provider store={store}>

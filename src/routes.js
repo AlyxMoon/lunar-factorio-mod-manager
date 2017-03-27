@@ -1,7 +1,7 @@
 import {ProfilesContainer} from './components/Profiles/Profiles'
 import {InstalledModsContainer} from './components/InstalledMods/InstalledMods'
 import {OnlineMods} from './components/OnlineMods/OnlineMods'
-import {About} from './components/About/About'
+import {AboutContainer} from './components/About/About'
 
 export const routes = [
   {
@@ -22,6 +22,6 @@ export const routes = [
   {
     name: 'About',
     pathname: '/about',
-    component: About
+    component: AboutContainer
   }
 ]

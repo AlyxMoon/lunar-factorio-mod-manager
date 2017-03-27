@@ -1,0 +1,12 @@
+$image-height: 200px;
+
+.img-logo {
+  height: $image-height;
+  width: 100%;
+}
+
+.externalLink {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}

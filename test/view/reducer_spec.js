@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+
 import {expect} from 'chai'
 import {Map, fromJS} from 'immutable'
 
@@ -152,6 +154,20 @@ describe('client-side reducer', () => {
     const nextState = reducer(state, actionCreators.deleteInstalledMod(0))
     expect(nextState).to.equal(fromJS({
       installedMods: [{ name: 'Mod2' }]
+    }))
+  })
+
+  it('handles SET_APP_CURRENT_VERSION', () => {
+    const nextState = reducer(Map(), actionCreators.setAppCurrentVersion('1.0.0'))
+    expect(nextState).to.equal(fromJS({
+      appCurrentVersion: '1.0.0'
+    }))
+  })
+
+  it('handles SET_APP_LATEST_VERSION', () => {
+    const nextState = reducer(Map(), actionCreators.setAppLatestVersion('1.0.0'))
+    expect(nextState).to.equal(fromJS({
+      appLatestVersion: '1.0.0'
     }))
   })
 })

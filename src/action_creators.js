@@ -88,3 +88,25 @@ export function deleteInstalledMod (index) {
     index
   }
 }
+
+export function setAppCurrentVersion (version) {
+  return {
+    type: 'SET_APP_CURRENT_VERSION',
+    version
+  }
+}
+
+export function setAppLatestVersion (version) {
+  return {
+    type: 'SET_APP_LATEST_VERSION',
+    version
+  }
+}
+
+export function openExternalLink (link) {
+  return {
+    meta: { isExternalLink: true },
+    type: 'OPEN_EXTERNAL_LINK',
+    link
+  }
+}

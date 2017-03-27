@@ -2,6 +2,7 @@ import {Map} from 'immutable'
 
 import * as Profiles from './profiles'
 import * as InstalledMods from './installedMods'
+import * as About from './about'
 
 export default function reducer (state = Map(), action) {
   switch (action.type) {
@@ -32,6 +33,11 @@ export default function reducer (state = Map(), action) {
       return InstalledMods.setSelectedInstalledMod(state, action.selectedInstalledMod)
     case 'DELETE_INSTALLED_MOD':
       return InstalledMods.deleteInstalledMod(state, action.index)
+
+    case 'SET_APP_CURRENT_VERSION':
+      return About.setAppCurrentVersion(state, action.version)
+    case 'SET_APP_LATEST_VERSION':
+      return About.setAppLatestVersion(state, action.version)
   }
   return state
 }
