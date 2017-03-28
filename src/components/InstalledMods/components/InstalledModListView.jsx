@@ -6,7 +6,7 @@ export const InstalledModListView = React.createClass({
     let {installedMods, selectedInstalledMod, setSelectedInstalledMod} = this.props
     return (
       <div className='installedModsList'>
-        <Table hover condensed bordered>
+        <Table hover condensed bordered responsive>
           <thead>
             <tr className='bg-primary'>
               <th colSpan='2'>All Installed Mods</th>

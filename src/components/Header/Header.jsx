@@ -6,6 +6,8 @@ import {Nav, Button, ButtonGroup} from 'react-bootstrap'
 import * as actionCreators from '../../action_creators'
 import {NavItemLink} from './components/NavItemLink'
 
+require('./style.scss')
+
 export const Header = React.createClass({
   mixins: [PureRenderMixin],
 

@@ -5,7 +5,7 @@ export const ProfileListView = React.createClass({
   render () {
     return (
       <div className='profileList'>
-        <Table condensed bordered>
+        <Table condensed bordered responsive>
           <thead>
             <tr className='bg-primary'>
               <th>

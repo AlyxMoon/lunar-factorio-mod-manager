@@ -5,6 +5,8 @@ import {connect} from 'react-redux'
 
 import {HeaderContainer} from './Header/Header'
 
+require('./style.scss')
+
 export const App = React.createClass({
   mixins: [PureRenderMixin],
 
@@ -19,9 +21,11 @@ export const App = React.createClass({
       <MemoryRouter>
         <div>
           <HeaderContainer />
-          {this.props.routes.map((route, key) => (
-            <Route key={key} exact path={route.get('pathname')} component={route.get('component')} />
-          ))}
+          <div className='content'>
+            {this.props.routes.map((route, key) => (
+              <Route key={key} exact path={route.get('pathname')} component={route.get('component')} />
+            ))}
+          </div>
         </div>
       </MemoryRouter>
     )

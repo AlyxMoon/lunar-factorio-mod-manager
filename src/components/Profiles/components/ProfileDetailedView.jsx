@@ -5,7 +5,7 @@ export const ProfileDetailedView = React.createClass({
   render () {
     return (
       <div className='activeProfileDetails'>
-        <Table condensed bordered>
+        <Table condensed bordered responsive>
           <thead>
             <tr className='bg-primary'>
               <th className='activeProfileName'>{this.props.profile.get('name')}</th>
