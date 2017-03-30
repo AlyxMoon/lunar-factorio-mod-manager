@@ -12,7 +12,8 @@ import {
   setInstalledMods,
   setSelectedInstalledMod,
   setAppCurrentVersion,
-  setAppLatestVersion
+  setAppLatestVersion,
+  setPlayerName
 } from './action_creators'
 
 import {routes} from './routes.js'
@@ -71,6 +72,8 @@ store.dispatch(setSelectedInstalledMod(selectedInstalledMod))
 
 store.dispatch(setAppCurrentVersion('1.0.0'))
 store.dispatch(setAppLatestVersion('2.0.0'))
+
+store.dispatch(setPlayerName('Alyx DeLunar'))
 
 ReactDOM.render((
   <Provider store={store}>

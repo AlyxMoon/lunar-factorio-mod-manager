@@ -4,6 +4,7 @@ import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {connect} from 'react-redux'
 
 import {HeaderContainer} from './Header/Header'
+import {FooterContainer} from './Footer/Footer'
 
 require('./style.scss')
 
@@ -26,6 +27,7 @@ export const App = React.createClass({
               <Route key={key} exact path={route.get('pathname')} component={route.get('component')} />
             ))}
           </div>
+          <FooterContainer />
         </div>
       </MemoryRouter>
     )

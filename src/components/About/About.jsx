@@ -1,6 +1,6 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import {Grid, Row, Col, Clearfix} from 'react-bootstrap'
+import {Grid, Row, Col} from 'react-bootstrap'
 
 import * as actionCreators from '../../action_creators'
 
@@ -27,7 +27,6 @@ export const About = React.createClass({
             <Col xs={5} sm={4} md={2} lg={2}>
               <img src='./img/logo.svg' className='img-logo' />
             </Col>
-            {/* <Clearfix visibleSmBlock visibleMdBlock visibleXsBlock visibleLgBlock></Clearfix> */}
             <Col xs={7} sm={8} md={10} lg={10}>
               <h3>Lunar's Factorio Mod Manager</h3>
               <h4>By: Allister Moon</h4>

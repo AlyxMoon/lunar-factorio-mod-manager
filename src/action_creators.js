@@ -110,3 +110,17 @@ export function openExternalLink (link) {
     link
   }
 }
+
+export function setPlayerName (playerName) {
+  return {
+    type: 'SET_PLAYER_NAME',
+    playerName
+  }
+}
+
+export function setOnlineModsFetchedCount (onlineModsFetchedCount) {
+  return {
+    type: 'SET_ONLINE_MODS_FETCHED_COUNT',
+    onlineModsFetchedCount
+  }
+}

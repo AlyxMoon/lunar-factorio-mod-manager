@@ -3,6 +3,7 @@ import {Map} from 'immutable'
 import * as Profiles from './profiles'
 import * as InstalledMods from './installedMods'
 import * as About from './about'
+import * as Footer from './footer'
 
 export default function reducer (state = Map(), action) {
   switch (action.type) {
@@ -38,6 +39,11 @@ export default function reducer (state = Map(), action) {
       return About.setAppCurrentVersion(state, action.version)
     case 'SET_APP_LATEST_VERSION':
       return About.setAppLatestVersion(state, action.version)
+
+    case 'SET_PLAYER_NAME':
+      return Footer.setPlayerName(state, action.playerName)
+    case 'SET_ONLINE_MODS_FETCHED_COUNT':
+      return Footer.setOnlineModsFetchedCount(state, action.onlineModsFetchedCount)
   }
   return state
 }

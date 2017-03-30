@@ -170,4 +170,18 @@ describe('client-side reducer', () => {
       appLatestVersion: '1.0.0'
     }))
   })
+
+  it('handles SET_PLAYER_NAME', () => {
+    const nextState = reducer(Map(), actionCreators.setPlayerName('Alyx'))
+    expect(nextState).to.equal(fromJS({
+      playerName: 'Alyx'
+    }))
+  })
+
+  it('handles SET_ONLINE_MODS_FETCHED_COUNT', () => {
+    const nextState = reducer(Map(), actionCreators.setOnlineModsFetchedCount(5))
+    expect(nextState).to.equal(fromJS({
+      onlineModsFetchedCount: 5
+    }))
+  })
 })
