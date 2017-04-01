@@ -9,7 +9,7 @@ const appMessager = electron.ipcMain
 
 const AppManager = require('./lib/appManager.js')
 const ModManager = require('./lib/modManager.js')
-const ProfileManager = require('./lib/ProfileManager.js')
+const ProfileManager = require('./lib/profileManager.js')
 const logger = require('./lib/logger.js')
 
 let appManager
@@ -188,9 +188,14 @@ appMessager.on('deleteMod', function (event, modName, modVersion) {
 
 function init () {
   let screenSize = electron.screen.getPrimaryDisplay().workAreaSize
+  let configDir = path.join(`${__dirname}`, `data`);
+
+  if (!fs.existsSync(configDir)){
+      fs.mkdirSync(configDir);
+  }
 
   try {
-    appManager = new AppManager(`${__dirname}/data/lmm_config.json`)
+    appManager = new AppManager(path.join(configDir, `lmm_config.json`))
   } catch (error) {
     logger.log(4, `Error initializating App Manager. Error: ${error.message}`)
     app.exit(-1)
@@ -215,7 +220,7 @@ function init () {
 
     logger.log(1, 'Installed mods are loaded.')
     try {
-      profileManager = new ProfileManager(`${__dirname}/data/lmm_profiles.json`, config.modlist_path)
+      profileManager = new ProfileManager(path.join(`${__dirname}`, `data`, `lmm_profiles.json`), config.modlist_path)
     } catch (error) {
       logger.log(4, `Error creating Profile Manager class. Error: ${error.message}`)
       app.exit(-1)
