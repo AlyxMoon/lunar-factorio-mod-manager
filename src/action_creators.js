@@ -140,9 +140,10 @@ export function setSelectedOnlineMod (index, releaseIndex) {
   }
 }
 
-export function setOnlineModFilter (filterOption) {
+export function setOnlineModFilter (filterKey, filterOption) {
   return {
     type: 'SET_ONLINE_MOD_FILTER',
+    filterKey,
     filterOption
   }
 }

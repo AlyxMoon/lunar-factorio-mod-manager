@@ -215,9 +215,9 @@ describe('client-side reducer', () => {
   })
 
   it('handles SET_ONLINE_MOD_FILTER', () => {
-    const nextState = reducer(Map(), actionCreators.setOnlineModFilter('all'))
+    const nextState = reducer(Map(), actionCreators.setOnlineModFilter('installStatus', 'all'))
     expect(nextState).to.equal(fromJS({
-      onlineModFilter: 'all'
+      onlineModFilters: { installStatus: 'all' }
     }))
   })
 

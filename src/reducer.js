@@ -41,7 +41,7 @@ export default function reducer (state = Map(), action) {
     case 'SET_SELECTED_ONLINE_MOD':
       return OnlineMods.setSelectedOnlineMod(state, action.index, action.releaseIndex)
     case 'SET_ONLINE_MOD_FILTER':
-      return OnlineMods.setOnlineModFilter(state, action.filterOption)
+      return OnlineMods.setOnlineModFilter(state, action.filterKey, action.filterOption)
     case 'SET_ONLINE_MOD_SORT':
       return OnlineMods.setOnlineModSort(state, action.sortOption, action.direction)
 

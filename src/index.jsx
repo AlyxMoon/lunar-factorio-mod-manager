@@ -16,7 +16,6 @@ import {
   setPlayerName,
   setOnlineMods,
   setSelectedOnlineMod,
-  setOnlineModFilter,
   setOnlineModSort
 } from './action_creators'
 
@@ -75,7 +74,6 @@ const installedMods = [
   }
 ]
 
-const onlineModFilter = 'all'
 const onlineModSort = ['name', 'ascending']
 const selectedOnlineMod = [0, 0]
 const onlineMods = [
@@ -415,7 +413,6 @@ store.dispatch(setSelectedInstalledMod(selectedInstalledMod))
 
 store.dispatch(setOnlineMods(onlineMods))
 store.dispatch(setSelectedOnlineMod(selectedOnlineMod[0], selectedOnlineMod[0]))
-store.dispatch(setOnlineModFilter(onlineModFilter))
 store.dispatch(setOnlineModSort(onlineModSort[0], onlineModSort[1]))
 
 store.dispatch(setAppCurrentVersion('1.0.0'))

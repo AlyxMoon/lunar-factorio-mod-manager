@@ -112,4 +112,28 @@ describe('Components - OnlineMods', () => {
     expect(callback.callCount).to.equal(1)
     expect(callback.calledWith(42, '/api/downloads/blahblahblah.zip')).to.be.true
   })
+
+  it('invokes callback when setOnlineModSort element is clicked', () => {
+    const callback = Sinon.spy()
+    const component = renderIntoDocument(
+      <MemoryRouter>
+        <OnlineMods setOnlineModSort={callback} />
+      </MemoryRouter>
+    )
+    const buttons = scryRenderedDOMComponentsWithClass(component, 'setOnlineModSort')
+    Simulate.click(buttons[0].children[0])
+    expect(callback.callCount).to.equal(1)
+  })
+
+  it('invokes callback when setOnlineModFilter element is clicked', () => {
+    const callback = Sinon.spy()
+    const component = renderIntoDocument(
+      <MemoryRouter>
+        <OnlineMods setOnlineModFilter={callback} />
+      </MemoryRouter>
+    )
+    const buttons = scryRenderedDOMComponentsWithClass(component, 'setOnlineModFilter')
+    Simulate.click(buttons[0].children[0])
+    expect(callback.callCount).to.equal(1)
+  })
 })

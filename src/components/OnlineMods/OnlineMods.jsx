@@ -5,6 +5,7 @@ import {List, Map} from 'immutable'
 import {Grid, Row, Col} from 'react-bootstrap'
 
 import * as actionCreators from '../../action_creators'
+import {getSortedMods, getFilteredMods} from '../../onlineMods'
 import {OnlineModListView} from './components/OnlineModListView'
 import {OnlineModDetailedView} from './components/OnlineModDetailedView'
 
@@ -17,10 +18,12 @@ export const OnlineMods = React.createClass({
     return {
       onlineMods: List.of(Map()),
       selectedOnlineMod: List.of(0, 0),
-      filterBy: 'all',
+      filterBy: List(),
       sortBy: List.of('name', 'ascending'),
       setSelectedOnlineMod: () => {},
-      requestDownload: () => {}
+      requestDownload: () => {},
+      setOnlineModSort: () => {},
+      setOnlineModFilter: () => {}
     }
   },
 
@@ -35,6 +38,8 @@ export const OnlineMods = React.createClass({
               filterBy={this.props.filterBy}
               sortBy={this.props.sortBy}
               setSelectedOnlineMod={this.props.setSelectedOnlineMod}
+              setOnlineModSort={this.props.setOnlineModSort}
+              setOnlineModFilter={this.props.setOnlineModFilter}
             />
           </Col>
           <Col xs={6} md={8}>
@@ -53,9 +58,9 @@ export const OnlineMods = React.createClass({
 
 function mapStateToProps (state) {
   return {
-    onlineMods: state.get('onlineMods'),
+    onlineMods: getSortedMods(getFilteredMods(state), state.get('onlineModSort')),
     selectedOnlineMod: state.get('selectedOnlineMod'),
-    filterBy: state.get('onlineModFilter'),
+    filterBy: state.get('onlineModFilters'),
     sortBy: state.get('onlineModSort')
   }
 }
