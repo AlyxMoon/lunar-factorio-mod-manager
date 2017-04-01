@@ -184,4 +184,47 @@ describe('client-side reducer', () => {
       onlineModsFetchedCount: 5
     }))
   })
+
+  it('handles SET_ONLINE_MODS', () => {
+    const onlineMods = fromJS([
+      { name: 'Mod1', version: '1.0.0' },
+      { name: 'Mod2', version: '1.1.0' }
+    ])
+    const nextState = reducer(Map(), actionCreators.setOnlineMods(onlineMods))
+    expect(nextState).to.equal(fromJS({
+      onlineMods: [
+        { name: 'Mod1', version: '1.0.0' },
+        { name: 'Mod2', version: '1.1.0' }
+      ]
+    }))
+  })
+
+  it('handles SET_SELECTED_ONLINE_MOD', () => {
+    const state = fromJS({
+      onlineMods: [
+        { name: 'Mod1', releases: [{ version: '1.0.0' }] }
+      ]
+    })
+    const nextState = reducer(state, actionCreators.setSelectedOnlineMod(0, 0))
+    expect(nextState).to.equal(fromJS({
+      onlineMods: [
+        { name: 'Mod1', releases: [{ version: '1.0.0' }] }
+      ],
+      selectedOnlineMod: [0, 0]
+    }))
+  })
+
+  it('handles SET_ONLINE_MOD_FILTER', () => {
+    const nextState = reducer(Map(), actionCreators.setOnlineModFilter('all'))
+    expect(nextState).to.equal(fromJS({
+      onlineModFilter: 'all'
+    }))
+  })
+
+  it('handles SET_ONLINE_MOD_SORT', () => {
+    const nextState = reducer(Map(), actionCreators.setOnlineModSort('downloads', 'ascending'))
+    expect(nextState).to.equal(fromJS({
+      onlineModSort: ['downloads', 'ascending']
+    }))
+  })
 })

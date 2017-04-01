@@ -39,8 +39,12 @@ describe('Components - InstalledMods', () => {
     const [mod1, mod2] = modsList.map(e => e.innerHTML)
 
     expect(modsList.length).to.equal(2)
-    expect(mod1).to.contain.all('Mod1', '1.0.0')
-    expect(mod2).to.contain.all('Mod2', '0.9.0')
+
+    expect(mod1).to.contain('Mod1')
+    expect(mod1).to.contain('1.0.0')
+
+    expect(mod2).to.contain('Mod2')
+    expect(mod2).to.contain('0.9.0')
   })
 
   it('invokes callback when setSelectedInstalledMod element is clicked', () => {

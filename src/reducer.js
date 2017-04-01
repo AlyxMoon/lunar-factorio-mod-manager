@@ -2,6 +2,7 @@ import {Map} from 'immutable'
 
 import * as Profiles from './profiles'
 import * as InstalledMods from './installedMods'
+import * as OnlineMods from './onlineMods'
 import * as About from './about'
 import * as Footer from './footer'
 
@@ -34,6 +35,15 @@ export default function reducer (state = Map(), action) {
       return InstalledMods.setSelectedInstalledMod(state, action.selectedInstalledMod)
     case 'DELETE_INSTALLED_MOD':
       return InstalledMods.deleteInstalledMod(state, action.index)
+
+    case 'SET_ONLINE_MODS':
+      return OnlineMods.setOnlineMods(state, action.onlineMods)
+    case 'SET_SELECTED_ONLINE_MOD':
+      return OnlineMods.setSelectedOnlineMod(state, action.index, action.releaseIndex)
+    case 'SET_ONLINE_MOD_FILTER':
+      return OnlineMods.setOnlineModFilter(state, action.filterOption)
+    case 'SET_ONLINE_MOD_SORT':
+      return OnlineMods.setOnlineModSort(state, action.sortOption, action.direction)
 
     case 'SET_APP_CURRENT_VERSION':
       return About.setAppCurrentVersion(state, action.version)

@@ -124,3 +124,42 @@ export function setOnlineModsFetchedCount (onlineModsFetchedCount) {
     onlineModsFetchedCount
   }
 }
+
+export function setOnlineMods (onlineMods) {
+  return {
+    type: 'SET_ONLINE_MODS',
+    onlineMods
+  }
+}
+
+export function setSelectedOnlineMod (index, releaseIndex) {
+  return {
+    type: 'SET_SELECTED_ONLINE_MOD',
+    index,
+    releaseIndex
+  }
+}
+
+export function setOnlineModFilter (filterOption) {
+  return {
+    type: 'SET_ONLINE_MOD_FILTER',
+    filterOption
+  }
+}
+
+export function setOnlineModSort (sortOption, direction) {
+  return {
+    type: 'SET_ONLINE_MOD_SORT',
+    sortOption,
+    direction
+  }
+}
+
+export function requestDownload (id, link) {
+  return {
+    meta: { requestDownload: true },
+    type: 'REQUEST_DOWNLOAD',
+    id,
+    link
+  }
+}
