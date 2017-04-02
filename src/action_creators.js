@@ -4,10 +4,18 @@ export function setRoutes (routes) {
     routes
   }
 }
+
 export function setActiveTab (tab) {
   return {
     type: 'SET_ACTIVE_TAB',
     tab
+  }
+}
+
+export function startFactorio () {
+  return {
+    meta: { sendToMain: true },
+    type: 'START_FACTORIO'
   }
 }
 
