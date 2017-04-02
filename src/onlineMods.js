@@ -58,7 +58,7 @@ export function getSortedMods (mods, sortBy) {
 }
 
 export function getFilteredMods (state) {
-  const mods = state.get('onlineMods')
+  const mods = state.get('onlineMods', List())
   const filterInstall = state.getIn(['onlineModFilters', 'installStatus'], 'all')
   const filterTag = state.getIn(['onlineModFilters', 'tag'], 'all')
 

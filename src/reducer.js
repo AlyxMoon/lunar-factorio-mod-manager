@@ -54,6 +54,10 @@ export default function reducer (state = Map(), action) {
       return Footer.setPlayerName(state, action.playerName)
     case 'SET_ONLINE_MODS_FETCHED_COUNT':
       return Footer.setOnlineModsFetchedCount(state, action.onlineModsFetchedCount)
+    case 'SET_ONLINE_MODS_COUNT':
+      return Footer.setOnlineModsCount(state, action.onlineModsCount)
+    case 'SET_FACTORIO_VERSION':
+      return Footer.setFactorioVersion(state, action.version)
   }
   return state
 }
