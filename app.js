@@ -11,6 +11,7 @@ const AppManager = require('./lib/appManager.js')
 const ModManager = require('./lib/modManager.js')
 const ProfileManager = require('./lib/profileManager.js')
 const logger = require('./lib/logger.js')
+const storage = require('electron-json-storage')
 
 let appManager
 let mainWindow
@@ -129,9 +130,9 @@ appMessager.on('sortProfile', function(event, index, direction) {
   }
 })
 
-appMessager.on('toggleMod', function(event, modName) {
+appMessager.on('toggleMod', function(event, profileIndex, modIndex) {
   try {
-    profileManager.toggleMod(modName)
+    profileManager.toggleMod(profileIndex, modIndex)
   } catch (error) {
     logger.log(4, `Error when togging a mod: ${error}`)
     app.exit(-1)
@@ -242,14 +243,14 @@ function init() {
         profileManager.removeDeletedMods(modManager.getInstalledModNames())
         mainWindow.loadURL(`file://${__dirname}/view/index.html`)
       }).catch((error) => {
-        logger.log(4, `Unhandled error saving config file. Error: ${error}`)
+        logger.log(4, `Unhandled error saving profileManager config file. Error: ${error}`)
       })
     })
 
     modManager.loadPlayerData()
     modManager.fetchOnlineMods()
   }).catch((error) => {
-    logger.log(4, `Unhandled error saving config file. Error: ${error}`)
+    logger.log(4, `Unhandled error saving appManager config file. Error: ${error}`)
   })
 }
 
