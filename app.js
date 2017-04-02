@@ -242,14 +242,14 @@ function init() {
         profileManager.removeDeletedMods(modManager.getInstalledModNames())
         mainWindow.loadURL(`file://${__dirname}/view/index.html`)
       }).catch((error) => {
-        logger.log(4, `Unhandled error saving config file. Error: ${error.message}`)
+        logger.log(4, `Unhandled error saving config file. Error: ${error}`)
       })
     })
 
     modManager.loadPlayerData()
     modManager.fetchOnlineMods()
   }).catch((error) => {
-    logger.log(4, `Unhandled error saving config file. Error: ${error.message}`)
+    logger.log(4, `Unhandled error saving config file. Error: ${error}`)
   })
 }
 
