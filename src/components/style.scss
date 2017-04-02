@@ -1,0 +1,26 @@
+html, body, div {
+  height: 100%;
+}
+
+.header {
+  height: 10%;
+}
+
+.content {
+  height: 86%;
+}
+
+.footer {
+  height: 3%;
+}
+
+.table-responsive {
+  overflow-y: auto;
+}
+
+// Had issues in About container with elements going wonky when div is set to height: 100%,
+// This fixes it. overflow-y was the answer, width is needed so overflow-y doesn't break more things
+.container-fluid {
+  width: 100%;
+  overflow-y: hidden;
+}

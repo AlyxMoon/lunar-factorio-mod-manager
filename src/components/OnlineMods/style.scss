@@ -1,0 +1,26 @@
+.onlineModListEntry {
+  cursor: pointer;
+}
+
+.onlineModListEntryLatestVersion {
+  float: right;
+}
+
+.selectedOnlineModDescription > td {
+  white-space: normal !important;
+}
+
+.requestDownload {
+  margin-left: 5px;
+  float: left;
+  cursor: pointer;
+}
+
+.sortAndFilterMods {
+  color: initial;
+  float: right;
+}
+
+.sortAndFilterMods a {
+  font-size: small;
+}

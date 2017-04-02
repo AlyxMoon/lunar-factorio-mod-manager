@@ -1,162 +1,17 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-    <title>Lunar's [Factorio] Mod Manager</title>
+  <title>Lunar's [Factorio] Mod Manager</title>
 
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="./css/bootstrap.min.css">
-    <link rel="stylesheet" href="./css/styles.css">
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="./css/bootstrap.min.css">
 </head>
 <body>
-    <!-- Standard header for every page in application -->
-    <div id="header">
-        <div id="pageButtons" class="btn-group" role="group" aria-label="...">
-            <button type="button" id="start-factorio" class="btn btn-success">Start Factorio</button>
-            <button type="button" data-view="profiles" class="btn btn-primary changeView" disabled="disabled">Profiles</button>
-            <button type="button" data-view="installedMods" class="btn btn-default changeView">Installed Mods</button>
-            <button type="button" data-view="onlineMods" class="btn btn-default changeView">Online Mods</button>
-            <button type="button" data-view="about" class="btn btn-default changeView">About</button>
-        </div>
-        <hr>
-    </div> <!-- End of the standard header -->
+  <div id="app"></div>
 
-    <!-- Profiles 'page' -->
-    <div id="profiles" class="main-view">
-        <!-- First column, only shows active profile -->
-        <div class="col-xs-6 height-100"><div class="view-section scroll height-100">
-            <table id="active-profile" class="table table-condensed table-hover">
-                <thead><tr class="bg-info"><th colspan="2"></th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div></div> <!-- End of first column -->
-
-        <!-- Second column, shows profile management options and list of profiles -->
-        <div class="col-xs-6 height-100">
-            <!-- Sub-section, shows the list of profiles and sorting options -->
-            <div class="view-section scroll height-50">
-                <!-- List of profiles -->
-                <table id="profiles-list" class="table table-condensed table-hover">
-                    <thead><tr class="bg-primary">
-                        <th><span class="glyphicon glyphicon-plus add-profile" aria-hidden="true"></span></th>
-                        <th colspan="4">Profiles:</th>
-                    </tr></thead>
-                    <tbody></tbody>
-                </table> <!-- End of profiles list -->
-            </div> <!-- End of the sub-section for profiles list and sorting options -->
-        </div> <!-- End of the second column -->
-    </div> <!-- End of the profiles 'page' -->
-
-    <!-- Installed mods 'page' -->
-    <div id="installedMods" class="main-view">
-        <!-- First column, the list of installed mods -->
-        <div class="col-xs-6 height-100"><div class="view-section scroll height-100">
-            <table id="installed-mods-list" class="table table-condensed table-hover"></table>
-        </div></div> <!-- End of first column -->
-
-        <!-- Second column, shows info on a selected mod -->
-        <div class="col-xs-6 height-100"><div class="view-section scroll height-100">
-            <table id="installed-mod-info" class="table table-bordered">
-                <thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead> <!-- Filler text before data is received -->
-            </table>
-        </div></div> <!-- End of second column -->
-    </div> <!-- End of installed mods 'page' -->
-
-    <!-- Online Mods 'page' -->
-    <div id="onlineMods" class="main-view">
-        <!-- First column, the list of online mods (once polled from server) -->
-        <div class="col-xs-5 height-100"><div class="view-section scroll height-100">
-            <table id="online-mods-list" class="table table-condensed table-hover">
-                <tr><td>Currently polling the mod portal...</td></tr> <!-- Filler text while mods are being polled -->
-            </table>
-        </div></div> <!-- End of first column -->
-
-        <!-- Second column, shows sorting/filtering options and info on a selected mod -->
-        <div class="col-xs-7 height-100">
-            <!-- Sub-section, shows mod sorting and filtering options -->
-            <div id="sorting-section" class="view-section height-10">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Sort By <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a href="#" id="alpha-asc" class="sort-mods">Alphabetically (Ascending)</a></li>
-                        <li><a href="#" id="alpha-desc" class="sort-mods">Alphabetically (Descending)</a></li>
-                        <li><a href="#" id="author-asc" class="sort-mods ">Mod Author (Ascending)</a></li>
-                        <li><a href="#" id="author-desc" class="sort-mods">Mod Author (Descending)</a></li>
-                        <li><a href="#" id="download-asc" class="sort-mods">Most Downloads</a></li>
-                        <li><a href="#" id="download-desc" class="sort-mods">Least Downloads</a></li>
-                        <li><a href="#" id="update-asc" class="sort-mods">Recently Updated</a></li>
-                        <li><a href="#" id="update-desc" class="sort-mods">Oldest Updated</a></li>
-                    </ul>
-                </div>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Filter By <span class="caret"></span>
-                    </button>
-                    <ul id="filter-menu" class="dropdown-menu">
-                        <li class="dropdown-header">Wait Until Mods Loaded</li>
-                    </ul>
-                </div>
-            </div> <!-- End of mod sorting/filtering sub-section -->
-
-            <!-- Sub-section, shows info on selected mod -->
-            <div class="view-section scroll height-90">
-                <table id="online-mod-info" class="table table-bordered">
-                    <thead><tr class="bg-warning"><th>Select a mod in the list to view info</th></tr></thead> <!-- Filler text before data is received -->
-                </table>
-            </div> <!-- End of mod info sub-section -->
-        </div> <!-- End of second column -->
-    </div> <!-- End of the online mods 'page' -->
-
-    <!-- About 'page' -->
-    <div id="about" class="main-view">
-        <div class='container height-25'>
-            <div class="col-xs-3 height-100">
-                <img src="./img/logo.svg" class="img-logo">
-            </div>
-            <div class="col-xs-8 height-100">
-                <p class="h3">Lunar's Mod Manager (LMM)</p>
-                <p class="h4">By: Allister Moon</p>
-                <hr>
-                <p class="h4">Version: <span id='app-version'></span></p>
-                <hr>
-            </div>
-        </div>
-        <div class='container scroll-vertical height-75'>
-            <h4>About LMM</h4>
-            <p>This is geared towards both modders and casual users alike. I want people like me (who end up using many mod configurations and messing with them on a regular basis) to easily manage mods. So you can spend less time managing mods and focus on the important part: playing with them.</p>
-
-            <h4>Helpful Links</h4>
-            <p><a href="https://mods.factorio.com">Official Mod Portal (Unaffiliated with this app)</a></p>
-            <p><a href="https://forums.factorio.com/viewtopic.php?f=137&t=30394">Check it out on the Factorio Forums</a></p>
-            <p><a href="https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager">Check it out on the Github Repo</a></p>
-            <p><a href="https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager/issues/new">Report an issue on the Github Repo</a></p>
-
-            <h4>Legal Stuff</h4>
-            <p>Copyright (c) 2016, Allister Moon</p>
-            <p>Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.</p>
-            <p>THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.</p>
-        </div>
-    </div> <!-- End of the about 'page' -->
-
-    <!-- Standard footer for every page in application -->
-    <div id="footer">
-        <hr>
-        <div class="footer-col">
-            <a href="#" id="playerInfo" data-toggle="tooltip">
-                <i class="glyphicon glyphicon-info-sign"></i>
-            </a>
-            <span id="playerInfoText"></span>
-        </div>
-        <div id="modsLoadedStatus" class="footer-col"></div>
-        <div id="modDownloadStatus" class="footer-col"></div>
-    </div> <!-- End of the standard footer -->
-
+  <!-- <script src="bundle.js"></script> -->
+  <!-- These used in development for quick reload of scripts with webpack-dev-server -->
+  <script src="http://localhost:8080/webpack-dev-server.js"></script>
+  <script src="http://localhost:8080/bundle.js"></script>
 </body>
-    <!-- Required for script imports  -->
-    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
-
-    <script src='./js/jquery-3.1.0.min.js'></script>
-    <script src='./js/bootstrap.min.js'></script>
-    <script> require('./js/inc.js') </script>
 </html>

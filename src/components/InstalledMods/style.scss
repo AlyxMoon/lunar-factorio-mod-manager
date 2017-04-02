@@ -1,0 +1,28 @@
+$spaceBetweenTableItems: 5px;
+$sectionPadding: 5px;
+
+th {
+  text-align: center;
+}
+
+tbody > tr > th {
+  text-align: left;
+}
+
+.deleteInstalledMod {
+  float: right;
+  vertical-align: text-bottom;
+}
+
+.installedModsList {
+  padding: $sectionPadding;
+}
+
+.installedModListEntry {
+  cursor: pointer;
+}
+
+.installedModListEntryVersion {
+  float: right;
+  margin-right: $spaceBetweenTableItems;
+}

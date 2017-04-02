@@ -2,6 +2,9 @@
 data
 dist
 
+# Compiled bundle from webpack
+bundle.js
+
 # Logs
 logs
 *.log
