@@ -187,7 +187,7 @@ appMessager.on('deleteMod', function(event, index) {
 
 function init() {
   let screenSize = electron.screen.getPrimaryDisplay().workAreaSize
-
+  
   try {
     appManager = new AppManager()
   } catch (error) {
