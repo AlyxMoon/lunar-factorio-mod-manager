@@ -23,4 +23,22 @@ describe('client-side footer', () => {
       }))
     })
   })
+
+  describe('setOnlineModsCount()', () => {
+    it('sets the online mods count to the state', () => {
+      const nextState = Footer.setOnlineModsCount(Map(), 10)
+      expect(nextState).to.equal(fromJS({
+        onlineModsCount: 10
+      }))
+    })
+  })
+
+  describe('setFactorioVersion()', () => {
+    it('sets the factorio version to the state', () => {
+      const nextState = Footer.setFactorioVersion(Map(), '0.14.0')
+      expect(nextState).to.equal(fromJS({
+        factorioVersion: '0.14.0'
+      }))
+    })
+  })
 })

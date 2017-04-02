@@ -20,6 +20,7 @@ export function setProfiles (profiles) {
 
 export function setActiveProfile (activeProfile) {
   return {
+    meta: { sendToMain: true },
     type: 'SET_ACTIVE_PROFILE',
     activeProfile
   }
@@ -27,12 +28,14 @@ export function setActiveProfile (activeProfile) {
 
 export function addProfile () {
   return {
+    meta: { sendToMain: true },
     type: 'ADD_PROFILE'
   }
 }
 
 export function renameProfile (index, name) {
   return {
+    meta: { sendToMain: true },
     type: 'RENAME_PROFILE',
     index,
     name
@@ -41,6 +44,7 @@ export function renameProfile (index, name) {
 
 export function deleteProfile (index) {
   return {
+    meta: { sendToMain: true },
     type: 'DELETE_PROFILE',
     index
   }
@@ -48,6 +52,7 @@ export function deleteProfile (index) {
 
 export function moveProfileUp (index) {
   return {
+    meta: { sendToMain: true },
     type: 'MOVE_PROFILE_UP',
     index
   }
@@ -55,6 +60,7 @@ export function moveProfileUp (index) {
 
 export function moveProfileDown (index) {
   return {
+    meta: { sendToMain: true },
     type: 'MOVE_PROFILE_DOWN',
     index
   }
@@ -62,6 +68,7 @@ export function moveProfileDown (index) {
 
 export function toggleModStatus (profileIndex, modIndex) {
   return {
+    meta: { sendToMain: true },
     type: 'TOGGLE_MOD_STATUS',
     profileIndex,
     modIndex
@@ -84,6 +91,7 @@ export function setSelectedInstalledMod (selectedInstalledMod) {
 
 export function deleteInstalledMod (index) {
   return {
+    meta: { sendToMain: true },
     type: 'DELETE_INSTALLED_MOD',
     index
   }
@@ -125,6 +133,20 @@ export function setOnlineModsFetchedCount (onlineModsFetchedCount) {
   }
 }
 
+export function setOnlineModsCount (onlineModsCount) {
+  return {
+    type: 'SET_ONLINE_MODS_COUNT',
+    onlineModsCount
+  }
+}
+
+export function setFactorioVersion (version) {
+  return {
+    type: 'SET_FACTORIO_VERSION',
+    version
+  }
+}
+
 export function setOnlineMods (onlineMods) {
   return {
     type: 'SET_ONLINE_MODS',
@@ -140,9 +162,10 @@ export function setSelectedOnlineMod (index, releaseIndex) {
   }
 }
 
-export function setOnlineModFilter (filterOption) {
+export function setOnlineModFilter (filterKey, filterOption) {
   return {
     type: 'SET_ONLINE_MOD_FILTER',
+    filterKey,
     filterOption
   }
 }
@@ -157,7 +180,7 @@ export function setOnlineModSort (sortOption, direction) {
 
 export function requestDownload (id, link) {
   return {
-    meta: { requestDownload: true },
+    meta: { sendToMain: true },
     type: 'REQUEST_DOWNLOAD',
     id,
     link

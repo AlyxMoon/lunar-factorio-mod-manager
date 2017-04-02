@@ -185,6 +185,20 @@ describe('client-side reducer', () => {
     }))
   })
 
+  it('handles SET_ONLINE_MODS_COUNT', () => {
+    const nextState = reducer(Map(), actionCreators.setOnlineModsCount(5))
+    expect(nextState).to.equal(fromJS({
+      onlineModsCount: 5
+    }))
+  })
+
+  it('handles SET_FACTORIO_VERSION', () => {
+    const nextState = reducer(Map(), actionCreators.setFactorioVersion('0.14.0'))
+    expect(nextState).to.equal(fromJS({
+      factorioVersion: '0.14.0'
+    }))
+  })
+
   it('handles SET_ONLINE_MODS', () => {
     const onlineMods = fromJS([
       { name: 'Mod1', version: '1.0.0' },
@@ -215,9 +229,9 @@ describe('client-side reducer', () => {
   })
 
   it('handles SET_ONLINE_MOD_FILTER', () => {
-    const nextState = reducer(Map(), actionCreators.setOnlineModFilter('all'))
+    const nextState = reducer(Map(), actionCreators.setOnlineModFilter('installStatus', 'all'))
     expect(nextState).to.equal(fromJS({
-      onlineModFilter: 'all'
+      onlineModFilters: { installStatus: 'all' }
     }))
   })
 

@@ -1,7 +1,6 @@
 import React from 'react'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {connect} from 'react-redux'
-import {List} from 'immutable'
 import {Grid, Row, Col} from 'react-bootstrap'
 
 import * as actionCreators from '../../action_creators'
@@ -59,7 +58,7 @@ export const Footer = React.createClass({
 function mapStateToProps (state) {
   return {
     playerName: state.get('playerName'),
-    totalOnlineMods: state.get('onlineMods', List()).size,
+    totalOnlineMods: state.get('onlineModsCount', 1),
     onlineModsFetchedCount: state.get('onlineModsFetchedCount')
   }
 }

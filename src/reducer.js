@@ -41,7 +41,7 @@ export default function reducer (state = Map(), action) {
     case 'SET_SELECTED_ONLINE_MOD':
       return OnlineMods.setSelectedOnlineMod(state, action.index, action.releaseIndex)
     case 'SET_ONLINE_MOD_FILTER':
-      return OnlineMods.setOnlineModFilter(state, action.filterOption)
+      return OnlineMods.setOnlineModFilter(state, action.filterKey, action.filterOption)
     case 'SET_ONLINE_MOD_SORT':
       return OnlineMods.setOnlineModSort(state, action.sortOption, action.direction)
 
@@ -54,6 +54,10 @@ export default function reducer (state = Map(), action) {
       return Footer.setPlayerName(state, action.playerName)
     case 'SET_ONLINE_MODS_FETCHED_COUNT':
       return Footer.setOnlineModsFetchedCount(state, action.onlineModsFetchedCount)
+    case 'SET_ONLINE_MODS_COUNT':
+      return Footer.setOnlineModsCount(state, action.onlineModsCount)
+    case 'SET_FACTORIO_VERSION':
+      return Footer.setFactorioVersion(state, action.version)
   }
   return state
 }
