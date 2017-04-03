@@ -1,5 +1,5 @@
 import React from 'react'
-import {Table, Button} from 'react-bootstrap'
+import {Table} from 'react-bootstrap'
 import {List} from 'immutable'
 
 export const InstalledModDetailedView = React.createClass({
@@ -19,11 +19,11 @@ export const InstalledModDetailedView = React.createClass({
               <tr className='selectedInstalledModName'>
                 <th className='bg-primary' colSpan='2'>
                   {mod.get('name')}
-                  <Button
-                    bsStyle='danger'
+                  <span
+                    title='Delete Mod'
                     className='deleteInstalledMod'
                     onClick={() => deleteInstalledMod(selectedInstalledMod)}
-                  >Delete</Button>
+                  ><i className='glyphicon glyphicon-remove' /></span>
                 </th>
               </tr>
             </thead>
