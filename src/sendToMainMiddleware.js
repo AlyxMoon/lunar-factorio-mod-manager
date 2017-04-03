@@ -6,6 +6,9 @@ export default store => next => action => {
     // This is my way of making the tests pass (though it doesn't fully test behavior right now)
     if (ipcRenderer && ipcRenderer.send) {
       switch (action.type) {
+        case 'START_FACTORIO':
+          ipcRenderer.send('startGame')
+          break
         case 'SET_ACTIVE_PROFILE':
           ipcRenderer.send('activateProfile', action.activeProfile)
           break
@@ -27,11 +30,9 @@ export default store => next => action => {
         case 'TOGGLE_MOD_STATUS':
           ipcRenderer.send('toggleMod', action.profileIndex, action.modIndex)
           break
-
         case 'DELETE_INSTALLED_MOD':
           ipcRenderer.send('deleteMod', action.index)
           break
-
         case 'REQUEST_DOWNLOAD':
           ipcRenderer.send('requestDownload', action.id, action.link)
           break
