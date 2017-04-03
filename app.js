@@ -261,7 +261,6 @@ function init () {
 function manageModDownload (modID, modLink) {
   logger.log(1, `Attempting to download mod, link: ${modLink}`)
   modManager.getDownloadInfo(modID, modLink).then(props => {
-    console.log(`${props.modName}, ${props.downloadLink}`);
     if (props.downloadLink) {
       mainWindow.webContents.session.once('will-download', (event, item, webContents) => {
         item.setSavePath(`${modManager.getModDirectoryPath()}/${item.getFilename()}`)
