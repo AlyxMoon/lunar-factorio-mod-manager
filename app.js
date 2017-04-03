@@ -229,12 +229,12 @@ function init () {
           app.exit(-1)
         }
 
-        mainWindow.on('resize', function(event) {
+        mainWindow.on('resize', function (event) {
           let newSize = mainWindow.getSize()
           appManager.config.width = newSize[0]
           appManager.config.height = newSize[1]
         })
-        mainWindow.on('move', function(event) {
+        mainWindow.on('move', function (event) {
           let newLoc = mainWindow.getPosition()
           appManager.config.x_loc = newLoc[0]
           appManager.config.y_loc = newLoc[1]
