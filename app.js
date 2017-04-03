@@ -207,12 +207,7 @@ function init () {
       app.exit(-1)
     }
 
-    modManager.loadInstalledMods((err) => {
-      if (err) {
-        logger.log(4, 'Error when loading installed mods')
-        app.exit(-1)
-      }
-
+    modManager.loadInstalledMods().then(() => {
       logger.log(1, 'Installed mods are loaded.')
       try {
         profileManager = new ProfileManager(config.modlist_path)
@@ -246,6 +241,9 @@ function init () {
       }).catch((error) => {
         logger.log(4, `Unhandled error saving profileManager config file. Error: ${error}`)
       })
+    }).catch((err) => {
+      logger.log(4, 'Error when loading installed mods')
+      app.exit(-1)
     })
 
     modManager.loadPlayerData()
@@ -275,7 +273,7 @@ function manageModDownload (modID, modLink) {
               logger.log(1, 'Deleted mod at: ' + `${modManager.getModDirectoryPath()}/${mod.name}_v${mod.version}.zip`)
             }
 
-            modManager.loadInstalledMods(() => {
+            modManager.loadInstalledMods().then(() => {
               profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
               webContents.send('dataAllProfiles', profileManager.getAllProfiles())
               webContents.send('dataActiveProfile', profileManager.getActiveProfile())
