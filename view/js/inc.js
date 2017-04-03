@@ -884,6 +884,9 @@ function showPlayerInfo (username) {
 function showModDownloadStatus (status, modName) {
   let display = $('#modDownloadStatus')
 
+    // Bug: It only shows once when downloading the first mod, but not at the next mods you download
+    // Once the message disappears, it never returns
+
     // Doing this to reset the animation timer and make it visible
   display.removeClass('temporary')
   display.addClass('temporary')
