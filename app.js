@@ -176,9 +176,11 @@ appMessager.on('requestDownload', function (event, modID, modName) {
 })
 
 appMessager.on('deleteMod', function (event, modName, modVersion) {
-  modManager.deleteMod(modName, modVersion, function () {
+  modManager.deleteMod(modName, modVersion).then(() => {
     event.sender.send('dataInstalledMods', modManager.getInstalledMods())
     profileManager.removeDeletedMods(modManager.getInstalledModNames())
+  }).catch((err) => {
+    logger.log(2, `Was not able to delete a mod. Error:`, err)
   })
 })
 
@@ -258,20 +260,19 @@ function init () {
 
 function manageModDownload (modID, modLink) {
   logger.log(1, `Attempting to download mod, link: ${modLink}`)
-  modManager.getDownloadInfo(modID, modLink, (error, downloadLink, modName, modIndex) => {
-    if (error) logger.log(2, 'Error attempting to download a mod', error)
-
-    if (downloadLink) {
+  modManager.getDownloadInfo(modID, modLink).then(props => {
+    console.log(`${props.modName}, ${props.downloadLink}`);
+    if (props.downloadLink) {
       mainWindow.webContents.session.once('will-download', (event, item, webContents) => {
         item.setSavePath(`${modManager.getModDirectoryPath()}/${item.getFilename()}`)
 
         item.once('done', (event, state) => {
           if (state === 'completed') {
-            logger.log(1, `Downloaded mod ${modName} successfully`)
+            logger.log(1, `Downloaded mod ${props.modName} successfully`)
             webContents.send('dataModDownloadStatus', 'finished')
 
-            if (modIndex !== undefined) {
-              let mod = modManager.getInstalledMods()[modIndex]
+            if (props.modIndex !== undefined) {
+              let mod = modManager.getInstalledMods()[props.modIndex]
               fs.unlinkSync(`${modManager.getModDirectoryPath()}/${mod.name}_${mod.version}.zip`)
               logger.log(1, 'Deleted mod at: ' + `${modManager.getModDirectoryPath()}/${mod.name}_v${mod.version}.zip`)
             }
@@ -288,8 +289,10 @@ function manageModDownload (modID, modLink) {
         })
       })
 
-      mainWindow.webContents.send('dataModDownloadStatus', 'starting', modName)
-      mainWindow.webContents.downloadURL(downloadLink)
+      mainWindow.webContents.send('dataModDownloadStatus', 'starting', props.modName)
+      mainWindow.webContents.downloadURL(props.downloadLink)
     }
+  }).catch((error) => {
+    logger.log(2, 'Error attempting to download a mod', error)
   })
 }
