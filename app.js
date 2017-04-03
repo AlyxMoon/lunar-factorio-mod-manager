@@ -246,8 +246,11 @@ function init () {
       app.exit(-1)
     })
 
-    modManager.loadPlayerData()
-    modManager.fetchOnlineMods()
+    modManager.loadPlayerData().then(() => {
+      modManager.fetchOnlineMods()
+    }).catch((error) => {
+      logger.log(4, `Error loading player data. Error: ${error}`)
+    })
   }).catch((error) => {
     logger.log(4, `Unhandled error saving appManager config file. Error: ${error}`)
   })
