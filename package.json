@@ -1,54 +1,55 @@
 {
-	"name": "lunar-mod-manager",
-	"version": "1.11.1",
-	"description": "An unofficial mod manager for Factorio",
-	"main": "app.js",
-	"scripts": {
-		"start": "electron .",
-		"standard": "standard",
-		"standard:fix": "standard --fix",
-		"test": "mocha test --compilers js:babel-core/register --recursive",
-		"test:watch": "npm run test -- --watch",
-		"clean": "rmdir /s /q dist",
-		"package:win": "electron-packager . --overwrite --prune=true --platform=win32 --arch=all --out=dist --icon=assets/icons/icon.ico --ignore=test --ignore=data/* --ignore=.gitignore --ignore=README.md",
-		"package:mac": "electron-packager . --overwrite --prune=true --platform=darwin --arch=all --out=dist --icon=assets/icons/icon.icns --ignore=test --ignore=data/* --ignore=.gitignore --ignore=README.md",
-		"package:linux": "electron-packager . --overwrite --prune=true --platform=linux --arch=all --out=dist --icon=assets/icons/icon.png --ignore=test --ignore=data/* --ignore=.gitignore --ignore=README.md",
-		"package:all": "npm run package:win && npm run package:mac && npm run package:linux"
-	},
-	"keywords": [
-		"Factorio",
-		"mod",
-		"manager"
-	],
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager.git"
-	},
-	"bugs": {
-		"url": "https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager/issues"
-	},
-	"homepage": "https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager",
-	"author": "Alyx DeLunar",
-	"license": "ISC",
-	"babel": {
-		"presets": [
-			"es2015"
-		]
-	},
-	"devDependencies": {
-		"babel-core": "^6.14.0",
-		"babel-preset-es2015": "^6.14.0",
-		"chai": "^3.5.0",
-		"electron": "^1.6.2",
-		"electron-packager": "^7.4.0",
-		"mocha": "^3.2.0",
-		"mocha-standard": "^1.0.0",
-		"sinon": "^2.0.0",
-		"standard": "^9.0.2"
-	},
-	"dependencies": {
-		"jszip": "^3.1.1",
-		"moment": "^2.14.1",
-		"request": "^2.74.0"
-	}
+  "name": "lunar-mod-manager",
+  "version": "1.11.1",
+  "description": "An unofficial mod manager for Factorio",
+  "main": "app.js",
+  "scripts": {
+    "start": "electron .",
+    "standard": "standard",
+    "standard:fix": "standard --fix",
+    "test": "mocha test --compilers js:babel-core/register --recursive",
+    "test:watch": "npm run test -- --watch",
+    "clean": "rmdir /s /q dist",
+    "package:win": "electron-packager . --overwrite --prune=true --platform=win32 --arch=all --out=dist --icon=assets/icons/icon.ico --ignore=test --ignore=data/* --ignore=.gitignore --ignore=README.md",
+    "package:mac": "electron-packager . --overwrite --prune=true --platform=darwin --arch=all --out=dist --icon=assets/icons/icon.icns --ignore=test --ignore=data/* --ignore=.gitignore --ignore=README.md",
+    "package:linux": "electron-packager . --overwrite --prune=true --platform=linux --arch=all --out=dist --icon=assets/icons/icon.png --ignore=test --ignore=data/* --ignore=.gitignore --ignore=README.md",
+    "package:all": "npm run package:win && npm run package:mac && npm run package:linux"
+  },
+  "keywords": [
+    "Factorio",
+    "mod",
+    "manager"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager/issues"
+  },
+  "homepage": "https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager",
+  "author": "Alyx DeLunar",
+  "license": "ISC",
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  },
+  "devDependencies": {
+    "babel-core": "^6.14.0",
+    "babel-preset-es2015": "^6.14.0",
+    "chai": "^3.5.0",
+    "electron": "^1.6.2",
+    "electron-packager": "^7.4.0",
+    "mocha": "^3.2.0",
+    "mocha-standard": "^1.0.0",
+    "sinon": "^2.0.0",
+    "standard": "^9.0.2"
+  },
+  "dependencies": {
+    "electron-json-storage": "^3.0.4",
+    "jszip": "^3.1.1",
+    "moment": "^2.14.1",
+    "request": "^2.74.0"
+  }
 }
