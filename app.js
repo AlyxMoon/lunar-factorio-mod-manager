@@ -11,11 +11,13 @@ const AppManager = require('./lib/appManager.js')
 const ModManager = require('./lib/modManager.js')
 const ProfileManager = require('./lib/profileManager.js')
 const logger = require('./lib/logger.js')
+const FactorioApi = require('node-factorio-api')
 
 let appManager
 let mainWindow
 let profileManager
 let modManager
+let factorioApi
 // ---------------------------------------------------------
 // ---------------------------------------------------------
 // Event listeners for application-related messages
@@ -176,7 +178,10 @@ appMessager.on('requestDownload', function (event, modID, modName) {
 })
 
 appMessager.on('deleteMod', function (event, modName, modVersion) {
-  modManager.deleteMod(modName, modVersion).then(() => {
+  factorioApi.removeModsMatching(
+    {name: modName, version: modVersion}
+  ).then(() => {
+    modManager.deleteModFromList(modName, modVersion)
     event.sender.send('dataInstalledMods', modManager.getInstalledMods())
     profileManager.removeDeletedMods(modManager.getInstalledModNames())
   }).catch((err) => {
@@ -204,6 +209,7 @@ function init () {
     try {
       let baseModPath = path.join(config.game_path, '..', '..', '..', 'data', 'base')
       modManager = new ModManager(config.modlist_path, config.mod_directory_path, baseModPath, config.player_data_path)
+      factorioApi = new FactorioApi(config.mod_directory_path, false)
     } catch (error) {
       logger.log(4, `Error creating Mod Manager class. Error: ${error.stack}`)
       app.exit(-1)
@@ -249,7 +255,15 @@ function init () {
     })
 
     modManager.loadPlayerData().then(() => {
-      modManager.fetchOnlineMods()
+      factorioApi.authenticate({
+        username: modManager.getPlayerUsername(),
+        token: modManager.getPlayerToken(),
+        require_ownership: true
+      }).then(() => {
+        modManager.fetchOnlineMods()
+      }).catch((error) => {
+        logger.log(4, `Error authenticating node-factorio-api. Error: ${error}`)
+      })
     }).catch((error) => {
       logger.log(4, `Error loading player data. Error: ${error}`)
     })
@@ -259,39 +273,19 @@ function init () {
 }
 
 function manageModDownload (modID, modLink) {
-  logger.log(1, `Attempting to download mod, link: ${modLink}`)
-  modManager.getDownloadInfo(modID, modLink).then(props => {
-    if (props.downloadLink) {
-      mainWindow.webContents.session.once('will-download', (event, item, webContents) => {
-        item.setSavePath(`${modManager.getModDirectoryPath()}/${item.getFilename()}`)
-
-        item.once('done', (event, state) => {
-          if (state === 'completed') {
-            logger.log(1, `Downloaded mod ${props.modName} successfully`)
-            webContents.send('dataModDownloadStatus', 'finished')
-
-            if (props.modIndex !== undefined) {
-              let mod = modManager.getInstalledMods()[props.modIndex]
-              fs.unlinkSync(`${modManager.getModDirectoryPath()}/${mod.name}_${mod.version}.zip`)
-              logger.log(1, 'Deleted mod at: ' + `${modManager.getModDirectoryPath()}/${mod.name}_v${mod.version}.zip`)
-            }
-
-            modManager.loadInstalledMods().then(() => {
-              profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
-              webContents.send('dataAllProfiles', profileManager.getAllProfiles())
-              webContents.send('dataActiveProfile', profileManager.getActiveProfile())
-              webContents.send('dataInstalledMods', modManager.getInstalledMods())
-            })
-          } else {
-            logger.log(2, `Download failed: ${state}`)
-          }
-        })
-      })
-
-      mainWindow.webContents.send('dataModDownloadStatus', 'starting', props.modName)
-      mainWindow.webContents.downloadURL(props.downloadLink)
-    }
-  }).catch((error) => {
-    logger.log(2, 'Error attempting to download a mod', error)
+  let modName = modManager.getModNameFromID(modID)
+  logger.log(1, `Attempting to download mod, name: ${modName}`)
+  mainWindow.webContents.send('dataModDownloadStatus', 'starting', modName)
+  factorioApi.downloadModFromUrl(modLink).then(() => {
+    logger.log(1, `Downloaded mod ${modName} successfully`)
+    mainWindow.webContents.send('dataModDownloadStatus', 'finished')
+    modManager.loadInstalledMods().then(() => {
+      profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
+      mainWindow.webContents.send('dataAllProfiles', profileManager.getAllProfiles())
+      mainWindow.webContents.send('dataActiveProfile', profileManager.getActiveProfile())
+      mainWindow.webContents.send('dataInstalledMods', modManager.getInstalledMods())
+    })
+  }).catch((err) => {
+    logger.log(2, `Download failed: ${err}`)
   })
 }
