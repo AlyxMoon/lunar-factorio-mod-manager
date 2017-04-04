@@ -884,13 +884,22 @@ function showPlayerInfo (username) {
 function showModDownloadStatus (status, modName) {
   let display = $('#modDownloadStatus')
 
+    // Bug: It only shows once when downloading the first mod, but not at the next mods you download
+    // Once the message disappears, it never returns
+
     // Doing this to reset the animation timer and make it visible
-  display.removeClass('temporary')
-  display.addClass('temporary')
+    // Currently disabled to fix the bug
+  /*display.attr('class', 'footer-col')
+  display.attr('class', 'footer-col temporary')*/
 
   if (status === 'starting') {
     display.html(`<span class="glyphicon glyphicon-refresh"></span>  Beginning mod download: ${modName}`)
   } else if (status === 'finished') {
     display.html('<span class="glyphicon glyphicon-ok"></span>  Finished mod download')
   }
+
+    // Little hack to update the mod list after waiting 0.5s
+  setTimeout(() => {
+    messager.send('requestOnlineMods')
+  }, 500)
 }

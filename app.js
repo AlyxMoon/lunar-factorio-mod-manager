@@ -176,9 +176,11 @@ appMessager.on('requestDownload', function (event, modID, modName) {
 })
 
 appMessager.on('deleteMod', function (event, modName, modVersion) {
-  modManager.deleteMod(modName, modVersion, function () {
+  modManager.deleteMod(modName, modVersion).then(() => {
     event.sender.send('dataInstalledMods', modManager.getInstalledMods())
     profileManager.removeDeletedMods(modManager.getInstalledModNames())
+  }).catch((err) => {
+    logger.log(2, `Was not able to delete a mod. Error:`, err)
   })
 })
 
@@ -207,12 +209,7 @@ function init () {
       app.exit(-1)
     }
 
-    modManager.loadInstalledMods((err) => {
-      if (err) {
-        logger.log(4, 'Error when loading installed mods')
-        app.exit(-1)
-      }
-
+    modManager.loadInstalledMods().then(() => {
       logger.log(1, 'Installed mods are loaded.')
       try {
         profileManager = new ProfileManager(config.modlist_path)
@@ -229,12 +226,12 @@ function init () {
           app.exit(-1)
         }
 
-        mainWindow.on('resize', function(event) {
+        mainWindow.on('resize', function (event) {
           let newSize = mainWindow.getSize()
           appManager.config.width = newSize[0]
           appManager.config.height = newSize[1]
         })
-        mainWindow.on('move', function(event) {
+        mainWindow.on('move', function (event) {
           let newLoc = mainWindow.getPosition()
           appManager.config.x_loc = newLoc[0]
           appManager.config.y_loc = newLoc[1]
@@ -246,10 +243,16 @@ function init () {
       }).catch((error) => {
         logger.log(4, `Unhandled error saving profileManager config file. Error: ${error}`)
       })
+    }).catch((err) => {
+      logger.log(4, 'Error when loading installed mods')
+      app.exit(-1)
     })
 
-    modManager.loadPlayerData()
-    modManager.fetchOnlineMods()
+    modManager.loadPlayerData().then(() => {
+      modManager.fetchOnlineMods()
+    }).catch((error) => {
+      logger.log(4, `Error loading player data. Error: ${error}`)
+    })
   }).catch((error) => {
     logger.log(4, `Unhandled error saving appManager config file. Error: ${error}`)
   })
@@ -257,25 +260,23 @@ function init () {
 
 function manageModDownload (modID, modLink) {
   logger.log(1, `Attempting to download mod, link: ${modLink}`)
-  modManager.getDownloadInfo(modID, modLink, (error, downloadLink, modName, modIndex) => {
-    if (error) logger.log(2, 'Error attempting to download a mod', error)
-
-    if (downloadLink) {
+  modManager.getDownloadInfo(modID, modLink).then(props => {
+    if (props.downloadLink) {
       mainWindow.webContents.session.once('will-download', (event, item, webContents) => {
         item.setSavePath(`${modManager.getModDirectoryPath()}/${item.getFilename()}`)
 
         item.once('done', (event, state) => {
           if (state === 'completed') {
-            logger.log(1, `Downloaded mod ${modName} successfully`)
+            logger.log(1, `Downloaded mod ${props.modName} successfully`)
             webContents.send('dataModDownloadStatus', 'finished')
 
-            if (modIndex !== undefined) {
-              let mod = modManager.getInstalledMods()[modIndex]
+            if (props.modIndex !== undefined) {
+              let mod = modManager.getInstalledMods()[props.modIndex]
               fs.unlinkSync(`${modManager.getModDirectoryPath()}/${mod.name}_${mod.version}.zip`)
               logger.log(1, 'Deleted mod at: ' + `${modManager.getModDirectoryPath()}/${mod.name}_v${mod.version}.zip`)
             }
 
-            modManager.loadInstalledMods(() => {
+            modManager.loadInstalledMods().then(() => {
               profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
               webContents.send('dataAllProfiles', profileManager.getAllProfiles())
               webContents.send('dataActiveProfile', profileManager.getActiveProfile())
@@ -287,8 +288,10 @@ function manageModDownload (modID, modLink) {
         })
       })
 
-      mainWindow.webContents.send('dataModDownloadStatus', 'starting', modName)
-      mainWindow.webContents.downloadURL(downloadLink)
+      mainWindow.webContents.send('dataModDownloadStatus', 'starting', props.modName)
+      mainWindow.webContents.downloadURL(props.downloadLink)
     }
+  }).catch((error) => {
+    logger.log(2, 'Error attempting to download a mod', error)
   })
 }
