@@ -11,13 +11,12 @@ const AppManager = require('./lib/appManager.js')
 const ModManager = require('./lib/modManager.js')
 const ProfileManager = require('./lib/profileManager.js')
 const logger = require('./lib/logger.js')
-const FactorioApi = require('node-factorio-api')
+const factorioApi = require('node-factorio-api')
 
 let appManager
 let mainWindow
 let profileManager
 let modManager
-let factorioApi
 // ---------------------------------------------------------
 // ---------------------------------------------------------
 // Event listeners for application-related messages
@@ -209,7 +208,7 @@ function init () {
     try {
       let baseModPath = path.join(config.game_path, '..', '..', '..', 'data', 'base')
       modManager = new ModManager(config.modlist_path, config.mod_directory_path, baseModPath, config.player_data_path)
-      factorioApi = new FactorioApi(config.mod_directory_path, false)
+      factorioApi.init(config.mod_directory_path, false)
     } catch (error) {
       logger.log(4, `Error creating Mod Manager class. Error: ${error.stack}`)
       app.exit(-1)
