@@ -47,6 +47,21 @@ describe('Components - OnlineMods', () => {
     expect(mod2).to.contain('2.1.0')
   })
 
+  it('shows an indicator if the online mod has been installed', () => {
+    const onlineMods = fromJS([
+      { name: 'Mod1', isInstalled: true, releases: [{ version: '1.0.0' }] },
+      { name: 'Mod2', releases: [{ version: '1.0.0' }] }
+    ])
+    const component = renderIntoDocument(
+      <MemoryRouter>
+        <OnlineMods onlineMods={onlineMods} />
+      </MemoryRouter>
+    )
+
+    const modIndicator = findRenderedDOMComponentWithClass(component, 'installedIndicator')
+    expect(modIndicator).to.be.okay
+  })
+
   it('invokes callback when setSelectedOnlineMod element is clicked', () => {
     const callback = Sinon.spy()
     const onlineMods = fromJS([

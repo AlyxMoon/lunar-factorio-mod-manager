@@ -5,7 +5,7 @@ import {List, Map} from 'immutable'
 import {Grid, Row, Col} from 'react-bootstrap'
 
 import * as actionCreators from '../../action_creators'
-import {getSortedMods, getFilteredMods} from '../../onlineMods'
+import {getSortedMods, getFilteredMods, addInstallStatus} from '../../onlineMods'
 import {OnlineModListView} from './components/OnlineModListView'
 import {OnlineModDetailedView} from './components/OnlineModDetailedView'
 
@@ -57,11 +57,14 @@ export const OnlineMods = React.createClass({
 })
 
 function mapStateToProps (state) {
+  const updatedOnlineMods = addInstallStatus(state.get('onlineMods'), state.get('installedMods'))
+  const filterOptions = state.get('onlineModFilters', Map())
+  const sortOption = state.get('onlineModSort', Map())
   return {
-    onlineMods: getSortedMods(getFilteredMods(state), state.get('onlineModSort')),
+    onlineMods: getSortedMods(getFilteredMods(updatedOnlineMods, filterOptions), sortOption),
     selectedOnlineMod: state.get('selectedOnlineMod'),
-    filterBy: state.get('onlineModFilters'),
-    sortBy: state.get('onlineModSort')
+    filterBy: filterOptions,
+    sortBy: sortOption
   }
 }
 

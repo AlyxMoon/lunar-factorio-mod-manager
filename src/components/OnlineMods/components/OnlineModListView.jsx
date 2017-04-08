@@ -228,6 +228,7 @@ export const OnlineModListView = React.createClass({
                   className={'setSelectedOnlineMod ' + (key === selectedOnlineMod.get(0) ? 'bg-success' : '')}
                   onClick={() => setSelectedOnlineMod(key, 0)}
                   >
+                  {mod.get('isInstalled') && <i className='glyphicon glyphicon-ok installedIndicator' /> }
                   {mod.get('name')}
                   <span title='Latest Version Available' className='onlineModListEntryLatestVersion'>
                     {mod.getIn(['releases', 0, 'version'])}

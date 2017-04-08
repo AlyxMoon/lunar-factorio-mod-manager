@@ -114,7 +114,7 @@ describe('client-side onlineMods', () => {
     })
   })
 
-  describe('getsortedMods()', () => {
+  describe('getSortedMods()', () => {
     it('sorts correctly ascending by name', () => {
       const mods = fromJS([
         { name: 'Mod3' }, { name: 'Mod1' }, { name: 'Mod2' }
@@ -204,43 +204,54 @@ describe('client-side onlineMods', () => {
     })
   })
 
-  describe('getfilteredMods()', () => {
+  describe('getFilteredMods()', () => {
     it('filters out any installed mods if that option exists', () => {
-      const state = fromJS({
-        installedMods: [{ name: 'Mod1' }],
-        onlineMods: [{ name: 'Mod1' }, { name: 'Mod2' }],
-        onlineModFilters: { installStatus: 'installed' }
-      })
-      const filteredMods = OnlineMods.getFilteredMods(state)
+      const onlineMods = fromJS([
+        { name: 'Mod1', isInstalled: true }, { name: 'Mod2' }
+      ])
+      const onlineModFilters = fromJS({ installStatus: 'installed' })
+      const filteredMods = OnlineMods.getFilteredMods(onlineMods, onlineModFilters)
       expect(filteredMods).to.equal(fromJS([
-        { name: 'Mod1' }
+        { name: 'Mod1', isInstalled: true }
       ]))
     })
 
     it('filters out any not installed mods if that option exists', () => {
-      const state = fromJS({
-        installedMods: [{ name: 'Mod1' }],
-        onlineMods: [{ name: 'Mod1' }, { name: 'Mod2' }],
-        onlineModFilters: { installStatus: 'not installed' }
-      })
-      const filteredMods = OnlineMods.getFilteredMods(state)
+      const onlineMods = fromJS([
+        { name: 'Mod1', isInstalled: true }, { name: 'Mod2' }
+      ])
+      const onlineModFilters = fromJS({ installStatus: 'not installed' })
+      const filteredMods = OnlineMods.getFilteredMods(onlineMods, onlineModFilters)
       expect(filteredMods).to.equal(fromJS([
         { name: 'Mod2' }
       ]))
     })
 
     it('filters out any mods that do not have the provided tag if set', () => {
-      const state = fromJS({
-        onlineMods: [
+      const onlineMods = fromJS([
           { name: 'Mod1', tags: [{ name: 'general' }] },
           { name: 'Mod2', tags: [{ name: 'cheats' }] },
           { name: 'Mod3', tags: [{ name: 'logistic-network' }] }
-        ],
-        onlineModFilters: { tag: 'logistic-network' }
-      })
-      const filteredMods = OnlineMods.getFilteredMods(state)
+      ])
+      const onlineModFilters = fromJS({ tag: 'logistic-network' })
+      const filteredMods = OnlineMods.getFilteredMods(onlineMods, onlineModFilters)
       expect(filteredMods).to.equal(fromJS([
         { name: 'Mod3', tags: [{ name: 'logistic-network' }] }
+      ]))
+    })
+  })
+
+  describe('addInstallStatus()', () => {
+    it('adds and sets isInstalled property to true in the online mod if it is installed', () => {
+      let onlineMods = fromJS([
+        { name: 'Mod1' }, { name: 'Mod2' }
+      ])
+      let installedMods = fromJS([
+        { name: 'Mod1' }, { name: 'Mod3' }
+      ])
+      let updatedOnlineMods = OnlineMods.addInstallStatus(onlineMods, installedMods)
+      expect(updatedOnlineMods).to.equal(fromJS([
+        { name: 'Mod1', isInstalled: true }, { name: 'Mod2' }
       ]))
     })
   })

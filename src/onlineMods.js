@@ -57,12 +57,11 @@ export function getSortedMods (mods, sortBy) {
   }
 }
 
-export function getFilteredMods (state) {
-  const mods = state.get('onlineMods', List())
-  const filterInstall = state.getIn(['onlineModFilters', 'installStatus'], 'all')
-  const filterTag = state.getIn(['onlineModFilters', 'tag'], 'all')
+export function getFilteredMods (onlineMods, filterOptions) {
+  const filterInstall = filterOptions.get('installStatus', 'all')
+  const filterTag = filterOptions.get('tag', 'all')
 
-  return mods.filter(mod => {
+  return onlineMods.filter(mod => {
     if (filterTag === 'all') return true
 
     return mod.get('tags', List()).some(tag => {
@@ -71,9 +70,17 @@ export function getFilteredMods (state) {
   }).filter(mod => {
     if (filterInstall === 'all') return true
 
-    let isInstalled = state.get('installedMods', List()).some(installedMod => {
-      return installedMod.get('name') === mod.get('name')
-    })
+    let isInstalled = mod.get('isInstalled', false)
     return (isInstalled && filterInstall === 'installed') || (!isInstalled && filterInstall === 'not installed')
+  })
+}
+
+export function addInstallStatus (onlineMods, installedMods) {
+  return onlineMods.map(onlineMod => {
+    if (installedMods.some(installedMod => installedMod.get('name') === onlineMod.get('name'))) {
+      return onlineMod.set('isInstalled', true)
+    } else {
+      return onlineMod
+    }
   })
 }
