@@ -33,7 +33,7 @@ export const ProfileListView = React.createClass({
                   <input
                     type='text'
                     className='renameProfile'
-                    value={profile.get('name')}
+                    value={profile.get('name', '')}
                     onChange={e => this.props.renameProfile(key, e.target.value)}
                   />
                   <span className='profileListEntryOptions'>
