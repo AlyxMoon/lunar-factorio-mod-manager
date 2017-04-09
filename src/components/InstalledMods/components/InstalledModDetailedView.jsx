@@ -1,5 +1,4 @@
 import React from 'react'
-import {Table} from 'react-bootstrap'
 import {List} from 'immutable'
 
 export const InstalledModDetailedView = React.createClass({
@@ -20,60 +19,47 @@ export const InstalledModDetailedView = React.createClass({
     return (
       <div className='installedModDetailedView'>
         {mod ? (
-          <Table responsive bordered condensed>
-            <thead>
-              <tr className='selectedInstalledModName'>
-                <th className='bg-primary' colSpan='2'>
-                  {mod.has('latestAvailableUpdate') &&
-                    <span
-                      title='Update Mod'
-                      className='updateInstalledMod'
-                      onClick={this.sendDownloadRequest} >
-                      <i className='glyphicon glyphicon-download-alt' />
-                    </span>
-                  }
-                  {mod.get('name')}
-                  <span
-                    title='Delete Mod'
-                    className='deleteInstalledMod'
-                    onClick={() => deleteInstalledMod(selectedInstalledMod)}
-                  ><i className='glyphicon glyphicon-remove' /></span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className='selectedInstalledModVersion'>
-                <th>Version</th>
-                <td>{mod.get('version')}</td>
-              </tr>
-              <tr className='selectedInstalledModFactorioVersion'>
-                <th>Factorio Version</th>
-                <td>{mod.get('factorio_version')}</td>
-              </tr>
-              <tr className='selectedInstalledModAuthor'>
-                <th>Author</th>
-                <td>{mod.get('author')}</td>
-              </tr>
-              <tr className='selectedInstalledModContact'>
-                <th>Contact</th>
-                <td>{mod.get('contact')}</td>
-              </tr>
-              <tr className='selectedInstalledModHomepage'>
-                <th>Homepage</th>
-                <td>{mod.get('homepage')}</td>
-              </tr>
-              {this.getDependencyList().map((dependency, key) => (
-                <tr key={key} className='selectedInstalledModDependency'>
-                  <th>{key === 0 ? 'Dependencies' : ''}</th>
-                  <td>{dependency}</td>
-                </tr>
-              ))}
-              <tr><th colSpan='2'>Description</th></tr>
-              <tr className='selectedInstalledModDescription'>
-                <td colSpan='2'>{mod.get('description')}</td>
-              </tr>
-            </tbody>
-          </Table>) : ''}
+          <div className='panel panel-primary'>
+            <div className='panel-heading selectedInstalledModName'>
+              {mod.has('latestAvailableUpdate') &&
+                <span
+                  title='Update Mod'
+                  className='updateInstalledMod'
+                  onClick={this.sendDownloadRequest} >
+                  <i className='glyphicon glyphicon-download-alt' />
+                </span>
+              }
+              <strong>{mod.get('name')}</strong>
+              <span
+                title='Delete Mod'
+                className='deleteInstalledMod'
+                onClick={() => deleteInstalledMod(selectedInstalledMod)}
+              ><i className='glyphicon glyphicon-remove' /></span>
+            </div>
+            <div className='panel-body'>
+              <strong>Version</strong>
+              <p className='selectedInstalledModVersion'>{mod.get('version')}</p>
+              <strong>Factorio Version</strong>
+              <p className='selectedInstalledModFactorioVersion'>{mod.get('factorio_version')}</p>
+              <strong>Author</strong>
+              <p className='selectedInstalledModAuthor'>{mod.get('author')}</p>
+              <strong>Contact</strong>
+              <p className='selectedInstalledModContact'>{mod.get('contact')}</p>
+              <strong>Homepage</strong>
+              <p className='selectedInstalledModHomepage'>{mod.get('homepage')}</p>
+              <strong>Dependencies</strong>
+              <ul>
+                {this.getDependencyList().map((dependency, key) => (
+                  <li key={key} className='selectedInstalledModDependency'>{dependency}</li>
+                ))}
+              </ul>
+              <strong>Description</strong><br />
+              <p className='selectedInstalledModDescription'>
+                {mod.get('description')}
+              </p>
+            </div>
+          </div>
+        ) : '' }
       </div>
     )
   }
