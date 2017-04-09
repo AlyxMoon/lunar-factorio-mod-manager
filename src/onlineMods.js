@@ -44,6 +44,9 @@ export function getSortedMods (mods, sortBy) {
       let aVal = a.get(sortKey)
       let bVal = b.get(sortKey)
 
+      if (typeof aVal === 'string') aVal = aVal.toLowerCase()
+      if (typeof bVal === 'string') bVal = bVal.toLowerCase()
+
       if (aVal < bVal) return -1
       if (aVal > bVal) return 1
       if (aVal === bVal) return 0
