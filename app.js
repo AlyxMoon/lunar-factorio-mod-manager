@@ -91,8 +91,6 @@ appMessager.on('newProfile', function (event) {
 appMessager.on('activateProfile', function (event, index) {
   try {
     profileManager.activateProfile(index)
-    event.sender.send('dataAllProfiles', profileManager.getAllProfiles())
-    event.sender.send('dataActiveProfile', profileManager.getActiveProfile())
   } catch (error) {
     logger.log(4, `Error when activating a profile: ${error}`)
     app.exit(-1)
@@ -131,9 +129,9 @@ appMessager.on('sortProfile', function (event, index, direction) {
   }
 })
 
-appMessager.on('toggleMod', function (event, modName) {
+appMessager.on('toggleMod', function (event, profileIndex, modIndex) {
   try {
-    profileManager.toggleMod(modName)
+    profileManager.toggleMod(profileIndex, modIndex)
   } catch (error) {
     logger.log(4, `Error when togging a mod: ${error}`)
     app.exit(-1)
@@ -167,16 +165,16 @@ appMessager.on('requestFactorioVersion', function (event) {
   if (modManager) event.sender.send('dataFactorioVersion', modManager.getFactorioVersion())
 })
 
-appMessager.on('requestDownload', function (event, modID, modName) {
+appMessager.on('requestDownload', function (event, modName, downloadLink) {
   try {
-    manageModDownload(modID, modName)
+    manageModDownload(modName, downloadLink)
   } catch (error) {
     logger.log(4, `Error when downloading a mod: ${error}`)
   }
 })
 
-appMessager.on('deleteMod', function (event, modName, modVersion) {
-  modManager.deleteMod(modName, modVersion, function () {
+appMessager.on('deleteMod', function (event, index) {
+  modManager.deleteMod(index, function () {
     event.sender.send('dataInstalledMods', modManager.getInstalledMods())
     profileManager.removeDeletedMods(modManager.getInstalledModNames())
   })
@@ -255,12 +253,12 @@ function init () {
   })
 }
 
-function manageModDownload (modID, modLink) {
-  logger.log(1, `Attempting to download mod, link: ${modLink}`)
-  modManager.getDownloadInfo(modID, modLink, (error, downloadLink, modName, modIndex) => {
+function manageModDownload (modName, downloadLink) {
+  logger.log(1, `Attempting to download mod: ${modName}`)
+  modManager.getDownloadInfo(modName, downloadLink, (error, fullLink, modIndex) => {
     if (error) logger.log(2, 'Error attempting to download a mod', error)
 
-    if (downloadLink) {
+    if (fullLink) {
       mainWindow.webContents.session.once('will-download', (event, item, webContents) => {
         item.setSavePath(`${modManager.getModDirectoryPath()}/${item.getFilename()}`)
 
@@ -288,7 +286,7 @@ function manageModDownload (modID, modLink) {
       })
 
       mainWindow.webContents.send('dataModDownloadStatus', 'starting', modName)
-      mainWindow.webContents.downloadURL(downloadLink)
+      mainWindow.webContents.downloadURL(fullLink)
     }
   })
 }

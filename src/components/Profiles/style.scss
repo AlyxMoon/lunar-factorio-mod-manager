@@ -1,0 +1,46 @@
+$spaceBetweenTableItems: 5px;
+$sectionPadding: 5px;
+
+th {
+  text-align: center;
+}
+
+input[type='radio'] {
+  margin-left: $spaceBetweenTableItems;
+  margin-right: $spaceBetweenTableItems;
+}
+
+input[type='text'] {
+  width: 50%
+}
+
+.activeProfileDetails {
+  padding: $sectionPadding;
+}
+
+.toggleModStatus {
+  margin-right: $spaceBetweenTableItems;
+  float: right;
+  cursor: pointer;
+  user-select: none;
+}
+
+.profileList {
+  padding: $sectionPadding;
+}
+
+.addProfile {
+  margin-left: $spaceBetweenTableItems;
+  float: left;
+  cursor: pointer;
+}
+
+.profileListEntryOptions {
+  float: right;
+}
+
+.profileListEntryOptions > i {
+  margin-left: $spaceBetweenTableItems;
+  margin-right: $spaceBetweenTableItems;
+  cursor: pointer;
+}
