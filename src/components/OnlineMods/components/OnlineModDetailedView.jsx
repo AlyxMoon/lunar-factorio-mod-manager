@@ -2,6 +2,12 @@ import React from 'react'
 import {List} from 'immutable'
 
 export const OnlineModDetailedView = React.createClass({
+  // So that anchor elements in description_html work as standard in the app
+  onClick (e) {
+    e.preventDefault()
+    if (e.target.tagName === 'A') this.props.openExternalLink(e.target.href)
+  },
+
   sendDownloadRequest () {
     let name = this.props.mod.get('name')
     let link = this.props.mod.getIn(['releases', this.props.selectedOnlineMod.get(1), 'download_url'])
@@ -49,7 +55,7 @@ export const OnlineModDetailedView = React.createClass({
               <p className='selectedOnlineModHomepage'>{mod.get('homepage')}</p>
 
               <hr />
-              <span className='selectedOnlineModDescription' dangerouslySetInnerHTML={{__html: mod.get('description_html')}} />
+              <span onClick={this.onClick} className='selectedOnlineModDescription' dangerouslySetInnerHTML={{__html: mod.get('description_html')}} />
             </div>
           </div>) : ''}
       </div>

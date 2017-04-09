@@ -23,7 +23,8 @@ export const OnlineMods = React.createClass({
       setSelectedOnlineMod: () => {},
       requestDownload: () => {},
       setOnlineModSort: () => {},
-      setOnlineModFilter: () => {}
+      setOnlineModFilter: () => {},
+      openExternalLink: () => {}
     }
   },
 
@@ -48,6 +49,7 @@ export const OnlineMods = React.createClass({
               selectedOnlineMod={this.props.selectedOnlineMod}
               setSelectedOnlineMod={this.props.setSelectedOnlineMod}
               requestDownload={this.props.requestDownload}
+              openExternalLink={this.props.openExternalLink}
             />
           </Col>
         </Row>
