@@ -4,9 +4,9 @@ import {Table} from 'react-bootstrap'
 
 export const OnlineModDetailedView = React.createClass({
   sendDownloadRequest () {
-    let id = this.props.mod.get('id')
+    let name = this.props.mod.get('name')
     let link = this.props.mod.getIn(['releases', this.props.selectedOnlineMod.get(1), 'download_url'])
-    this.props.requestDownload(id, link)
+    this.props.requestDownload(name, link)
   },
 
   render () {

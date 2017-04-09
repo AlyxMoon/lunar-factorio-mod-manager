@@ -14,6 +14,11 @@ tbody > tr > th {
   cursor: pointer;
 }
 
+.updateInstalledMod {
+  float: left;
+  cursor: pointer;
+}
+
 .installedModsList {
   padding: $sectionPadding;
 }
@@ -24,5 +29,9 @@ tbody > tr > th {
 
 .installedModListEntryVersion {
   float: right;
+  margin-right: $spaceBetweenTableItems;
+}
+
+.updateIndicator {
   margin-right: $spaceBetweenTableItems;
 }

@@ -108,4 +108,71 @@ describe('clients-side installedMods', () => {
       }))
     })
   })
+
+  describe('addLatestAvailableUpdate', () => {
+    it('adds release from online mod if later version and compatible', () => {
+      const installedMods = fromJS([
+        { name: 'Mod1', version: '0.9.0', factorio_version: '0.14' }
+      ])
+      const onlineMods = fromJS([
+        {
+          name: 'Mod1',
+          releases: [{
+            version: '1.0.0',
+            factorio_version: '0.14',
+            download_url: 'some/url'
+          }]
+        }
+      ])
+      const updatedInstalledMods = InstalledMods.addLatestAvailableUpdate(installedMods, onlineMods)
+      expect(updatedInstalledMods).to.equal(fromJS([
+        {
+          name: 'Mod1',
+          version: '0.9.0',
+          factorio_version: '0.14',
+          latestAvailableUpdate: {
+            version: '1.0.0',
+            factorio_version: '0.14',
+            download_url: 'some/url'
+          }
+        }
+      ]))
+    })
+
+    it('does not add release if an earlier verion or factorio version is different', () => {
+      const installedMods = fromJS([
+        { name: 'Mod1', version: '0.9.0', factorio_version: '0.14' },
+        { name: 'Mod2', version: '0.9.0', factorio_version: '0.14' }
+      ])
+      const onlineMods = fromJS([
+        {
+          name: 'Mod1',
+          releases: [{
+            version: '0.8.0',
+            factorio_version: '0.14',
+            download_url: 'some/url'
+          }]
+        },
+        {
+          name: 'Mod2',
+          releases: [{
+            version: '1.0.0',
+            factorio_version: '0.15',
+            download_url: 'some/url'
+          }]
+        }
+      ])
+      const updatedInstalledMods = InstalledMods.addLatestAvailableUpdate(installedMods, onlineMods)
+      expect(updatedInstalledMods).to.equal(fromJS([
+        { name: 'Mod1', version: '0.9.0', factorio_version: '0.14' },
+        { name: 'Mod2', version: '0.9.0', factorio_version: '0.14' }
+      ]))
+    })
+
+    it('simply returns installedMods if onlineMods is undefined', () => {
+      const installedMods = fromJS([{ name: 'Mod1' }])
+      const updatedInstalledMods = InstalledMods.addLatestAvailableUpdate(installedMods, undefined)
+      expect(updatedInstalledMods).to.equal(fromJS([{ name: 'Mod1' }]))
+    })
+  })
 })

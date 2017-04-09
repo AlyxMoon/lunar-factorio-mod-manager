@@ -106,7 +106,6 @@ describe('Components - OnlineMods', () => {
     const onlineMods = fromJS([{
       name: 'Mod1',
       title: 'Mod 1',
-      id: 42,
       releases: [{
         version: '1.1.0',
         download_url: '/api/downloads/blahblahblah.zip'
@@ -125,7 +124,7 @@ describe('Components - OnlineMods', () => {
     Simulate.click(button)
 
     expect(callback.callCount).to.equal(1)
-    expect(callback.calledWith(42, '/api/downloads/blahblahblah.zip')).to.be.true
+    expect(callback.calledWith('Mod1', '/api/downloads/blahblahblah.zip')).to.be.true
   })
 
   it('invokes callback when setOnlineModSort element is clicked', () => {

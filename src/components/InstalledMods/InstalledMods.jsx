@@ -5,6 +5,7 @@ import {List, Map} from 'immutable'
 import {Grid, Row, Col} from 'react-bootstrap'
 
 import * as actionCreators from '../../action_creators'
+import {addLatestAvailableUpdate} from '../../installedMods'
 import {InstalledModListView} from './components/InstalledModListView'
 import {InstalledModDetailedView} from './components/InstalledModDetailedView'
 
@@ -18,7 +19,8 @@ export const InstalledMods = React.createClass({
       installedMods: List.of(Map()),
       selectedInstalledMod: 0,
       setSelectedInstalledMod: () => {},
-      deleteInstalledMod: () => {}
+      deleteInstalledMod: () => {},
+      requestDownload: () => {}
     }
   },
 
@@ -38,6 +40,7 @@ export const InstalledMods = React.createClass({
               mod={this.props.installedMods.get(this.props.selectedInstalledMod)}
               selectedInstalledMod={this.props.selectedInstalledMod}
               deleteInstalledMod={this.props.deleteInstalledMod}
+              requestDownload={this.props.requestDownload}
             />
           </Col>
         </Row>
@@ -48,7 +51,7 @@ export const InstalledMods = React.createClass({
 
 function mapStateToProps (state) {
   return {
-    installedMods: state.get('installedMods'),
+    installedMods: addLatestAvailableUpdate(state.get('installedMods'), state.get('onlineMods')),
     selectedInstalledMod: state.get('selectedInstalledMod')
   }
 }

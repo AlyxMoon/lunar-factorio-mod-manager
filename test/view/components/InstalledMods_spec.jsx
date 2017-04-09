@@ -47,6 +47,21 @@ describe('Components - InstalledMods', () => {
     expect(mod2).to.contain('0.9.0')
   })
 
+  it('shows indicator if a mod has an available update', () => {
+    const installedMods = fromJS([
+      { name: 'Mod1', version: '1.0.0', latestAvailableUpdate: { version: '1.0.1' } },
+      { name: 'Mod2', version: '0.9.0' }
+    ])
+    const component = renderIntoDocument(
+      <MemoryRouter>
+        <InstalledMods installedMods={installedMods} />
+      </MemoryRouter>
+    )
+
+    const updateIndicators = scryRenderedDOMComponentsWithClass(component, 'updateIndicator')
+    expect(updateIndicators.length).to.equal(1)
+  })
+
   it('invokes callback when setSelectedInstalledMod element is clicked', () => {
     const callback = Sinon.spy()
     const installedMods = fromJS([
@@ -118,5 +133,32 @@ describe('Components - InstalledMods', () => {
     Simulate.click(button)
     expect(callback.callCount).to.equal(1)
     expect(callback.calledWith(1)).to.be.true
+  })
+
+  it('invokes callback when updateInstalledMod element is clicked', () => {
+    const callback = Sinon.spy()
+    const installedMods = fromJS([
+      {
+        name: 'Mod1',
+        version: '1.0.0',
+        latestAvailableUpdate: {
+          version: '1.0.1',
+          id: 1,
+          download_url: 'some/url',
+          info_json: { name: 'Mod1' }
+        }
+      }
+    ])
+    const component = renderIntoDocument(
+      <MemoryRouter>
+        <InstalledMods installedMods={installedMods} selectedInstalledMod={0} requestDownload={callback} />
+      </MemoryRouter>
+    )
+
+    const button = findRenderedDOMComponentWithClass(component, 'updateInstalledMod')
+    Simulate.click(button)
+
+    expect(callback.callCount).to.equal(1)
+    expect(callback.calledWith('Mod1', 'some/url')).to.be.true
   })
 })

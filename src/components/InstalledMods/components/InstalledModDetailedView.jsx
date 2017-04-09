@@ -9,6 +9,12 @@ export const InstalledModDetailedView = React.createClass({
     return typeof dependencies === 'string' ? List.of(dependencies) : dependencies
   },
 
+  sendDownloadRequest () {
+    let name = this.props.mod.getIn(['latestAvailableUpdate', 'info_json', 'name'])
+    let link = this.props.mod.getIn(['latestAvailableUpdate', 'download_url'])
+    this.props.requestDownload(name, link)
+  },
+
   render () {
     let {mod, selectedInstalledMod, deleteInstalledMod} = this.props
     return (
@@ -18,6 +24,14 @@ export const InstalledModDetailedView = React.createClass({
             <thead>
               <tr className='selectedInstalledModName'>
                 <th className='bg-primary' colSpan='2'>
+                  {mod.has('latestAvailableUpdate') &&
+                    <span
+                      title='Update Mod'
+                      className='updateInstalledMod'
+                      onClick={this.sendDownloadRequest} >
+                      <i className='glyphicon glyphicon-download-alt' />
+                    </span>
+                  }
                   {mod.get('name')}
                   <span
                     title='Delete Mod'
