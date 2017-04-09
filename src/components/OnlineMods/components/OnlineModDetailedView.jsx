@@ -48,7 +48,7 @@ export const OnlineModDetailedView = React.createClass({
               <strong>Homepage</strong>
               <p className='selectedOnlineModHomepage'>{mod.get('homepage')}</p>
 
-              <strong>Description</strong>
+              <hr />
               <span className='selectedOnlineModDescription' dangerouslySetInnerHTML={{__html: mod.get('description_html')}} />
             </div>
           </div>) : ''}
