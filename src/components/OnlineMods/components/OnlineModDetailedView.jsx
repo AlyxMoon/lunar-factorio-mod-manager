@@ -1,6 +1,5 @@
 import React from 'react'
 import {List} from 'immutable'
-import {Table} from 'react-bootstrap'
 
 export const OnlineModDetailedView = React.createClass({
   sendDownloadRequest () {
@@ -14,58 +13,45 @@ export const OnlineModDetailedView = React.createClass({
     return (
       <div className='OnlineModDetailedView'>
         {mod ? (
-          <Table responsive bordered condensed>
-            <thead>
-              <tr className='selectedOnlineModName'>
-                <th colSpan='2' className='bg-primary'>
-                  <span
-                    title='Download Mod'
-                    className='requestDownload'
-                    onClick={this.sendDownloadRequest} >
-                    <i className='glyphicon glyphicon-download-alt' />
-                  </span>
-                  {mod.get('title')}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th>Version</th>
-                <td>
-                  <select>
-                    {mod.get('releases', List()).map((release, key) => (
-                      <option
-                        key={key}
-                        onClick={() => setSelectedOnlineMod(selectedOnlineMod.get(0), key)} >
-                        {release.get('version')}
-                      </option>
-                    ))}
-                  </select>
+          <div className='panel panel-primary'>
+            <div className='panel-heading'>
+              <span
+                title='Download Mod'
+                className='requestDownload'
+                onClick={this.sendDownloadRequest} >
+                <i className='glyphicon glyphicon-download-alt' />
+              </span>
+              <span className='selectedOnlineModName'>{mod.get('title')}</span>
+            </div>
+            <div className='panel-body'>
+              <strong>Version</strong>
+              <select className='selectedOnlineModVersionsList'>
+                {mod.get('releases', List()).map((release, key) => (
+                  <option
+                    key={key}
+                    onClick={() => setSelectedOnlineMod(selectedOnlineMod.get(0), key)} >
+                    {release.get('version')}
+                  </option>
+                ))}
+              </select>
+              <br />
 
-                </td>
-              </tr>
-              <tr className='selectedOnlineModFactorioVersion'>
-                <th>Factorio Version</th>
-                <td>{mod.getIn(['releases', selectedOnlineMod.get(1), 'factorio_version'])}</td>
-              </tr>
-              <tr className='selectedOnlineModDownloads'>
-                <th>Total Downloads</th>
-                <td>{mod.get('downloads_count')}</td>
-              </tr>
-              <tr className='selectedOnlineModOwner'>
-                <th>Owner</th>
-                <td>{mod.get('owner')}</td>
-              </tr>
-              <tr className='selectedOnlineModOwner'>
-                <th>Homepage</th>
-                <td>{mod.get('homepage')}</td>
-              </tr>
-              <tr><th colSpan='2'>Description</th></tr>
-              <tr className='selectedOnlineModDescription'>
-                <td colSpan='2'>{mod.get('description')}</td>
-              </tr>
-            </tbody>
-          </Table>) : ''}
+              <strong>Factorio Version</strong>
+              <p className='selectedOnlineModFactorioVersion'>{mod.getIn(['releases', selectedOnlineMod.get(1), 'factorio_version'])}</p>
+
+              <strong>Total Downloads</strong>
+              <p className='selectedOnlineModDownloads'>{mod.get('downloads_count')}</p>
+
+              <strong>Owner</strong>
+              <p className='selectedOnlineModOwner'>{mod.get('owner')}</p>
+
+              <strong>Homepage</strong>
+              <p className='selectedOnlineModHomepage'>{mod.get('homepage')}</p>
+
+              <strong>Description</strong>
+              <span className='selectedOnlineModDescription' dangerouslySetInnerHTML={{__html: mod.get('description_html')}} />
+            </div>
+          </div>) : ''}
       </div>
     )
   }

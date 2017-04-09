@@ -24,3 +24,14 @@ html, body, div {
   width: 100%;
   overflow-y: hidden;
 }
+
+.panel-heading {
+  height: auto;
+  max-height: 5%;
+}
+
+.panel-body {
+  height: auto;
+  max-height: 95%;
+  overflow-y: auto;
+}
