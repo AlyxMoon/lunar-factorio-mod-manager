@@ -2,10 +2,10 @@ import React from 'react'
 import {List} from 'immutable'
 
 export const InstalledModDetailedView = React.createClass({
-  // Some mods only have a single dependency listed as a string instead of an array. This will fix that.
-  getDependencyList () {
-    const dependencies = this.props.mod.get('dependencies', List())
-    return typeof dependencies === 'string' ? List.of(dependencies) : dependencies
+  dependencyNotInstalled (dependency) {
+    return this.props.mod.get('missingDependencies', List()).some(missingDependency => {
+      return missingDependency === dependency
+    })
   },
 
   sendDownloadRequest () {
@@ -49,8 +49,10 @@ export const InstalledModDetailedView = React.createClass({
               <p className='selectedInstalledModHomepage'>{mod.get('homepage')}</p>
               <strong>Dependencies</strong>
               <ul>
-                {this.getDependencyList().map((dependency, key) => (
-                  <li key={key} className='selectedInstalledModDependency'>{dependency}</li>
+                {mod.get('dependencies', List()).map((dependency, key) => (
+                  <li key={key} className='selectedInstalledModDependency'>
+                    <span className={this.dependencyNotInstalled(dependency) ? 'text-danger' : ''}>{dependency}</span>
+                  </li>
                 ))}
               </ul>
               <strong>Description</strong><br />

@@ -18,6 +18,8 @@ export const InstalledModListView = React.createClass({
                 <td
                   className={'setSelectedInstalledMod ' + (key === selectedInstalledMod ? 'bg-success' : '')}
                   onClick={() => setSelectedInstalledMod(key)} >
+                  {mod.has('missingDependencies') &&
+                  <i title='Missing Dependencies' className='glyphicon glyphicon-warning-sign missingDependencyIndicator' /> }
                   {mod.has('latestAvailableUpdate') &&
                   <i title='Update Available' className='glyphicon glyphicon-info-sign updateIndicator' /> }
                   {mod.get('name')}
