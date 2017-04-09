@@ -35,6 +35,10 @@ export default store => next => action => {
         case 'REQUEST_DOWNLOAD':
           ipcRenderer.send('requestDownload', action.id, action.link)
           break
+
+        case 'START_FACTORIO':
+          ipcRenderer.send('startGame')
+          break
       }
     }
   }

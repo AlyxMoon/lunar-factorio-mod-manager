@@ -186,3 +186,10 @@ export function requestDownload (id, link) {
     link
   }
 }
+
+export function startFactorio () {
+  return {
+    meta: { sendToMain: true },
+    type: 'START_FACTORIO'
+  }
+}
