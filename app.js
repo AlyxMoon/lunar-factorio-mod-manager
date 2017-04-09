@@ -9,7 +9,7 @@ const appMessager = electron.ipcMain
 
 const AppManager = require('./lib/appManager.js')
 const ModManager = require('./lib/modManager.js')
-const ProfileManager = require('./lib/ProfileManager.js')
+const ProfileManager = require('./lib/profileManager.js')
 const logger = require('./lib/logger.js')
 
 let appManager
@@ -188,62 +188,69 @@ function init () {
   let screenSize = electron.screen.getPrimaryDisplay().workAreaSize
 
   try {
-    appManager = new AppManager(`${__dirname}/data/lmm_config.json`)
+    appManager = new AppManager()
   } catch (error) {
     logger.log(4, `Error initializating App Manager. Error: ${error.message}`)
     app.exit(-1)
   }
 
-  let config = appManager.loadConfig(electron, screenSize.width, screenSize.height)
-  if (!config) app.exit(-1)
-
-  try {
-    let baseModPath = path.join(config.game_path, '..', '..', '..', 'data', 'base')
-    modManager = new ModManager(config.modlist_path, config.mod_directory_path, baseModPath, config.player_data_path)
-  } catch (error) {
-    logger.log(4, `Error creating Mod Manager class. Error: ${error.stack}`)
-    app.exit(-1)
-  }
-
-  modManager.loadInstalledMods((err) => {
-    if (err) {
-      logger.log(4, 'Error when loading installed mods')
-      app.exit(-1)
-    }
-
-    logger.log(1, 'Installed mods are loaded.')
-    try {
-      profileManager = new ProfileManager(`${__dirname}/data/lmm_profiles.json`, config.modlist_path)
-    } catch (error) {
-      logger.log(4, `Error creating Profile Manager class. Error: ${error.message}`)
-      app.exit(-1)
-    }
+  appManager.loadConfig(electron, screenSize.width, screenSize.height).then((config) => {
+    if (!config) app.exit(-1)
 
     try {
-      mainWindow = appManager.createWindow(screenSize.width, screenSize.height)
+      let baseModPath = path.join(config.game_path, '..', '..', '..', 'data', 'base')
+      modManager = new ModManager(config.modlist_path, config.mod_directory_path, baseModPath, config.player_data_path)
     } catch (error) {
-      logger.log(4, `Error creating the window. Error: ${error.message}`)
+      logger.log(4, `Error creating Mod Manager class. Error: ${error.stack}`)
       app.exit(-1)
     }
 
-    mainWindow.on('resize', function (event) {
-      let newSize = mainWindow.getSize()
-      appManager.config.width = newSize[0]
-      appManager.config.height = newSize[1]
-    })
-    mainWindow.on('move', function (event) {
-      let newLoc = mainWindow.getPosition()
-      appManager.config.x_loc = newLoc[0]
-      appManager.config.y_loc = newLoc[1]
+    modManager.loadInstalledMods((err) => {
+      if (err) {
+        logger.log(4, 'Error when loading installed mods')
+        app.exit(-1)
+      }
+
+      logger.log(1, 'Installed mods are loaded.')
+      try {
+        profileManager = new ProfileManager(config.modlist_path)
+      } catch (error) {
+        logger.log(4, `Error creating Profile Manager class. Error: ${error.message}`)
+        app.exit(-1)
+      }
+
+      profileManager.loadProfiles().then((data) => {
+        try {
+          mainWindow = appManager.createWindow(screenSize.width, screenSize.height)
+        } catch (error) {
+          logger.log(4, `Error creating the window. Error: ${error.message}`)
+          app.exit(-1)
+        }
+
+        mainWindow.on('resize', function(event) {
+          let newSize = mainWindow.getSize()
+          appManager.config.width = newSize[0]
+          appManager.config.height = newSize[1]
+        })
+        mainWindow.on('move', function(event) {
+          let newLoc = mainWindow.getPosition()
+          appManager.config.x_loc = newLoc[0]
+          appManager.config.y_loc = newLoc[1]
+        })
+
+        profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
+        profileManager.removeDeletedMods(modManager.getInstalledModNames())
+        mainWindow.loadURL(`file://${__dirname}/view/index.html`)
+      }).catch((error) => {
+        logger.log(4, `Unhandled error saving profileManager config file. Error: ${error}`)
+      })
     })
 
-    profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
-    profileManager.removeDeletedMods(modManager.getInstalledModNames())
-    mainWindow.loadURL(`file://${__dirname}/view/index.html`)
+    modManager.loadPlayerData()
+    modManager.fetchOnlineMods()
+  }).catch((error) => {
+    logger.log(4, `Unhandled error saving appManager config file. Error: ${error}`)
   })
-
-  modManager.loadPlayerData()
-  modManager.fetchOnlineMods()
 }
 
 function manageModDownload (modName, downloadLink) {
