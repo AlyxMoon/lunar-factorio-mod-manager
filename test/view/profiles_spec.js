@@ -357,14 +357,14 @@ describe('client-side profiles', () => {
       const state = fromJS({
         profiles: [{
           name: 'Profile1',
-          mods: [{ name: 'Mod1', enabled: true }]
+          mods: [{ name: 'Mod1', enabled: 'true' }]
         }]
       })
       const nextState = Profiles.toggleModStatus(state, 0, 0)
       expect(nextState).to.equal(fromJS({
         profiles: [{
           name: 'Profile1',
-          mods: [{ name: 'Mod1', enabled: false }]
+          mods: [{ name: 'Mod1', enabled: 'false' }]
         }]
       }))
     })
@@ -373,14 +373,14 @@ describe('client-side profiles', () => {
       const state = fromJS({
         profiles: [{
           name: 'Profile1',
-          mods: [{ name: 'Mod1', enabled: true }]
+          mods: [{ name: 'Mod1', enabled: 'true' }]
         }]
       })
       const nextState = Profiles.toggleModStatus(state, 1, 0)
       expect(nextState).to.equal(fromJS({
         profiles: [{
           name: 'Profile1',
-          mods: [{ name: 'Mod1', enabled: true }]
+          mods: [{ name: 'Mod1', enabled: 'true' }]
         }]
       }))
     })
@@ -389,14 +389,14 @@ describe('client-side profiles', () => {
       const state = fromJS({
         profiles: [{
           name: 'Profile1',
-          mods: [{ name: 'Mod1', enabled: true }]
+          mods: [{ name: 'Mod1', enabled: 'true' }]
         }]
       })
       const nextState = Profiles.toggleModStatus(state, 0, 1)
       expect(nextState).to.equal(fromJS({
         profiles: [{
           name: 'Profile1',
-          mods: [{ name: 'Mod1', enabled: true }]
+          mods: [{ name: 'Mod1', enabled: 'true' }]
         }]
       }))
     })

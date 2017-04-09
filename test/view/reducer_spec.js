@@ -114,14 +114,14 @@ describe('client-side reducer', () => {
     const state = fromJS({
       profiles: [{
         name: 'Profile1',
-        mods: [{ name: 'Mod1', enabled: true }]
+        mods: [{ name: 'Mod1', enabled: 'true' }]
       }]
     })
     const nextState = reducer(state, actionCreators.toggleModStatus(0, 0))
     expect(nextState).to.equal(fromJS({
       profiles: [{
         name: 'Profile1',
-        mods: [{ name: 'Mod1', enabled: false }]
+        mods: [{ name: 'Mod1', enabled: 'false' }]
       }]
     }))
   })

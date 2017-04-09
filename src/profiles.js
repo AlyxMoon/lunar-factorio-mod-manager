@@ -88,6 +88,6 @@ export function toggleModStatus (state, profileIndex, modIndex) {
 
   return state.updateIn(
     ['profiles', profileIndex, 'mods', modIndex, 'enabled'],
-    enabled => !enabled
+    enabled => enabled === 'true' ? 'false' : 'true'
   )
 }

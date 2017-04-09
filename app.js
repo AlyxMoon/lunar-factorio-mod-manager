@@ -129,9 +129,9 @@ appMessager.on('sortProfile', function (event, index, direction) {
   }
 })
 
-appMessager.on('toggleMod', function (event, modName) {
+appMessager.on('toggleMod', function (event, profileIndex, modIndex) {
   try {
-    profileManager.toggleMod(modName)
+    profileManager.toggleMod(profileIndex, modIndex)
   } catch (error) {
     logger.log(4, `Error when togging a mod: ${error}`)
     app.exit(-1)
