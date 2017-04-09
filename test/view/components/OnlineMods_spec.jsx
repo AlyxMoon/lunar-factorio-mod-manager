@@ -39,12 +39,8 @@ describe('Components - OnlineMods', () => {
     const [mod1, mod2] = modsList.map(e => e.innerHTML)
 
     expect(modsList.length).to.equal(2)
-
     expect(mod1).to.contain('Mod1')
-    expect(mod1).to.contain('1.1.0')
-
     expect(mod2).to.contain('Mod2')
-    expect(mod2).to.contain('2.1.0')
   })
 
   it('shows an indicator if the online mod has been installed', () => {

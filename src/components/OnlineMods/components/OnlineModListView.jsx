@@ -169,14 +169,13 @@ export const OnlineModListView = React.createClass({
         <Table hover condensed bordered responsive>
           <thead>
             <tr className='bg-primary'>
-              <th colSpan='2'>
-                All Online Mods
+              <th>
                 <span className='sortAndFilterMods'>
                   <ButtonToolbar>
                     <DropdownButton
                       id='filterModsButton'
                       title='Filter'
-                      pullRight bsSize='xsmall' bsStyle='default'
+                      bsSize='xsmall' bsStyle='default'
                       onSelect={this.handleFilter}>
                       <MenuItem header>Download Status</MenuItem>
                       {filterInstalled.map((option, key) => (
@@ -203,7 +202,7 @@ export const OnlineModListView = React.createClass({
                     <DropdownButton
                       id='sortModsButton'
                       title='Sort'
-                      pullRight bsSize='xsmall' bsStyle='default'
+                      bsSize='xsmall' bsStyle='default'
                       onSelect={this.handleSort}>
                       {sortOptions.map((option, key) => (
                         <MenuItem
@@ -217,6 +216,7 @@ export const OnlineModListView = React.createClass({
                     </DropdownButton>
                   </ButtonToolbar>
                 </span>
+                All Online Mods
               </th>
             </tr>
           </thead>
@@ -230,9 +230,6 @@ export const OnlineModListView = React.createClass({
                   >
                   {mod.get('isInstalled') && <i className='glyphicon glyphicon-ok installedIndicator' /> }
                   {mod.get('name')}
-                  <span title='Latest Version Available' className='onlineModListEntryLatestVersion'>
-                    {mod.getIn(['releases', 0, 'version'])}
-                  </span>
                 </td>
               </tr>
             ))}
