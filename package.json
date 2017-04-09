@@ -18,7 +18,7 @@
     "full-package:mac": "npm run test && npm run bundle && npm run package:mac",
     "package:linux": "electron-packager . --overwrite --prune=true --platform=linux --arch=all--out=dist --icon=assets/icons/icon.png --ignore=test --ignore=src --ignore=data/* --ignore=.gitignore --ignore=README.md",
     "full-package:linux": "npm run test && npm run bundle && npm run package:linux",
-    "package:all": "npm run test && npm run bundle && npm run package:win && npm run package:mac && npm run package:linux"
+    "full-package:all": "npm run test && npm run bundle && npm run package:win && npm run package:mac && npm run package:linux"
   },
   "keywords": [
     "Factorio",
