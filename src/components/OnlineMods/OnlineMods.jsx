@@ -59,7 +59,7 @@ export const OnlineMods = React.createClass({
 })
 
 function mapStateToProps (state) {
-  const updatedOnlineMods = addInstallStatus(state.get('onlineMods'), state.get('installedMods'))
+  const updatedOnlineMods = addInstallStatus(state.get('onlineMods', List()), state.get('installedMods', List()))
   const filterOptions = state.get('onlineModFilters', Map())
   const sortOption = state.get('onlineModSort', Map())
   return {
