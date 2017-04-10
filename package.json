@@ -1,6 +1,6 @@
 {
   "name": "lunar-mod-manager",
-  "version": "1.11.1",
+  "version": "1.12.0",
   "description": "An unofficial mod manager for Factorio",
   "main": "app.js",
   "scripts": {
@@ -12,13 +12,13 @@
     "bundle": "webpack",
     "webpack-dev": "webpack-dev-server",
     "clean": "rmdir /s /q dist",
-    "package:win": "electron-packager . --overwrite --prune=true --platform=win32 --arch=all --out=dist --icon=assets/icons/icon.ico --ignore=test --ignore=src --ignore=data/* --ignore=.gitignore --ignore=README.md",
+    "package:win": "electron-packager . --overwrite --prune=true --platform=win32 --arch=all --out=dist --icon=assets/icons/icon.ico --ignore=assets --ignore=test --ignore=src --ignore=data/* --ignore=.gitignore --ignore=README.md",
     "full-package:win": "npm run test && npm run bundle && npm run package:win",
-    "package:mac": "electron-packager . --overwrite --prune=true --platform=darwin --arch=all --out=dist --icon=assets/icons/icon.icns --ignore=test --ignore=src --ignore=data/* --ignore=.gitignore --ignore=README.md",
+    "package:mac": "electron-packager . --overwrite --prune=true --platform=darwin --arch=all --out=dist --icon=assets/icons/icon.icns --ignore=assets --ignore=test --ignore=src --ignore=data/* --ignore=.gitignore --ignore=README.md",
     "full-package:mac": "npm run test && npm run bundle && npm run package:mac",
-    "package:linux": "electron-packager . --overwrite --prune=true --platform=linux --arch=all--out=dist --icon=assets/icons/icon.png --ignore=test --ignore=src --ignore=data/* --ignore=.gitignore --ignore=README.md",
+    "package:linux": "electron-packager . --overwrite --prune=true --platform=linux --arch=all --out=dist --icon=assets/icons/icon.png --ignore=assets --ignore=test --ignore=src --ignore=data/* --ignore=.gitignore --ignore=README.md",
     "full-package:linux": "npm run test && npm run bundle && npm run package:linux",
-    "package:all": "npm run test && npm run bundle && npm run package:win && npm run package:mac && npm run package:linux"
+    "full-package:all": "npm run test && npm run bundle && npm run package:win && npm run package:mac && npm run package:linux"
   },
   "keywords": [
     "Factorio",
