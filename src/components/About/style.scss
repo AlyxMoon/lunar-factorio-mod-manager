@@ -1,0 +1,22 @@
+$image-height: 200px;
+
+.img-logo {
+  height: 100%;
+  width: 100%;
+}
+
+.externalLink {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.about > .view1 {
+  height: 30%;
+}
+
+.about > .view2 {
+  width: 100%; // Not sure why but width gets set to 0 with overflow-y set, this is to override that behavior
+  height: 70%;
+  overflow-y: scroll;
+}
