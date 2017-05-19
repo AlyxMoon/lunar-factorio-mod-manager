@@ -1,4 +1,4 @@
-import {Map, List, fromJS} from 'immutable'
+import {List, fromJS} from 'immutable'
 import moment from 'moment'
 
 export function setOnlineMods (state, onlineMods) {
@@ -9,9 +9,6 @@ export function setSelectedOnlineMod (state, index, releaseIndex) {
   const onlineModsLength = state.get('onlineMods', List()).size
   if (index >= onlineModsLength) {
     index = onlineModsLength - 1
-    releaseIndex = 0
-  }
-  if (releaseIndex >= state.get('onlineMods', List()).get('releases', Map()).size) {
     releaseIndex = 0
   }
 

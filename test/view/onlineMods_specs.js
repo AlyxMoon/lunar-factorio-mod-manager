@@ -68,23 +68,6 @@ describe('client-side onlineMods', () => {
         selectedOnlineMod: [1, 0]
       }))
     })
-
-    it('sets release to 0 if out of range for that mod', () => {
-      const state = fromJS({
-        onlineMods: [
-          { name: 'Mod1', releases: [{ version: '1.0.0' }, { version: '1.1.0' }] },
-          { name: 'Mod2', releases: [{ version: '1.0.0' }] }
-        ]
-      })
-      const nextState = OnlineMods.setSelectedOnlineMod(state, 1, 1)
-      expect(nextState).to.equal(fromJS({
-        onlineMods: [
-          { name: 'Mod1', releases: [{ version: '1.0.0' }, { version: '1.1.0' }] },
-          { name: 'Mod2', releases: [{ version: '1.0.0' }] }
-        ],
-        selectedOnlineMod: [1, 0]
-      }))
-    })
   })
 
   describe('setOnlineModFilter()', () => {
