@@ -62,8 +62,8 @@ appMessager.on('startGame', function (event) {
   }
 })
 
-appMessager.on('updateConfig', function (event, data) {
-  appManager.config = data
+appMessager.on('changeAppSetting', function (event, setting, newValue) {
+  appManager.config[setting] = newValue
 })
 
 // ------------------------------
@@ -247,7 +247,10 @@ function init () {
     })
 
     modManager.loadPlayerData()
-    modManager.fetchOnlineMods()
+
+    if (config.automatically_poll_online_mods) {
+      modManager.fetchOnlineMods()
+    }
   }).catch((error) => {
     logger.log(4, `Unhandled error saving appManager config file. Error: ${error}`)
   })

@@ -193,3 +193,19 @@ export function startFactorio () {
     type: 'START_FACTORIO'
   }
 }
+
+export function setAppSettings (settings) {
+  return {
+    type: 'SET_APP_SETTINGS',
+    settings
+  }
+}
+
+export function changeAppSetting (setting, newValue) {
+  return {
+    meta: { sendToMain: true },
+    type: 'CHANGE_APP_SETTING',
+    setting,
+    newValue
+  }
+}

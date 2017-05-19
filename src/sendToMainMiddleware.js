@@ -36,6 +36,10 @@ export default store => next => action => {
           ipcRenderer.send('requestDownload', action.id, action.link)
           break
 
+        case 'CHANGE_APP_SETTING':
+          ipcRenderer.send('changeAppSetting', action.setting, action.newValue)
+          break
+
         case 'START_FACTORIO':
           ipcRenderer.send('startGame')
           break
