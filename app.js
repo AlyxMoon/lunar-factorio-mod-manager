@@ -16,6 +16,8 @@ let appManager
 let mainWindow
 let profileManager
 let modManager
+
+let downloadQueue = []
 // ---------------------------------------------------------
 // ---------------------------------------------------------
 // Event listeners for application-related messages
@@ -167,7 +169,11 @@ appMessager.on('requestFactorioVersion', function (event) {
 
 appMessager.on('requestDownload', function (event, modName, downloadLink) {
   try {
-    manageModDownload(modName, downloadLink)
+    downloadQueue.push({modName, downloadLink})
+    if (downloadQueue.length === 1) {
+      let currentItem = downloadQueue.shift()
+      manageModDownload(currentItem.modName, currentItem.downloadLink)
+    }
   } catch (error) {
     logger.log(4, `Error when downloading a mod: ${error}`)
   }
@@ -241,13 +247,15 @@ function init () {
         profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
         profileManager.removeDeletedMods(modManager.getInstalledModNames())
         mainWindow.loadURL(`file://${__dirname}/view/index.html`)
+
+        modManager.addOnlineModInfoToInstalledMods(() => {
+          mainWindow.send('dataInstalledMods', modManager.getInstalledMods())
+        })
       }).catch((error) => {
         logger.log(4, `Unhandled error saving profileManager config file. Error: ${error}`)
       })
     })
-
     modManager.loadPlayerData()
-
     if (config.automatically_poll_online_mods) {
       modManager.fetchOnlineMods()
     }
@@ -263,6 +271,8 @@ function manageModDownload (modName, downloadLink) {
 
     if (fullLink) {
       mainWindow.webContents.session.once('will-download', (event, item, webContents) => {
+        console.log(modName, downloadLink, item)
+        console.log(item.getFilename())
         item.setSavePath(`${modManager.getModDirectoryPath()}/${item.getFilename()}`)
 
         item.once('done', (event, state) => {
@@ -281,6 +291,14 @@ function manageModDownload (modName, downloadLink) {
               webContents.send('dataAllProfiles', profileManager.getAllProfiles())
               webContents.send('dataActiveProfile', profileManager.getActiveProfile())
               webContents.send('dataInstalledMods', modManager.getInstalledMods())
+              modManager.addOnlineModInfoToInstalledMods(() => {
+                webContents.send('dataInstalledMods', modManager.getInstalledMods())
+              })
+
+              if (downloadQueue.length > 0) {
+                let currentItem = downloadQueue.shift()
+                manageModDownload(currentItem.modName, currentItem.downloadLink)
+              }
             })
           } else {
             logger.log(2, `Download failed: ${state}`)

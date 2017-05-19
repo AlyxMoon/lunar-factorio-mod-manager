@@ -2,6 +2,16 @@ import React from 'react'
 import {Table} from 'react-bootstrap'
 
 export const InstalledModListView = React.createClass({
+  updateAllInstalledMods () {
+    this.props.installedMods.forEach(mod => {
+      if (mod.has('latestAvailableUpdate')) {
+        let name = mod.get('name')
+        let link = mod.getIn(['latestAvailableUpdate', 'download_url'])
+        this.props.requestDownload(name, link)
+      }
+    })
+  },
+
   render () {
     let {installedMods, selectedInstalledMod, setSelectedInstalledMod} = this.props
     return (
@@ -9,7 +19,15 @@ export const InstalledModListView = React.createClass({
         <Table hover condensed bordered responsive>
           <thead>
             <tr className='bg-primary'>
-              <th colSpan='2'>All Installed Mods</th>
+              <th colSpan='2'>
+                <span
+                  title='Update All Installed Mods'
+                  className='updateAllInstalledMods'
+                  onClick={this.updateAllInstalledMods} >
+                  <i className='glyphicon glyphicon-download-alt' />
+                </span>
+                All Installed Mods
+              </th>
             </tr>
           </thead>
           <tbody>

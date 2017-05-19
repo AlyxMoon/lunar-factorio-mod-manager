@@ -33,6 +33,7 @@ export const InstalledMods = React.createClass({
               installedMods={this.props.installedMods}
               selectedInstalledMod={this.props.selectedInstalledMod}
               setSelectedInstalledMod={this.props.setSelectedInstalledMod}
+              requestDownload={this.props.requestDownload}
             />
           </Col>
           <Col xs={6} md={8}>
