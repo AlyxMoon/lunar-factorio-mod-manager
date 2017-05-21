@@ -9,8 +9,11 @@ export const OnlineModDetailedView = React.createClass({
   },
 
   sendDownloadRequest () {
+    let releaseNum = this.props.selectedOnlineMod.get(1)
+    if (releaseNum > this.props.mod.get('releases').size) releaseNum = 0
+
     let name = this.props.mod.get('name')
-    let link = this.props.mod.getIn(['releases', this.props.selectedOnlineMod.get(1), 'download_url'])
+    let link = this.props.mod.getIn(['releases', releaseNum, 'download_url'])
     this.props.requestDownload(name, link)
   },
 
@@ -31,11 +34,13 @@ export const OnlineModDetailedView = React.createClass({
             </div>
             <div className='panel-body'>
               <strong>Version</strong>
-              <select className='selectedOnlineModVersionsList'>
+              <select
+                className='selectedOnlineModVersionsList'
+                onChange={e => { setSelectedOnlineMod(selectedOnlineMod.get(0), Number(e.target.value)) }} >
                 {mod.get('releases', List()).map((release, key) => (
                   <option
                     key={key}
-                    onClick={() => setSelectedOnlineMod(selectedOnlineMod.get(0), key)} >
+                    value={key} >
                     {release.get('version')}
                   </option>
                 ))}
