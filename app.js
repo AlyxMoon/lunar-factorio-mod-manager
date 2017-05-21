@@ -265,7 +265,9 @@ function init () {
                   webContents.send('dataActiveProfile', profileManager.getActiveProfile())
                   webContents.send('dataInstalledMods', modManager.getInstalledMods())
                   modManager.addOnlineModInfoToInstalledMods(() => {
-                    webContents.send('dataInstalledMods', modManager.getInstalledMods())
+                    modManager.addLatestAvailableUpdate(() => {
+                      webContents.send('dataInstalledMods', modManager.getInstalledMods())
+                    })
                   })
                 })
               }
@@ -280,7 +282,19 @@ function init () {
         mainWindow.loadURL(`file://${__dirname}/view/index.html`)
 
         modManager.addOnlineModInfoToInstalledMods(() => {
-          mainWindow.send('dataInstalledMods', modManager.getInstalledMods())
+          modManager.addLatestAvailableUpdate(() => {
+            mainWindow.webContents.send('dataInstalledMods', modManager.getInstalledMods())
+
+            if (config.automatically_update_installed_mods) {
+              modManager.getInstalledMods().forEach(mod => {
+                if ('latestAvailableUpdate' in mod) {
+                  let name = mod.name
+                  let link = mod.latestAvailableUpdate.download_url
+                  appMessager.emit('requestDownload', {}, name, link)
+                }
+              })
+            }
+          })
         })
       }).catch((error) => {
         logger.log(4, `Unhandled error saving profileManager config file. Error: ${error}`)

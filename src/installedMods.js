@@ -21,22 +21,6 @@ export function deleteInstalledMod (state, index) {
   )
 }
 
-export function addLatestAvailableUpdate (installedMods) {
-  return installedMods.map(installedMod => {
-    if (!installedMod.has('online_data')) return installedMod
-
-    const onlineMod = installedMod.get('online_data')
-    const latestAvailableUpdate = onlineMod.get('releases', List()).find(release => {
-      const versionHigher = isVersionHigher(installedMod.get('version'), release.get('version'))
-      const sameFactorioVersion = installedMod.get('factorio_version') === release.get('factorio_version')
-      return versionHigher && sameFactorioVersion
-    })
-
-    if (latestAvailableUpdate) return installedMod.set('latestAvailableUpdate', latestAvailableUpdate)
-    else return installedMod
-  })
-}
-
 export function addMissingDependencies (installedMods) {
   return installedMods.map(installedMod => {
     return installedMod.update(

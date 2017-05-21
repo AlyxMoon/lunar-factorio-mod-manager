@@ -5,7 +5,7 @@ import {List, Map} from 'immutable'
 import {Grid, Row, Col} from 'react-bootstrap'
 
 import * as actionCreators from '../../action_creators'
-import {addLatestAvailableUpdate, addMissingDependencies} from '../../installedMods'
+import {addMissingDependencies} from '../../installedMods'
 import {InstalledModListView} from './components/InstalledModListView'
 import {InstalledModDetailedView} from './components/InstalledModDetailedView'
 
@@ -52,7 +52,7 @@ export const InstalledMods = React.createClass({
 
 function mapStateToProps (state) {
   return {
-    installedMods: addMissingDependencies(addLatestAvailableUpdate(state.get('installedMods'), state.get('onlineMods'))),
+    installedMods: addMissingDependencies(state.get('installedMods')),
     selectedInstalledMod: state.get('selectedInstalledMod')
   }
 }
