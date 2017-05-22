@@ -5,7 +5,6 @@ import {List, Map} from 'immutable'
 import {Grid, Row, Col} from 'react-bootstrap'
 
 import * as actionCreators from '../../action_creators'
-import {addMissingDependencies} from '../../installedMods'
 import {InstalledModListView} from './components/InstalledModListView'
 import {InstalledModDetailedView} from './components/InstalledModDetailedView'
 
@@ -20,7 +19,8 @@ export const InstalledMods = React.createClass({
       selectedInstalledMod: 0,
       setSelectedInstalledMod: () => {},
       deleteInstalledMod: () => {},
-      requestDownload: () => {}
+      requestDownload: () => {},
+      requestDownloadMissingDependencies: () => {}
     }
   },
 
@@ -34,6 +34,7 @@ export const InstalledMods = React.createClass({
               selectedInstalledMod={this.props.selectedInstalledMod}
               setSelectedInstalledMod={this.props.setSelectedInstalledMod}
               requestDownload={this.props.requestDownload}
+              requestDownloadMissingDependencies={this.props.requestDownloadMissingDependencies}
             />
           </Col>
           <Col xs={6} md={8}>
@@ -52,7 +53,7 @@ export const InstalledMods = React.createClass({
 
 function mapStateToProps (state) {
   return {
-    installedMods: addMissingDependencies(state.get('installedMods')),
+    installedMods: state.get('installedMods'),
     selectedInstalledMod: state.get('selectedInstalledMod')
   }
 }

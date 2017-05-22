@@ -187,6 +187,13 @@ export function requestDownload (id, link) {
   }
 }
 
+export function requestDownloadMissingDependencies () {
+  return {
+    meta: { sendToMain: true },
+    type: 'REQUEST_DOWNLOAD_MISSING_DEPENDENCIES'
+  }
+}
+
 export function startFactorio () {
   return {
     meta: { sendToMain: true },

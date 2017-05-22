@@ -13,7 +13,7 @@ export const InstalledModListView = React.createClass({
   },
 
   render () {
-    let {installedMods, selectedInstalledMod, setSelectedInstalledMod} = this.props
+    let {installedMods, selectedInstalledMod, setSelectedInstalledMod, requestDownloadMissingDependencies} = this.props
     return (
       <div className='installedModsList'>
         <Table hover condensed bordered responsive>
@@ -25,6 +25,12 @@ export const InstalledModListView = React.createClass({
                   className='updateAllInstalledMods'
                   onClick={this.updateAllInstalledMods} >
                   <i className='glyphicon glyphicon-download-alt' />
+                </span>
+                <span
+                  title='Download Any Missing Required Dependencies'
+                  className='downloadMissingDependencies'
+                  onClick={requestDownloadMissingDependencies} >
+                  <i className='glyphicon glyphicon-warning-sign' />
                 </span>
                 All Installed Mods
               </th>

@@ -36,6 +36,10 @@ export default store => next => action => {
           ipcRenderer.send('requestDownload', action.id, action.link)
           break
 
+        case 'REQUEST_DOWNLOAD_MISSING_DEPENDENCIES':
+          ipcRenderer.send('requestDownloadMissingDependencies')
+          break
+
         case 'CHANGE_APP_SETTING':
           ipcRenderer.send('changeAppSetting', action.setting, action.newValue)
           break

@@ -176,6 +176,18 @@ appMessager.on('requestDownload', function (event, modName, downloadLink) {
   }
 })
 
+appMessager.on('requestDownloadMissingDependencies', event => {
+  logger.log(0, 'Event called: requestDownloadMissingDependencies')
+  modManager.downloadMissingDependencies((error, modName, downloadLink) => {
+    if (error) logger.log(3, `Error downloading a missing dependency, Error: ${error}`)
+    else {
+      downloadQueueCount++
+      mainWindow.webContents.send('dataModDownloadStatus', 'starting', modName)
+      mainWindow.webContents.downloadURL(downloadLink)
+    }
+  })
+})
+
 appMessager.on('deleteMod', function (event, index) {
   modManager.deleteMod(index, function () {
     event.sender.send('dataInstalledMods', modManager.getInstalledMods())
