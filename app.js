@@ -16,6 +16,8 @@ let appManager
 let mainWindow
 let profileManager
 let modManager
+
+let downloadQueueCount = 0
 // ---------------------------------------------------------
 // ---------------------------------------------------------
 // Event listeners for application-related messages
@@ -62,8 +64,8 @@ appMessager.on('startGame', function (event) {
   }
 })
 
-appMessager.on('updateConfig', function (event, data) {
-  appManager.config = data
+appMessager.on('changeAppSetting', function (event, setting, newValue) {
+  appManager.config[setting] = newValue
 })
 
 // ------------------------------
@@ -167,10 +169,23 @@ appMessager.on('requestFactorioVersion', function (event) {
 
 appMessager.on('requestDownload', function (event, modName, downloadLink) {
   try {
+    downloadQueueCount++
     manageModDownload(modName, downloadLink)
   } catch (error) {
     logger.log(4, `Error when downloading a mod: ${error}`)
   }
+})
+
+appMessager.on('requestDownloadMissingDependencies', event => {
+  logger.log(0, 'Event called: requestDownloadMissingDependencies')
+  modManager.downloadMissingDependencies((error, modName, downloadLink) => {
+    if (error) logger.log(3, `Error downloading a missing dependency, Error: ${error}`)
+    else {
+      downloadQueueCount++
+      mainWindow.webContents.send('dataModDownloadStatus', 'starting', modName)
+      mainWindow.webContents.downloadURL(downloadLink)
+    }
+  })
 })
 
 appMessager.on('deleteMod', function (event, index) {
@@ -238,16 +253,69 @@ function init () {
           appManager.config.y_loc = newLoc[1]
         })
 
+        mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
+          let modName = item.getFilename()
+          modName = modName.slice(0, modName.lastIndexOf('_'))
+          let existingMod = modManager.getInstalledModByName(modName)
+
+          item.setSavePath(`${modManager.getModDirectoryPath()}/${item.getFilename()}`)
+          item.once('done', (event, state) => {
+            downloadQueueCount--
+            if (state === 'completed') {
+              logger.log(1, `Downloaded mod ${modName} successfully`)
+              webContents.send('dataModDownloadStatus', 'finished')
+
+              if (existingMod) {
+                fs.unlinkSync(`${modManager.getModDirectoryPath()}/${existingMod.name}_${existingMod.version}.zip`)
+                logger.log(1, 'Deleted mod at: ' + `${modManager.getModDirectoryPath()}/${existingMod.name}_v${existingMod.version}.zip`)
+              }
+
+              if (downloadQueueCount === 0) {
+                modManager.loadInstalledMods(() => {
+                  profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
+                  webContents.send('dataAllProfiles', profileManager.getAllProfiles())
+                  webContents.send('dataActiveProfile', profileManager.getActiveProfile())
+                  webContents.send('dataInstalledMods', modManager.getInstalledMods())
+                  modManager.addOnlineModInfoToInstalledMods(() => {
+                    modManager.addLatestAvailableUpdate(() => {
+                      webContents.send('dataInstalledMods', modManager.getInstalledMods())
+                    })
+                  })
+                })
+              }
+            } else {
+              logger.log(2, `Download failed: ${state}`)
+            }
+          })
+        })
+
         profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
         profileManager.removeDeletedMods(modManager.getInstalledModNames())
         mainWindow.loadURL(`file://${__dirname}/view/index.html`)
+
+        modManager.addOnlineModInfoToInstalledMods(() => {
+          modManager.addLatestAvailableUpdate(() => {
+            mainWindow.webContents.send('dataInstalledMods', modManager.getInstalledMods())
+
+            if (config.automatically_update_installed_mods) {
+              modManager.getInstalledMods().forEach(mod => {
+                if ('latestAvailableUpdate' in mod) {
+                  let name = mod.name
+                  let link = mod.latestAvailableUpdate.download_url
+                  appMessager.emit('requestDownload', {}, name, link)
+                }
+              })
+            }
+          })
+        })
       }).catch((error) => {
         logger.log(4, `Unhandled error saving profileManager config file. Error: ${error}`)
       })
     })
-
     modManager.loadPlayerData()
-    modManager.fetchOnlineMods()
+    if (config.automatically_poll_online_mods) {
+      modManager.fetchOnlineMods()
+    }
   }).catch((error) => {
     logger.log(4, `Unhandled error saving appManager config file. Error: ${error}`)
   })
@@ -259,32 +327,6 @@ function manageModDownload (modName, downloadLink) {
     if (error) logger.log(2, 'Error attempting to download a mod', error)
 
     if (fullLink) {
-      mainWindow.webContents.session.once('will-download', (event, item, webContents) => {
-        item.setSavePath(`${modManager.getModDirectoryPath()}/${item.getFilename()}`)
-
-        item.once('done', (event, state) => {
-          if (state === 'completed') {
-            logger.log(1, `Downloaded mod ${modName} successfully`)
-            webContents.send('dataModDownloadStatus', 'finished')
-
-            if (modIndex !== undefined) {
-              let mod = modManager.getInstalledMods()[modIndex]
-              fs.unlinkSync(`${modManager.getModDirectoryPath()}/${mod.name}_${mod.version}.zip`)
-              logger.log(1, 'Deleted mod at: ' + `${modManager.getModDirectoryPath()}/${mod.name}_v${mod.version}.zip`)
-            }
-
-            modManager.loadInstalledMods(() => {
-              profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
-              webContents.send('dataAllProfiles', profileManager.getAllProfiles())
-              webContents.send('dataActiveProfile', profileManager.getActiveProfile())
-              webContents.send('dataInstalledMods', modManager.getInstalledMods())
-            })
-          } else {
-            logger.log(2, `Download failed: ${state}`)
-          }
-        })
-      })
-
       mainWindow.webContents.send('dataModDownloadStatus', 'starting', modName)
       mainWindow.webContents.downloadURL(fullLink)
     }

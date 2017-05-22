@@ -1,0 +1,11 @@
+.settings .panel {
+  height: initial;
+  margin-left: 5px;
+  margin-right: 5px;
+
+  user-select: none;
+}
+
+.settings .panel .checkbox input {
+  cursor: pointer;
+}
