@@ -5,6 +5,7 @@ import * as InstalledMods from './installedMods'
 import * as OnlineMods from './onlineMods'
 import * as About from './about'
 import * as Footer from './footer'
+import * as Settings from './settings'
 
 export default function reducer (state = Map(), action) {
   switch (action.type) {
@@ -58,6 +59,11 @@ export default function reducer (state = Map(), action) {
       return Footer.setOnlineModsCount(state, action.onlineModsCount)
     case 'SET_FACTORIO_VERSION':
       return Footer.setFactorioVersion(state, action.version)
+
+    case 'SET_APP_SETTINGS':
+      return Settings.setAppSettings(state, action.settings)
+    case 'CHANGE_APP_SETTING':
+      return Settings.changeAppSetting(state, action.setting, action.newValue)
   }
   return state
 }

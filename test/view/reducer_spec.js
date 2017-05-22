@@ -241,4 +241,21 @@ describe('client-side reducer', () => {
       onlineModSort: ['downloads', 'ascending']
     }))
   })
+
+  it('handles SET_APP_SETTINGS', () => {
+    const nextState = reducer(Map(), actionCreators.setAppSettings(fromJS({ someOption: 42 })))
+    expect(nextState).to.equal(fromJS({
+      settings: { someOption: 42 }
+    }))
+  })
+
+  it('handles CHANGE_APP_SETTING', () => {
+    const state = fromJS({
+      settings: { someOption: 10 }
+    })
+    const nextState = reducer(state, actionCreators.setAppSettings(fromJS({ someOption: 42 })))
+    expect(nextState).to.equal(fromJS({
+      settings: { someOption: 42 }
+    }))
+  })
 })

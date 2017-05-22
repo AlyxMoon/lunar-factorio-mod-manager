@@ -187,9 +187,32 @@ export function requestDownload (id, link) {
   }
 }
 
+export function requestDownloadMissingDependencies () {
+  return {
+    meta: { sendToMain: true },
+    type: 'REQUEST_DOWNLOAD_MISSING_DEPENDENCIES'
+  }
+}
+
 export function startFactorio () {
   return {
     meta: { sendToMain: true },
     type: 'START_FACTORIO'
+  }
+}
+
+export function setAppSettings (settings) {
+  return {
+    type: 'SET_APP_SETTINGS',
+    settings
+  }
+}
+
+export function changeAppSetting (setting, newValue) {
+  return {
+    meta: { sendToMain: true },
+    type: 'CHANGE_APP_SETTING',
+    setting,
+    newValue
   }
 }

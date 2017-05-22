@@ -14,7 +14,7 @@ tbody > tr > th {
   cursor: pointer;
 }
 
-.updateInstalledMod {
+.updateInstalledMod, .updateAllInstalledMods, .downloadMissingDependencies {
   float: left;
   cursor: pointer;
   margin-right: $spaceBetweenTableItems;

@@ -55,6 +55,10 @@ export default function (store) {
     store.dispatch(actionCreators.setFactorioVersion(version))
   })
 
+  ipcRenderer.on('dataAppConfig', (e, settings) => {
+    store.dispatch(actionCreators.setAppSettings(settings))
+  })
+
   ipcRenderer.send('requestAllProfiles')
   ipcRenderer.send('requestActiveProfile')
   ipcRenderer.send('requestInstalledMods')
@@ -62,4 +66,5 @@ export default function (store) {
   ipcRenderer.send('requestPlayerInfo')
   ipcRenderer.send('requestFactorioVersion')
   ipcRenderer.send('requestAppVersionInfo')
+  ipcRenderer.send('requestAppConfig')
 }
