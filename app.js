@@ -291,7 +291,12 @@ function init () {
 
         profileManager.updateProfilesWithNewMods(modManager.getInstalledModNames())
         profileManager.removeDeletedMods(modManager.getInstalledModNames())
-        mainWindow.loadURL(`file://${__dirname}/view/index.html`)
+
+        if (process.env.NODE_ENV === 'production') {
+          mainWindow.loadURL(`file://${__dirname}/view/index.html`)
+        } else {
+          mainWindow.loadURL(`file://${__dirname}/view/index_dev.html`)
+        }
 
         modManager.addOnlineModInfoToInstalledMods(() => {
           modManager.addLatestAvailableUpdate(() => {
