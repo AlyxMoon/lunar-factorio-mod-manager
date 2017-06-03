@@ -258,4 +258,18 @@ describe('client-side reducer', () => {
       settings: { someOption: 42 }
     }))
   })
+
+  it('handles SET_SAVES', () => {
+    const saves = fromJS([
+      { 'name': 'Save1', 'mods': ['Mod1'] },
+      { 'name': 'Save2', 'mods': ['Mod2'] }
+    ])
+    const nextState = reducer(Map(), actionCreators.setSaves(saves))
+    expect(nextState).to.equal(fromJS({
+      saves: [
+        { 'name': 'Save1', 'mods': ['Mod1'] },
+        { 'name': 'Save2', 'mods': ['Mod2'] }
+      ]
+    }))
+  })
 })

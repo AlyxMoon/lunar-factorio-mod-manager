@@ -216,3 +216,10 @@ export function changeAppSetting (setting, newValue) {
     newValue
   }
 }
+
+export function setSaves (saves) {
+  return {
+    type: 'SET_SAVES',
+    saves
+  }
+}

@@ -10,12 +10,14 @@ const appMessager = electron.ipcMain
 const AppManager = require('./lib/appManager.js')
 const ModManager = require('./lib/modManager.js')
 const ProfileManager = require('./lib/profileManager.js')
+const SaveManager = require('./lib/saveManager.js')
 const logger = require('./lib/logger.js')
 
 let appManager
 let mainWindow
 let profileManager
 let modManager
+let saveManager
 
 let downloadQueueCount = 0
 // ---------------------------------------------------------
@@ -219,6 +221,13 @@ function init () {
       logger.log(4, `Error creating Mod Manager class. Error: ${error.stack}`)
       app.exit(-1)
     }
+
+    saveManager = new SaveManager()
+    saveManager.readSaveFiles(config.factorio_save_path).then(saveFiles => {
+      saveManager.saves = saveFiles
+    }).catch(err => {
+      logger.log(3, `Error loading the save files ${err}`)
+    })
 
     modManager.loadInstalledMods((err) => {
       if (err) {

@@ -59,6 +59,10 @@ export default function (store) {
     store.dispatch(actionCreators.setAppSettings(settings))
   })
 
+  ipcRenderer.on('dataSaves', (e, saves) => {
+    store.dispatch(actionCreators.setSaves(saves))
+  })
+
   ipcRenderer.send('requestAllProfiles')
   ipcRenderer.send('requestActiveProfile')
   ipcRenderer.send('requestInstalledMods')
@@ -67,4 +71,5 @@ export default function (store) {
   ipcRenderer.send('requestFactorioVersion')
   ipcRenderer.send('requestAppVersionInfo')
   ipcRenderer.send('requestAppConfig')
+  ipcRenderer.send('requestSaves')
 }
