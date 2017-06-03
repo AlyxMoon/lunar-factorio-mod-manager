@@ -4,7 +4,8 @@
   "description": "An unofficial mod manager for Factorio",
   "main": "app.js",
   "scripts": {
-    "start": "electron .",
+    "start": "cross-env NODE_ENV=development electron .",
+    "start:prod": "cross-env NODE_ENV=production electron .",
     "standard": "standard",
     "standard:fix": "standard --fix",
     "test": "mocha --compilers js:babel-core/register --require ignore-styles --require ./test/test_helper.js \"test/**/*@(.js|.jsx)\" ",
@@ -65,8 +66,9 @@
     "webpack-dev-server": "^2.4.2"
   },
   "dependencies": {
-    "immutable": "^3.8.1",
+    "cross-env": "^5.0.0",
     "electron-json-storage": "^3.0.4",
+    "immutable": "^3.8.1",
     "jszip": "^3.1.1",
     "moment": "^2.18.1",
     "react": "^15.4.2",
