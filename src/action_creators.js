@@ -223,3 +223,10 @@ export function setSaves (saves) {
     saves
   }
 }
+
+export function setActiveSave (activeSave) {
+  return {
+    type: 'SET_ACTIVE_SAVE',
+    activeSave
+  }
+}

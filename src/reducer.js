@@ -68,6 +68,8 @@ export default function reducer (state = Map(), action) {
 
     case 'SET_SAVES':
       return Saves.setSaves(state, action.saves)
+    case 'SET_ACTIVE_SAVE':
+      return Saves.setActiveSave(state, action.activeSave)
   }
   return state
 }
