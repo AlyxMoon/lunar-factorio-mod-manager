@@ -216,3 +216,17 @@ export function changeAppSetting (setting, newValue) {
     newValue
   }
 }
+
+export function setSaves (saves) {
+  return {
+    type: 'SET_SAVES',
+    saves
+  }
+}
+
+export function setActiveSave (activeSave) {
+  return {
+    type: 'SET_ACTIVE_SAVE',
+    activeSave
+  }
+}

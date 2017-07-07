@@ -1,5 +1,5 @@
 # Project Files
-data
+/data
 dist
 
 # Compiled bundle from webpack

@@ -6,6 +6,7 @@ import * as OnlineMods from './onlineMods'
 import * as About from './about'
 import * as Footer from './footer'
 import * as Settings from './settings'
+import * as Saves from './saves'
 
 export default function reducer (state = Map(), action) {
   switch (action.type) {
@@ -64,6 +65,11 @@ export default function reducer (state = Map(), action) {
       return Settings.setAppSettings(state, action.settings)
     case 'CHANGE_APP_SETTING':
       return Settings.changeAppSetting(state, action.setting, action.newValue)
+
+    case 'SET_SAVES':
+      return Saves.setSaves(state, action.saves)
+    case 'SET_ACTIVE_SAVE':
+      return Saves.setActiveSave(state, action.activeSave)
   }
   return state
 }
