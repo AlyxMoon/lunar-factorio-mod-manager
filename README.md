@@ -2,34 +2,26 @@
 [![Standard - JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](http://standardjs.com/)
 [![Total Downloads](https://img.shields.io/github/downloads/AlyxMoon/Lunars-Factorio-Mod-Manager/total.svg?label=Total%20Downloads)](https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager/releases)
 
-LFMM is a tool for managing mods in Factorio. The aim is to make it easy to use many different sets of mods at a time.  
-Long-term, I would like to add tools that would be of use to power-users and modders.
+LFMM is a tool for managing mods in Factorio. The aim is to make it easy to use many different sets of mods at a time.
 
-**Disclaimer**: This is a pet project by a programmer still getting the hang of writing good code. While every attempt will be made to ensure this program is safe and does not have any harmful side-effects, caution should be taken. If you run into any issues, please leave an issue on this repo or post on this mod's page in the [Factorio forums](https://forums.factorio.com/viewtopic.php?f=137&t=30394).
+**Disclaimer**: This is an old hobby project that is undergoing a rework. To be safe, you should backup any mods and saves that you might be worried about losing. If you run into any issues you can leave an issue on this repo or post on the [Factorio forums](https://forums.factorio.com/viewtopic.php?f=137&t=30394).
 
 ## Downloading / Installing
-There are currently no compiled versions of the app. Instead, you can download a zip file from the releases page for a proper release version or near the top of this page for the most recent development version.
+Check out [the releases page](https://github.com/AlyxMoon/lunar-factorio-mod-manager/releases) for the compiled packages.
+Download the appropriate package for your operating system, unzip it wherever you like, and start the app by running the `lunar-mod-manager.exe` file
 
-## Roadmap
-
-**Base Functionality**
-
-- [x] View all installed Factorio mods
-- [x] Activate or deactivate mods
-- [x] Manage a collection of mods as a single profile
-- [x] Start Factorio from the app
-- [x] View or download mods from online mod portal
-- [x] Manually or automatically update downloaded mods
-- [ ] Update or download all mods listed in a profile at once
-- [ ] Have compiled packages for Windows, Mac, and Linux
-
-**Server / Save Management**
-
-- [ ] Export a profile for easy sharing
-- [ ] View mods in use by saved games and create a profile based on them
-- [ ] View server list and create a profile based on mods used in selected server
-
-**Advanced Functionality / Tools for Modders**
-- [ ] Allow using a specific Factorio version in profile (for when multiple versions are installed at once)
-- [ ] Allow having multiple versions of a mod at once, and in the profile select which version to use
-- [ ] Allow editing of a mod and saving that custom version (at minimum, editing config options)
+## Features
+- __Modpacks__  
+Create and manage modpacks, easily swap between them
+- __Export / Import modpacks__ (not yet implemented)  
+Easily save the modpack configuration as a file that can be shared with others
+- __Edit mod configuration__ (not yet implemented)  
+Edit the individual mod configuration and save it as part of the modpack
+- __Browse online mods__  
+View the mods on the official mod portal, download directly from the app
+- __Manage mod updates and dependencies__  
+Check for available updates to mods as well as any missing dependencies.
+- __Create modpacks from saves__ (not yet implemented)  
+View save files and automatically create modpacks to match mods used in the save
+- __Create modpacks from servers__ (not yet implemented)  
+View online servers and automatically create modpacks to match mods used in the server
