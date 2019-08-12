@@ -38,7 +38,7 @@
   },
   "homepage": "https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager",
   "author": "Alyx DeLunar",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
