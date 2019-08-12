@@ -4,22 +4,10 @@
   "description": "An unofficial mod manager for Factorio",
   "main": "app.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=development electron .",
-    "start:prod": "cross-env NODE_ENV=production electron .",
-    "standard": "standard",
-    "standard:fix": "standard --fix",
-    "test": "mocha --compilers js:babel-core/register --require ignore-styles --require ./test/test_helper.js \"test/**/*@(.js|.jsx)\" ",
-    "test:watch": "npm run test -- --watch --watch-extensions jsx",
-    "bundle": "webpack",
-    "webpack-dev": "webpack-dev-server",
-    "clean": "rmdir /s /q dist",
-    "package:win": "electron-packager . --overwrite --prune=true --platform=win32 --arch=all --out=dist --icon=assets/icons/icon.ico --ignore=assets --ignore=test --ignore=src --ignore=data/* --ignore=.gitignore --ignore=README.md",
-    "full-package:win": "npm run test && npm run bundle && npm run package:win",
-    "package:mac": "electron-packager . --overwrite --prune=true --platform=darwin --arch=all --out=dist --icon=assets/icons/icon.icns --ignore=assets --ignore=test --ignore=src --ignore=data/* --ignore=.gitignore --ignore=README.md",
-    "full-package:mac": "npm run test && npm run bundle && npm run package:mac",
-    "package:linux": "electron-packager . --overwrite --prune=true --platform=linux --arch=all --out=dist --icon=assets/icons/icon.png --ignore=assets --ignore=test --ignore=src --ignore=data/* --ignore=.gitignore --ignore=README.md",
-    "full-package:linux": "npm run test && npm run bundle && npm run package:linux",
-    "full-package:all": "npm run test && npm run bundle && npm run package:win && npm run package:mac && npm run package:linux"
+    "debug": "",
+    "dev": "",
+    "lint": "eslint --ext .js,.vue src",
+    "lint:fix": "eslint --fix --ext .js,.vue src"
   },
   "engines": {
     "node": "12.x"
@@ -37,7 +25,7 @@
     "url": "https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager/issues"
   },
   "homepage": "https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager",
-  "author": "Alyx DeLunar",
+  "author": "Allister Moon",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.5.5",
@@ -47,9 +35,17 @@
     "css-loader": "^3.2.0",
     "electron": "^6.0.1",
     "electron-builder": "^21.2.0",
+    "eslint": "^6.1.0",
+    "eslint-config-standard": "^13.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "eslint-plugin-vue": "^5.2.3",
     "node-sass": "^4.12.0",
     "sass-loader": "^7.2.0",
     "style-loader": "^1.0.0",
+    "vue-eslint-parser": "^6.0.4",
     "webpack": "^4.39.1",
     "webpack-cli": "^3.3.6",
     "webpack-dev-server": "^3.8.0"
