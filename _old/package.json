@@ -21,9 +21,6 @@
     "full-package:linux": "npm run test && npm run bundle && npm run package:linux",
     "full-package:all": "npm run test && npm run bundle && npm run package:win && npm run package:mac && npm run package:linux"
   },
-  "engines": {
-    "node": "12.x"
-  },
   "keywords": [
     "Factorio",
     "mod",
@@ -42,19 +39,42 @@
   "devDependencies": {
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
+    "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.6",
-    "cross-env": "^5.2.0",
+    "chai": "^4.2.0",
+    "chai-immutable": "^2.1.0",
     "css-loader": "^3.2.0",
     "electron": "^6.0.1",
-    "electron-builder": "^21.2.0",
+    "electron-packager": "^14.0.4",
+    "ignore-styles": "^5.0.1",
+    "jsdom": "^15.1.1",
+    "mocha": "^6.2.0",
+    "mocha-standard": "^1.0.0",
     "node-sass": "^4.12.0",
+    "react-addons-test-utils": "^15.6.2",
     "sass-loader": "^7.2.0",
+    "sinon": "^7.4.1",
+    "standard": "^13.1.0",
     "style-loader": "^1.0.0",
     "webpack": "^4.39.1",
     "webpack-cli": "^3.3.6",
     "webpack-dev-server": "^3.8.0"
   },
   "dependencies": {
-    "jszip": "^3.2.2"
+    "create-react-class": "^15.6.3",
+    "cross-env": "^5.2.0",
+    "electron-json-storage": "^4.1.6",
+    "immutable": "^4.0.0-rc.12",
+    "jszip": "^3.2.2",
+    "moment": "^2.24.0",
+    "react": "^16.9.0",
+    "react-addons-pure-render-mixin": "^15.6.2",
+    "react-bootstrap": "^1.0.0-beta.11",
+    "react-dom": "^16.9.0",
+    "react-redux": "^7.1.0",
+    "react-router": "^5.0.1",
+    "react-router-dom": "^5.0.1",
+    "redux": "^4.0.4",
+    "request": "^2.88.0"
   }
 }
