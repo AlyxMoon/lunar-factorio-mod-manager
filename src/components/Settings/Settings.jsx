@@ -2,12 +2,13 @@ import React from 'react'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {connect} from 'react-redux'
 import {Map} from 'immutable'
+import createReactClass from 'create-react-class'
 
 import * as actionCreators from '../../action_creators'
 
 require('./style.scss')
 
-export const Settings = React.createClass({
+export const Settings = createReactClass({
   mixins: [PureRenderMixin],
 
   getDefaultProps () {

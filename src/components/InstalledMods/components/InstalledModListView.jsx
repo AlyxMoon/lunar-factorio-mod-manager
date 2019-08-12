@@ -1,7 +1,8 @@
 import React from 'react'
 import {Table} from 'react-bootstrap'
+import createReactClass from 'create-react-class'
 
-export const InstalledModListView = React.createClass({
+export const InstalledModListView = createReactClass({
   updateAllInstalledMods () {
     this.props.installedMods.forEach(mod => {
       if (mod.has('latestAvailableUpdate')) {

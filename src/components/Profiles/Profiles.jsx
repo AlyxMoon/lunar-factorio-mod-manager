@@ -2,7 +2,8 @@ import React from 'react'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {connect} from 'react-redux'
 import {List, Map} from 'immutable'
-import {Grid, Row, Col} from 'react-bootstrap'
+import {Container, Row, Col} from 'react-bootstrap'
+import createReactClass from 'create-react-class'
 
 import * as actionCreators from '../../action_creators'
 import {ProfileDetailedView} from './components/ProfileDetailedView'
@@ -10,7 +11,7 @@ import {ProfileListView} from './components/ProfileListView'
 
 require('./style.scss')
 
-export const Profiles = React.createClass({
+export const Profiles = createReactClass({
   mixins: [PureRenderMixin],
 
   getDefaultProps () {
@@ -29,7 +30,7 @@ export const Profiles = React.createClass({
 
   render () {
     return (
-      <Grid bsClass='container-fluid' className='profiles'>
+      <Container bsClass='container-fluid' className='profiles'>
         <Row>
           <Col xs={6} md={4}>
             <ProfileListView
@@ -51,7 +52,7 @@ export const Profiles = React.createClass({
             />
           </Col>
         </Row>
-      </Grid>
+      </Container>
     )
   }
 })

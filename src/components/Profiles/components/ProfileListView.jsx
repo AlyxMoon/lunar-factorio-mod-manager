@@ -1,7 +1,8 @@
 import React from 'react'
 import {Table} from 'react-bootstrap'
+import createReactClass from 'create-react-class'
 
-export const ProfileListView = React.createClass({
+export const ProfileListView = createReactClass({
   render () {
     return (
       <div className='profileList'>

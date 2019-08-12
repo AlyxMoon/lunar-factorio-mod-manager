@@ -1,12 +1,13 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import {Grid, Row, Col} from 'react-bootstrap'
+import {Container, Row, Col} from 'react-bootstrap'
+import createReactClass from 'create-react-class'
 
 import * as actionCreators from '../../action_creators'
 
 require('./style.scss')
 
-export const About = React.createClass({
+export const About = createReactClass({
   getDefaultProps () {
     return {
       appCurrentVersion: '0.0.0',
@@ -21,7 +22,7 @@ export const About = React.createClass({
 
   render () {
     return (
-      <Grid bsClass='container-fluid' className='about'>
+      <Container bsClass='container-fluid' className='about'>
         <div className='view1'>
           <Row>
             <Col xs={5} sm={4} md={2} lg={2}>
@@ -76,7 +77,7 @@ export const About = React.createClass({
             </Col>
           </Row>
         </div>
-      </Grid>
+      </Container>
     )
   }
 })

@@ -2,7 +2,8 @@ import React from 'react'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {connect} from 'react-redux'
 import {List, Map} from 'immutable'
-import {Grid, Row, Col} from 'react-bootstrap'
+import {Container, Row, Col} from 'react-bootstrap'
+import createReactClass from 'create-react-class'
 
 import * as actionCreators from '../../action_creators'
 import {getSortedMods, getFilteredMods, addInstallStatus} from '../../onlineMods'
@@ -11,7 +12,7 @@ import {OnlineModDetailedView} from './components/OnlineModDetailedView'
 
 require('./style.scss')
 
-export const OnlineMods = React.createClass({
+export const OnlineMods = createReactClass({
   mixins: [PureRenderMixin],
 
   getDefaultProps () {
@@ -30,7 +31,7 @@ export const OnlineMods = React.createClass({
 
   render () {
     return (
-      <Grid bsClass='container-fluid' className='onlineMods'>
+      <Container bsClass='container-fluid' className='onlineMods'>
         <Row>
           <Col xs={6} md={4}>
             <OnlineModListView
@@ -53,7 +54,7 @@ export const OnlineMods = React.createClass({
             />
           </Col>
         </Row>
-      </Grid>
+      </Container>
     )
   }
 })

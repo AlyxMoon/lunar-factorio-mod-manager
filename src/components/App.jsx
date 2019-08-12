@@ -2,13 +2,14 @@ import React from 'react'
 import {MemoryRouter, Route} from 'react-router-dom'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {connect} from 'react-redux'
+import createReactClass from 'create-react-class'
 
 import {HeaderContainer} from './Header/Header'
 import {FooterContainer} from './Footer/Footer'
 
 require('./style.scss')
 
-export const App = React.createClass({
+export const App = createReactClass({
   mixins: [PureRenderMixin],
 
   getDefaultProps () {

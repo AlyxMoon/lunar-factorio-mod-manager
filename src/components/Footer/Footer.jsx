@@ -1,13 +1,14 @@
 import React from 'react'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {connect} from 'react-redux'
-import {Grid, Row, Col} from 'react-bootstrap'
+import {Container, Row, Col} from 'react-bootstrap'
+import createReactClass from 'create-react-class'
 
 import * as actionCreators from '../../action_creators'
 
 require('./style.scss')
 
-export const Footer = React.createClass({
+export const Footer = createReactClass({
   mixins: [PureRenderMixin],
 
   getPlayerLoginMessage () {
@@ -35,7 +36,7 @@ export const Footer = React.createClass({
     return (
       <div className='footer'>
         <hr />
-        <Grid bsClass='container-fluid'>
+        <Container bsClass='container-fluid'>
           <Row>
             <Col
               xs={4} sm={3} md={2} lg={2}
@@ -49,7 +50,7 @@ export const Footer = React.createClass({
               {this.getOnlineModsFetchedMessage()}
             </Col>
           </Row>
-        </Grid>
+        </Container>
       </div>
     )
   }

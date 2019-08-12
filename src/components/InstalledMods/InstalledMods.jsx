@@ -2,7 +2,8 @@ import React from 'react'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {connect} from 'react-redux'
 import {List, Map} from 'immutable'
-import {Grid, Row, Col} from 'react-bootstrap'
+import {Container, Row, Col} from 'react-bootstrap'
+import createReactClass from 'create-react-class'
 
 import * as actionCreators from '../../action_creators'
 import {InstalledModListView} from './components/InstalledModListView'
@@ -10,7 +11,7 @@ import {InstalledModDetailedView} from './components/InstalledModDetailedView'
 
 require('./style.scss')
 
-export const InstalledMods = React.createClass({
+export const InstalledMods = createReactClass({
   mixins: [PureRenderMixin],
 
   getDefaultProps () {
@@ -26,7 +27,7 @@ export const InstalledMods = React.createClass({
 
   render () {
     return (
-      <Grid bsClass='container-fluid' className='installedMods'>
+      <Container bsClass='container-fluid' className='installedMods'>
         <Row>
           <Col xs={6} md={4}>
             <InstalledModListView
@@ -46,7 +47,7 @@ export const InstalledMods = React.createClass({
             />
           </Col>
         </Row>
-      </Grid>
+      </Container>
     )
   }
 })

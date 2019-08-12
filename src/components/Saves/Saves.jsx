@@ -1,14 +1,15 @@
 import React from 'react'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
-import {Grid, Row, Col, Table} from 'react-bootstrap'
+import {Container, Row, Col, Table} from 'react-bootstrap'
 import {connect} from 'react-redux'
 import {List, Map} from 'immutable'
+import createReactClass from 'create-react-class'
 
 import * as actionCreators from '../../action_creators'
 
 require('./style.scss')
 
-export const Saves = React.createClass({
+export const Saves = createReactClass({
   mixins: [PureRenderMixin],
 
   getDefaultProps () {
@@ -22,7 +23,7 @@ export const Saves = React.createClass({
   render () {
     let {saves, activeSave, setActiveSave} = this.props
     return (
-      <Grid bsClass='container-fluid' className='saves'>
+      <Container bsClass='container-fluid' className='saves'>
         <Row>
           <Col xs={6} md={4}>
             <div className='savesList'>
@@ -72,7 +73,7 @@ export const Saves = React.createClass({
             </div>
           </Col>
         </Row>
-      </Grid>
+      </Container>
     )
   }
 })

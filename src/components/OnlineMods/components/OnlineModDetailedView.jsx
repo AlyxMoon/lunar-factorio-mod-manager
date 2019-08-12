@@ -1,7 +1,8 @@
 import React from 'react'
 import {List} from 'immutable'
+import createReactClass from 'create-react-class'
 
-export const OnlineModDetailedView = React.createClass({
+export const OnlineModDetailedView = createReactClass({
   // So that anchor elements in description_html work as standard in the app
   onClick (e) {
     e.preventDefault()

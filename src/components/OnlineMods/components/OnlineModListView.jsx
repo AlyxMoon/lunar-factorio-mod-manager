@@ -1,6 +1,7 @@
 import React from 'react'
 import {fromJS} from 'immutable'
-import {Table, DropdownButton, MenuItem, ButtonToolbar} from 'react-bootstrap'
+import {Table, DropdownButton, DropdownItem, ButtonToolbar} from 'react-bootstrap'
+import createReactClass from 'create-react-class'
 
 const filterInstalled = fromJS([
   {
@@ -153,7 +154,7 @@ const sortOptions = fromJS([
   }
 ])
 
-export const OnlineModListView = React.createClass({
+export const OnlineModListView = createReactClass({
   handleFilter (filterBy) {
     this.props.setOnlineModFilter(filterBy.get(0), filterBy.get(1))
   },
@@ -177,26 +178,26 @@ export const OnlineModListView = React.createClass({
                       title='Filter'
                       bsSize='xsmall' bsStyle='default'
                       onSelect={this.handleFilter}>
-                      <MenuItem header>Download Status</MenuItem>
+                      <DropdownItem header>Download Status</DropdownItem>
                       {filterInstalled.map((option, key) => (
-                        <MenuItem
+                        <DropdownItem
                           key={key}
                           className='setOnlineModFilter'
                           eventKey={option.get('eventKey')}
                           active={option.getIn(['eventKey', 1]) === filterBy.get('installStatus', 'all')} >
                           {option.get('text')}
-                        </MenuItem>
+                        </DropdownItem>
                       ))}
-                      <MenuItem header>Tags</MenuItem>
+                      <DropdownItem header>Tags</DropdownItem>
                       {filterTags.map((option, key) => (
-                        <MenuItem
+                        <DropdownItem
                           key={key}
                           className='setOnlineModFilter'
                           eventKey={option.get('eventKey')}
                           active={option.getIn(['eventKey', 1]) === filterBy.get('tag', 'all')}
                           title={option.get('title', '')} >
                           {option.get('text')}
-                        </MenuItem>
+                        </DropdownItem>
                       ))}
                     </DropdownButton>
                     <DropdownButton
@@ -205,13 +206,13 @@ export const OnlineModListView = React.createClass({
                       bsSize='xsmall' bsStyle='default'
                       onSelect={this.handleSort}>
                       {sortOptions.map((option, key) => (
-                        <MenuItem
+                        <DropdownItem
                           key={key}
                           className='setOnlineModSort'
                           eventKey={option.get('eventKey')}
                           active={option.get('eventKey').equals(sortBy)}>
                           {option.get('text')}
-                        </MenuItem>
+                        </DropdownItem>
                       ))}
                     </DropdownButton>
                   </ButtonToolbar>

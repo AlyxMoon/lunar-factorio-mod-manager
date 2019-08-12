@@ -1,7 +1,8 @@
 import React from 'react'
 import {List} from 'immutable'
+import createReactClass from 'create-react-class'
 
-export const InstalledModDetailedView = React.createClass({
+export const InstalledModDetailedView = createReactClass({
   dependencyNotInstalled (dependency) {
     return this.props.mod.get('missingDependencies', List()).some(missingDependency => {
       return missingDependency === dependency

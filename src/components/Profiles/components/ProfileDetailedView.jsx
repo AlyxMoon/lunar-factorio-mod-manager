@@ -1,7 +1,8 @@
 import React from 'react'
 import {Table} from 'react-bootstrap'
+import createReactClass from 'create-react-class'
 
-export const ProfileDetailedView = React.createClass({
+export const ProfileDetailedView = createReactClass({
   render () {
     return (
       <div className='activeProfileDetails'>

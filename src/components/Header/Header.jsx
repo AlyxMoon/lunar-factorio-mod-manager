@@ -2,13 +2,14 @@ import React from 'react'
 import PureRenderMixin from 'react-addons-pure-render-mixin'
 import {connect} from 'react-redux'
 import {Nav, Button, ButtonGroup} from 'react-bootstrap'
+import createReactClass from 'create-react-class'
 
 import * as actionCreators from '../../action_creators'
 import {NavItemLink} from './components/NavItemLink'
 
 require('./style.scss')
 
-export const Header = React.createClass({
+export const Header = createReactClass({
   mixins: [PureRenderMixin],
 
   getDefaultProps () {
