@@ -25,3 +25,7 @@ Check for available updates to mods as well as any missing dependencies.
 View save files and automatically create modpacks to match mods used in the save
 - __Create modpacks from servers__ (not yet implemented)  
 View online servers and automatically create modpacks to match mods used in the server
+
+##### Credits
+All credits for the authors of packages and tools used in the project
+- Development scripts from the [vue-electron-template project](https://github.com/mubaidr/vue-electron-template)
