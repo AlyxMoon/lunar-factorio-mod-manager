@@ -5,22 +5,24 @@ import Home from '@/components/Home.vue'
 
 Vue.use(Router)
 
-const router = new Router([
-  {
-    path: '/',
-    redirect: '/home',
-  },
-  {
-    path: '/home',
-    meta: {
-      icon: 'fa-home',
+const router = new Router({
+  routes: [
+    {
+      path: '/',
+      redirect: '/home',
     },
-    component: Home,
-  },
-  {
-    path: '*',
-    redirect: '/home',
-  },
-])
+    {
+      path: '/home',
+      meta: {
+        icon: 'fa-home',
+      },
+      component: Home,
+    },
+    {
+      path: '*',
+      redirect: '/home',
+    },
+  ],
+})
 
 export default router

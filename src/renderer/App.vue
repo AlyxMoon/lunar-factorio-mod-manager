@@ -1,11 +1,6 @@
 <template>
-  <div
-    id="app"
-    class="container-fluid"
-  >
-    <!-- <keep-alive> -->
+  <div id="app">
     <RouterView />
-    <!-- </keep-alive> -->
   </div>
 </template>
 

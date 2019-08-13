@@ -38,11 +38,18 @@ const restartElectron = async () => {
   const { pid } = electronProcess || {}
   await killElectron(pid)
 
-  electronProcess = spawn(electron, [
-    path.join(__dirname, '../dist/main.js'),
-    remoteDebugging ? '--inspect=9222' : '',
-    remoteDebugging ? '--remote-debugging-port=9223' : '',
-  ])
+  console.log(electron)
+  electronProcess = spawn(
+    electron,
+    [
+      '.',
+      remoteDebugging ? '--inspect=9222' : '',
+      remoteDebugging ? '--remote-debugging-port=9223' : '',
+    ],
+    {
+      cwd: path.join(__dirname, '..'),
+    }
+  )
 
   electronProcess.stdout.setEncoding('utf8')
   electronProcess.stdout.on('data', data => console.log('Electron stdout: ' + data))

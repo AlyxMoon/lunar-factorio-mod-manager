@@ -7,7 +7,7 @@ Hello, and welcome to the app! This is a hobby project and I'm still figuring ou
 - Make sure you have Factorio installed (app currently isn't smart enough to work without it)
 - Fork the repository and get it on your computer however you wish
 - Run `npm install` while in the repository to initialize the project
-- Run `npm run start`
+- Run `npm run dev` or `npm run debug` to start the app. If using debug mode, you can open a web browser on `http://localhost:9223` to access the dev inspector for the app
 
 ## Making Changes
 - All work is based on develop, master branch is reserved for code that is ready to have a release made

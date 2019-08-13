@@ -47,8 +47,8 @@ const config = {
   resolve: {
     extensions: ['.js', '.json'],
     alias: {
-      '@': path.join(__dirname, './src/'),
-      src: path.join(__dirname, './src/'),
+      '@': path.join(__dirname, '../src'),
+      src: path.join(__dirname, '../src'),
     },
   },
   target: 'electron-main',

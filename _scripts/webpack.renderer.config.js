@@ -97,7 +97,6 @@ const config = {
     __filename: isDevMode,
   },
   plugins: [
-    // new WriteFilePlugin(),
     new HtmlWebpackPlugin({
       excludeChunks: ['processTaskWorker'],
       filename: 'index.html',
@@ -123,7 +122,6 @@ const config = {
 }
 
 if (isDevMode) {
-  // any dev only config
   config.plugins.push(new webpack.HotModuleReplacementPlugin())
 } else {
   config.plugins.push(
