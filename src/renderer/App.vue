@@ -1,6 +1,5 @@
 <template>
-  <div id="app" class="something" title="hi">
-    <h1>TESTING ONE TWO THREE</h1>
+  <div id="app">
     <RouterView />
   </div>
 </template>

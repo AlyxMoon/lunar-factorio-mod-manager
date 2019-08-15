@@ -2,12 +2,15 @@ process.env.NODE_ENV = 'development'
 
 const electron = require('electron')
 const webpack = require('webpack')
+const webpackHotMiddleware = require('webpack-hot-middleware')
+const WebpackDevServer = require('webpack-dev-server')
 const treeKill = require('tree-kill')
 
 const path = require('path')
 const { spawn } = require('child_process')
 
 const mainConfig = require('./webpack.main.config')
+const rendererConfig = require('./webpack.renderer.config')
 
 let electronProcess = null
 let manualRestart = null
@@ -75,7 +78,47 @@ const startMain = async () => {
   )
 }
 
+const startRenderer = () => {
+  rendererConfig.entry.renderer = [
+    path.join(__dirname, 'dev-client'),
+    rendererConfig.entry.renderer,
+  ]
+
+  return new Promise(resolve => {
+    const compiler = webpack(rendererConfig)
+    const { name } = compiler
+    const hotMiddleware = webpackHotMiddleware(compiler, {
+      log: false,
+      noInfo: true,
+      quiet: true,
+    })
+
+    compiler.hooks.afterEmit.tap('afterEmit', () => {
+      console.log(`\nCompiled ${name} script!`)
+      console.log(`\nWatching file changes for ${name} script...`)
+    })
+
+    const server = new WebpackDevServer(compiler, {
+      contentBase: path.join(__dirname, '../'),
+      hot: true,
+      noInfo: true,
+      overlay: true,
+      clientLogLevel: 'error',
+      before (app, ctx) {
+        app.use(hotMiddleware)
+
+        ctx.middleware.waitUntilValid(() => {
+          resolve()
+        })
+      },
+    })
+
+    server.listen(9080)
+  })
+}
+
 const start = async () => {
+  await startRenderer()
   await startMain()
 }
 
