@@ -1,6 +1,7 @@
 # Project Files
 /data
 dist
+build
 
 # Compiled bundle from webpack
 bundle.js

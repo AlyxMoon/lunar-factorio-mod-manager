@@ -15,7 +15,9 @@ const config = {
   name: 'main',
   mode: process.env.NODE_ENV,
   devtool: isDevMode ? 'eval' : false,
-  entry: path.join(__dirname, '../src/main/index.js'),
+  entry: {
+    main: path.join(__dirname, '../src/main/index.js'),
+  },
   externals: externals.filter(d => !whiteListedModules.includes(d)),
   module: {
     rules: [
@@ -23,10 +25,6 @@ const config = {
         test: /\.js$/,
         loader: ['babel-loader'],
         exclude: /node_modules/,
-      },
-      {
-        test: /\.node$/,
-        use: 'node-loader',
       },
     ],
   },

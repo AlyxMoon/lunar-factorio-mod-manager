@@ -14,3 +14,5 @@ Hello, and welcome to the app! This is a hobby project and I'm still figuring ou
 - Create a new branch with your work on it, based on develop or another sub branch of your choice
 - Please make sure your code is linted (I'm using [Standard.js](https://standardjs.com/) and [Vue](https://vuejs.github.io/eslint-plugin-vue/) rules).  
 If your code editor is configured for it, linting will be done automatically, otherwise you can run `npm run lint` to check your code or `npm run lint:fix` to let lint try to automatically fix errors
+- To test your code, you can run the commands `npm run test` or `npm test:coverage`. Using the coverage option will generate a coverage report that can be viewed by opening the `index.html` file in a browser, found at `test/unit/coverage/lcov-report`
+  - All tests go in the `test/unit/specs` folder. My plan is not to do e2e testing but unit test library functions that will be used in the renderer or main process
