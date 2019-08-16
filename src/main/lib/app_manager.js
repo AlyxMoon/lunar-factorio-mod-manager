@@ -5,18 +5,29 @@ import { spawn } from 'child_process'
 import { app, dialog, ipcMain } from 'electron'
 import Store from 'electron-store'
 
-const storeFile = new Store()
+const storeFile = new Store({
+  defaults: {
+    paths: {},
+  },
+})
 
 export default class AppManager {
   async init (mainWindow) {
-    this.config = storeFile.store
-
-    if (!this.config.factorioPath) {
-      this.config.factorioPath = await this.findFactorioPath(mainWindow)
-      if (this.config.factorioPath) {
-        storeFile.set('factorioPath', this.config.factorioPath)
+    if (!storeFile.get('paths.factorio')) {
+      const thePath = await this.findFactorioPath(mainWindow)
+      if (thePath) {
+        storeFile.set('paths.factorio', thePath)
       } else {
         console.error('Unable to find the factorio path!')
+      }
+    }
+
+    if (!storeFile.get('paths.mods')) {
+      const thePath = await this.findFactorioModPath(mainWindow)
+      if (thePath) {
+        storeFile.set('paths.mods', thePath)
+      } else {
+        console.error('Unable to find the mods path!')
       }
     }
 
@@ -88,15 +99,71 @@ export default class AppManager {
     }
   }
 
+  async findFactorioModPath (mainWindow) {
+    console.log(1, 'Attempting to find Factorio mods location.')
+
+    const paths = []
+
+    switch (os.platform()) {
+      case 'win32':
+        // ------------------------------
+        // Guess for common file locations first - Windows
+        paths.push(path.join(app.getPath('appData'), 'Factorio', 'mods', 'mod-list.json'))
+        paths.push(path.join('C:\\', 'Program Files', 'Factorio', 'mods', 'mod-list.json'))
+        paths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'mods', 'mod-list.json'))
+
+        break
+      case 'linux':
+        // ------------------------------
+        // Guess for common file locations first - Linux
+        paths.push(path.join(app.getPath('home'), '.factorio', 'mods', 'mod-list.json'))
+        paths.push(path.join(app.getPath('home'), 'factorio', 'mods', 'mod-list.json'))
+
+        break
+      case 'darwin':
+        // TODO Add MacOS X support
+        break
+    }
+
+    for (let i = 0, length = paths.length; i < length; i++) {
+      try {
+        if (fs.existsSync(paths[i], 'utf8')) {
+          console.log(1, `Found mod-list.json automatically: ${paths[i]}`)
+          return paths[i]
+        }
+      } catch (error) { if (error.code !== 'ENOENT') return undefined }
+    }
+
+    // ------------------------------
+    // Prompt if we didn't find anything
+    const modlistPath = await dialog.showOpenDialog(mainWindow, {
+      title: 'Find location of Factorio mods directory',
+      properties: ['openDirectory'],
+    })
+
+    if (modlistPath && !modlistPath.canceled) {
+      return modlistPath.filePaths[0]
+    } else {
+      return undefined
+    }
+  }
+
   async startFactorio () {
+    const factorioPath = storeFile.get('paths.factorio')
+
+    if (!factorioPath) {
+      console.error('Do not have the path to Factorio file, unable to start the game')
+      return
+    }
+
     if (os.platform() === 'win32') {
       spawn('factorio.exe', [], {
         stdio: 'ignore',
         detached: true,
-        cwd: this.config.factorioPath.slice(0, this.config.factorioPath.indexOf('factorio.exe')),
+        cwd: factorioPath.slice(0, factorioPath.indexOf('factorio.exe')),
       }).unref()
     } else if (os.platform() === 'linux') {
-      spawn(this.config.factorioPath).unref()
+      spawn(factorioPath).unref()
     } else if (os.platform() === 'darwin') {
       // TODO Add MacOS X support
     }

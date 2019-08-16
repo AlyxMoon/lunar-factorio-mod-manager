@@ -1,8 +1,17 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, screen } from 'electron'
 import path from 'path'
+import Store from 'electron-store'
+
 import { productName } from '../../package'
 
 import AppManager from './lib/app_manager'
+import { debounce } from './lib/helpers'
+
+const storeFile = new Store({
+  defaults: {
+    window: { },
+  },
+})
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 app.setName(productName)
@@ -30,9 +39,16 @@ const initializeApp = () => {
 }
 
 const createWindow = () => {
+  const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    minWidth: screenWidth / 2,
+    minHeight: screenHeight / 1.25,
+    width: storeFile.get('window.width', screenWidth / 2),
+    height: storeFile.get('window.height', screenHeight / 2),
+    x: storeFile.get('window.x', 0),
+    y: storeFile.get('window.y', 0),
+
     show: false,
     webPreferences: {
       nodeIntegration: true,
@@ -64,6 +80,16 @@ const createWindow = () => {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+
+  mainWindow.on('resize', debounce((event) => {
+    const [width, height] = mainWindow.getSize()
+    storeFile.set({ window: { width, height } })
+  }))
+
+  mainWindow.on('move', debounce((event) => {
+    const [x, y] = mainWindow.getPosition()
+    storeFile.set({ window: { x, y } })
+  }))
 }
 
 app.on('ready', () => {
