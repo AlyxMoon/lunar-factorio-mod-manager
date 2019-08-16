@@ -1,13 +1,23 @@
 <template>
   <div>
-    <h1>Hello World!</h1>
+    <nav class="menu">
+      <button
+        @click="startFactorio()"
+        class="btn btn-primary"
+      >
+        Start Factorio
+      </button>
+    </nav>
   </div>
 </template>
 
 <script>
-import Vue from 'vue'
+import { mapActions } from 'vuex'
 
-export default Vue.extend({
+export default {
   name: 'Home',
-})
+  methods: {
+    ...mapActions(['startFactorio']),
+  },
+}
 </script>

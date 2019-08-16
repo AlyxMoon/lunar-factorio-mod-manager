@@ -1,13 +1,21 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'path'
-import { productName } from '../../package.json'
+import { productName } from '../../package'
+
+import AppManager from './lib/app_manager'
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 app.setName(productName)
 
 let mainWindow
+let appManager
 
 const isDevMode = process.env.NODE_ENV === 'development'
+
+const initializeApp = () => {
+  appManager = new AppManager()
+  appManager.init(mainWindow)
+}
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -37,6 +45,8 @@ const createWindow = () => {
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
     mainWindow.focus()
+
+    initializeApp()
   })
 
   mainWindow.on('closed', () => {
