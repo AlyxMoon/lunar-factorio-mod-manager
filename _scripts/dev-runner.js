@@ -54,6 +54,11 @@ const restartElectron = async () => {
     if (!manualRestart) process.exit(0)
     manualRestart = false
   })
+
+  electronProcess.stdout.setEncoding('utf8')
+  electronProcess.stdout.on('data', data => console.log(`stdout: ${data}`))
+  electronProcess.stderr.setEncoding('utf8')
+  electronProcess.stderr.on('data', data => console.log(`stderr: ${data}`))
 }
 
 const startMain = async () => {
