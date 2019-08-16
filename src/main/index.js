@@ -12,6 +12,18 @@ let appManager
 
 const isDevMode = process.env.NODE_ENV === 'development'
 
+if (app.requestSingleInstanceLock()) {
+  app.on('second-instance', () => {
+    if (mainWindow && mainWindow.isMinimized()) {
+      mainWindow.restore()
+    }
+    mainWindow.focus()
+  })
+} else {
+  app.quit()
+  process.exit(0)
+}
+
 const initializeApp = () => {
   appManager = new AppManager()
   appManager.init(mainWindow)
