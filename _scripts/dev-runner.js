@@ -52,7 +52,6 @@ const restartElectron = async () => {
 
   electronProcess.on('exit', (code, signal) => {
     if (!manualRestart) process.exit(0)
-    manualRestart = false
   })
 
   electronProcess.stdout.setEncoding('utf8')
@@ -69,6 +68,9 @@ const startMain = async () => {
 
     manualRestart = true
     await restartElectron()
+
+    // I didn't want to use setTimeout, but if I don't the electronProcess 'exit' event is always called after manualRestart is set false
+    setTimeout(() => { manualRestart = false }, 2000)
 
     console.log(`\nWatching file changes for ${compiler.name} script...`)
   })
