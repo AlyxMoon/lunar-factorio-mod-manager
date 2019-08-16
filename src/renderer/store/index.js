@@ -5,7 +5,10 @@ import * as actions from './actions'
 import * as getters from './getters'
 import * as mutations from './mutations'
 
-const state = {}
+const state = {
+  activeProfile: undefined,
+  profiles: [],
+}
 
 Vue.use(Vuex)
 

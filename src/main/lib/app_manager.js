@@ -3,29 +3,23 @@ import path from 'path'
 import os from 'os'
 import { spawn } from 'child_process'
 import { app, dialog, ipcMain } from 'electron'
-import Store from 'electron-store'
-
-const storeFile = new Store({
-  defaults: {
-    paths: {},
-  },
-})
+import store from './store'
 
 export default class AppManager {
   async init (mainWindow) {
-    if (!storeFile.get('paths.factorio')) {
+    if (!store.get('paths.factorio')) {
       const thePath = await this.findFactorioPath(mainWindow)
       if (thePath) {
-        storeFile.set('paths.factorio', thePath)
+        store.set('paths.factorio', thePath)
       } else {
         console.error('Unable to find the factorio path!')
       }
     }
 
-    if (!storeFile.get('paths.mods')) {
+    if (!store.get('paths.mods')) {
       const thePath = await this.findFactorioModPath(mainWindow)
       if (thePath) {
-        storeFile.set('paths.mods', thePath)
+        store.set('paths.mods', thePath)
       } else {
         console.error('Unable to find the mods path!')
       }
@@ -128,8 +122,8 @@ export default class AppManager {
     for (let i = 0, length = paths.length; i < length; i++) {
       try {
         if (fs.existsSync(paths[i], 'utf8')) {
-          console.log(1, `Found mod-list.json automatically: ${paths[i]}`)
-          return paths[i]
+          console.log(1, `Found mods directory automatically: ${path.join(paths[i], '..')}`)
+          return path.join(paths[i], '..')
         }
       } catch (error) { if (error.code !== 'ENOENT') return undefined }
     }
@@ -149,7 +143,7 @@ export default class AppManager {
   }
 
   async startFactorio () {
-    const factorioPath = storeFile.get('paths.factorio')
+    const factorioPath = store.get('paths.factorio')
 
     if (!factorioPath) {
       console.error('Do not have the path to Factorio file, unable to start the game')
