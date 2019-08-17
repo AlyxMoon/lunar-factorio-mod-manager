@@ -9,3 +9,7 @@ export const SET_ACTIVE_PROFILE = (state, payload) => {
 export const SET_PROFILES = (state, payload) => {
   state.profiles = payload.profiles
 }
+
+export const SET_SELECTED_MOD = (state, payload) => {
+  state.selectedMod = payload.selectedMod
+}

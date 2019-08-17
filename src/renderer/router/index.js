@@ -3,9 +3,9 @@ import Router from 'vue-router'
 
 import Profiles from '@/pages/Profiles'
 
-const Mods = Vue.component('Mods', { template: '<h1>Mods</h1>' })
-const Saves = Vue.component('Saves', { template: '<h1>Saves</h1>' })
-const Portal = Vue.component('Portal', { template: '<h1>Portal</h1>' })
+const Mods = Vue.component('Mods', { template: '<div></div>' })
+const Saves = Vue.component('Saves', { template: '<div></div>' })
+const Portal = Vue.component('Portal', { template: '<div></div>' })
 
 Vue.use(Router)
 

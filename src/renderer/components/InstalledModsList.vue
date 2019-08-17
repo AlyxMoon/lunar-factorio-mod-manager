@@ -24,7 +24,9 @@
               <i class="fa fa-plus" />
             </button>
           </td>
-          <td>{{ mod.name }}</td>
+          <td @click="selectMod(mod)">
+            {{ mod.name }}
+          </td>
         </tr>
       </tbody>
     </table>
@@ -43,11 +45,13 @@ export default {
     ...mapGetters(['isModInCurrentProfile']),
   },
   methods: {
-    ...mapActions(['addModToCurrentProfile']),
+    ...mapActions(['addModToCurrentProfile', 'selectMod']),
   },
 }
 </script>
 
 <style>
-
+.installed-mods-list {
+  overflow-y: auto;
+}
 </style>

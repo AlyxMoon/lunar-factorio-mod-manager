@@ -15,3 +15,7 @@ export const addModToCurrentProfile = (context, mod) => {
 export const removeModFromCurrentProfile = (context, mod) => {
   ipcRenderer.send('REMOVE_MOD_FROM_CURRENT_PROFILE', mod)
 }
+
+export const selectMod = (context, mod) => {
+  context.commit('SET_SELECTED_MOD', { selectedMod: mod })
+}

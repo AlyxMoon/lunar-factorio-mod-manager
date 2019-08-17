@@ -37,14 +37,19 @@
                   <i class="fa fa-minus" />
                 </button>
               </td>
-              <td>{{ mod.name }}</td>
+              <td @click="selectMod(mod)">
+                {{ mod.name }}
+              </td>
               <td>{{ mod.version }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <ComponentInstalledModsList />
+      <div class="column row-2">
+        <ComponentInstalledModsList />
+        <ComponentModInfoPanel />
+      </div>
     </div>
   </div>
 </template>
@@ -52,11 +57,13 @@
 <script>
 import { mapActions, mapState } from 'vuex'
 import InstalledModsList from '@/components/InstalledModsList'
+import ModInfoPanel from '@/components/ModInfoPanel'
 
 export default {
   name: 'Home',
   components: {
     ComponentInstalledModsList: InstalledModsList,
+    ComponentModInfoPanel: ModInfoPanel,
   },
   computed: {
     ...mapState({
@@ -65,7 +72,7 @@ export default {
     }),
   },
   methods: {
-    ...mapActions(['removeModFromCurrentProfile', 'setActiveProfile']),
+    ...mapActions(['removeModFromCurrentProfile', 'setActiveProfile', 'selectMod']),
   },
 }
 </script>
@@ -84,10 +91,28 @@ export default {
 
   grid-template-columns: 1fr 1fr;
   grid-column-gap: 10px;
+  grid-template-rows: 100%;
 
   .profile-mod-list {
     background-color: $background-primary-color;
     height: 100%;
+  }
+}
+
+.column {
+  display: grid;
+  grid-row-gap: 10px;
+
+  width: 100%;
+  height: 100%;
+
+  &.row-2 {
+    grid-template-columns: 1fr;
+    grid-template-rows: calc(50% - 10px);
+  }
+
+  & > * {
+    background-color: $background-primary-color;
   }
 }
 </style>

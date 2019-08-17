@@ -36,6 +36,8 @@ html, body {
   width: 100vw;
   height: calc(100vh - #{$navbar-height-lg});
 
+  overflow: hidden;
+
   @media- (max-width: $breakpoint-sm) {
     height: calc(100vh - 10px - #{$navbar-height-sm});
   }

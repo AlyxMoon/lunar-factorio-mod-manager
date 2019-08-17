@@ -9,6 +9,7 @@ const state = {
   activeProfile: undefined,
   installedMods: [],
   profiles: [],
+  selectedMod: undefined,
 }
 
 Vue.use(Vuex)
