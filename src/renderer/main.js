@@ -39,6 +39,10 @@ ipcRenderer.on('CHANGE_VIEW', (event, data) => {
   }
 })
 
+ipcRenderer.on('INSTALLED_MODS', (event, data) => {
+  store.commit('SET_INSTALLED_MODS', { installedMods: data })
+})
+
 ipcRenderer.on('PROFILES_LIST', (event, data) => {
   store.commit('SET_PROFILES', { profiles: data })
 })
@@ -50,5 +54,6 @@ ipcRenderer.on('PROFILES_ACTIVE', (event, data) => {
 if (isDev) {
   // Normally won't need to call these events
   // but during development if renderer code is reloaded then the app won't send info again and that's annoying
+  ipcRenderer.send('REQUEST_INSTALLED_MODS')
   ipcRenderer.send('REQUEST_PROFILES')
 }

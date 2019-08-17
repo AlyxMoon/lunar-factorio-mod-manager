@@ -142,6 +142,22 @@ export default class AppManager {
     }
   }
 
+  async updateModListJSON () {
+    console.log(1, 'Beginning to save current mod configuration.')
+    const filePath = path.join(store.get('paths.mods'), 'mod-list.json')
+
+    const currentProfile = store.get('profiles.list')[store.get('profiles.active')]
+    const modListData = {
+      mods: store.get('mods.installed').map(mod => ({
+        name: mod.name,
+        enabled: currentProfile.mods.some(m => m.name === mod.name),
+      })),
+    }
+
+    fs.writeFileSync(filePath, JSON.stringify(modListData, null, 4))
+    console.log(1, 'Finished saving current mod configuration.')
+  }
+
   async startFactorio () {
     const factorioPath = store.get('paths.factorio')
 
@@ -149,6 +165,8 @@ export default class AppManager {
       console.error('Do not have the path to Factorio file, unable to start the game')
       return
     }
+
+    this.updateModListJSON()
 
     if (os.platform() === 'win32') {
       spawn('factorio.exe', [], {

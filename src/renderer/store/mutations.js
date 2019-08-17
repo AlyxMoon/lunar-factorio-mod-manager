@@ -1,3 +1,7 @@
+export const SET_INSTALLED_MODS = (state, payload) => {
+  state.installedMods = payload.installedMods
+}
+
 export const SET_ACTIVE_PROFILE = (state, payload) => {
   state.activeProfile = payload.activeProfile
 }

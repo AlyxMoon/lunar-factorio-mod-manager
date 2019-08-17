@@ -4,10 +4,10 @@
       <div class="profile-mod-list">
         <div class="menu">
           <div>
-            <span class="menu-label">Active Profile: </span>
+            <span class="menu-label">Active Profile</span>
             <select @change="setActiveProfile($event.target.value); $event.target.blur()">
               <option
-                v-for="(profile, index) of profiles"
+                v-for="(profile, index) in profiles"
                 :key="index"
                 :selected="index === activeProfile"
                 :value="index"
@@ -21,32 +21,43 @@
         <table v-if="profiles && activeProfile >= 0">
           <thead>
             <tr>
-              <th class="cell-check">^</th>
+              <th class="cell-check" />
               <th>Name</th>
               <th>Version</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="mod in profiles[activeProfile].mods">
-              <td class="cell-check">^</td>
+              <td class="cell-check">
+                <button
+                  @click="removeModFromCurrentProfile(mod)"
+                  :disabled="mod.name === 'base'"
+                  class="btn btn-red"
+                >
+                  <i class="fa fa-minus" />
+                </button>
+              </td>
               <td>{{ mod.name }}</td>
               <td>{{ mod.version }}</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <div class="mod-info">
 
-      </div>
+      <ComponentInstalledModsList />
     </div>
   </div>
 </template>
 
 <script>
 import { mapActions, mapState } from 'vuex'
+import InstalledModsList from '@/components/InstalledModsList'
 
 export default {
   name: 'Home',
+  components: {
+    ComponentInstalledModsList: InstalledModsList,
+  },
   computed: {
     ...mapState({
       activeProfile: state => state.activeProfile,
@@ -54,7 +65,7 @@ export default {
     }),
   },
   methods: {
-    ...mapActions(['setActiveProfile']),
+    ...mapActions(['removeModFromCurrentProfile', 'setActiveProfile']),
   },
 }
 </script>
@@ -62,7 +73,6 @@ export default {
 <style lang="scss" scoped>
 .menu {
   box-sizing: border-box;
-  height: 40px;
   padding: 5px;
 }
 
@@ -78,10 +88,6 @@ export default {
   .profile-mod-list {
     background-color: $background-primary-color;
     height: 100%;
-  }
-
-  .mod-info {
-    background-color: $background-primary-color;
   }
 }
 </style>

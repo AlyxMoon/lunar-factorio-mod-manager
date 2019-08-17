@@ -32,6 +32,10 @@ if (app.requestSingleInstanceLock()) {
 }
 
 const addClientEventListeners = async () => {
+  store.onDidChange('mods.installed', (newValue) => {
+    mainWindow.webContents.send('INSTALLED_MODS', newValue)
+  })
+
   store.onDidChange('profiles.list', (newValue) => {
     mainWindow.webContents.send('PROFILES_LIST', newValue)
   })
@@ -43,11 +47,23 @@ const addClientEventListeners = async () => {
   if (isDevMode) {
     // Normally won't need to call these events
     // but during development if renderer code is reloaded then the app won't send info again and that's annoying
+    ipcMain.on('REQUEST_INSTALLED_MODS', (event) => {
+      event.reply('INSTALLED_MODS', store.get('mods.installed'))
+    })
+
     ipcMain.on('REQUEST_PROFILES', (event) => {
       event.reply('PROFILES_LIST', store.get('profiles.list'))
       event.reply('PROFILES_ACTIVE', store.get('profiles.active'))
     })
   }
+
+  ipcMain.on('ADD_MOD_TO_CURRENT_PROFILE', (event, mod) => {
+    profileManager.addModToCurrentProfile(mod)
+  })
+
+  ipcMain.on('REMOVE_MOD_FROM_CURRENT_PROFILE', (event, mod) => {
+    profileManager.removeModFromCurrentProfile(mod)
+  })
 }
 
 const initializeApp = async () => {
@@ -63,6 +79,7 @@ const initializeApp = async () => {
   await profileManager.init()
   await profileManager.loadProfiles()
 
+  mainWindow.webContents.send('INSTALLED_MODS', store.get('mods.installed'))
   mainWindow.webContents.send('PROFILES_LIST', store.get('profiles.list'))
   mainWindow.webContents.send('PROFILES_ACTIVE', store.get('profiles.active'))
 }

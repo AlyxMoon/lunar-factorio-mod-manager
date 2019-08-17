@@ -44,12 +44,15 @@ html, body {
 .menu {
   background-color: $background-primary-color;
 
-  width: calc(100% - 10px);
-  padding: 0 5px;
+  height: $menu-height;
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
 
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
 
   @media (max-width: $breakpoint-sm) {
     flex-direction: column;
@@ -117,6 +120,51 @@ table {
     padding-right: 10px;
     width: 15px;
     text-align: center;
+
+    .btn {
+      font-size: 12px;
+      padding: 5px;
+    }
+  }
+}
+
+.btn {
+  background-color: $element-background-color;
+  color: $text-primary-color;
+
+  padding: 5px 10px;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  border-radius: 0;
+  border: 1px solid $element-border-color;
+  box-shadow: 1px 1px 2px 0 $element-shadow-color;
+  outline: none;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $highlight-color;
+    border-color: rgba(0, 0, 0, 0);
+    box-shadow: 0 0 2px 2px $highlight-color;
+  }
+
+  &.btn-green {
+    background-color: #28A745;
+    color: $text-light-color;
+  }
+
+  &.btn-red {
+    background-color: #CB2431;
+    color: $text-light-color;
+  }
+
+  &:disabled {
+    background-color: $background-secondary-color;
+    border-color: rgba(0, 0, 0, 0);
+    box-shadow: 0 0 2px 2px $element-shadow-color;
+    cursor: default;
   }
 }
 
