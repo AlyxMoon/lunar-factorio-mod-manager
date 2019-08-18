@@ -15,8 +15,27 @@
         </select>
       </div>
       <div>
-        <button class="btn">
+        <button
+          @click="toggleEditProfile()"
+          class="btn"
+          title="Edit Profile"
+        >
           <i class="fa fa-edit" />
+        </button>
+        <button
+          @click="addProfile()"
+          class="btn green"
+          title="Add Profile"
+        >
+          <i class="fa fa-plus" />
+        </button>
+        <button
+          @click="removeCurrentProfile()"
+          :disabled="profiles.length === 1"
+          class="btn red"
+          title="Delete Profile"
+        >
+          <i class="fa fa-trash-alt" />
         </button>
       </div>
     </div>
@@ -35,7 +54,7 @@
             <button
               @click="removeModFromCurrentProfile(mod)"
               :disabled="mod.name === 'base'"
-              class="btn btn-red"
+              class="btn red"
             >
               <i class="fa fa-minus" />
             </button>
@@ -61,7 +80,14 @@ export default {
     }),
   },
   methods: {
-    ...mapActions(['setActiveProfile', 'removeModFromCurrentProfile', 'selectMod']),
+    ...mapActions([
+      'setActiveProfile',
+      'removeModFromCurrentProfile',
+      'selectMod',
+      'toggleEditProfile',
+      'addProfile',
+      'removeCurrentProfile',
+    ]),
   },
 }
 </script>

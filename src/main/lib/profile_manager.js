@@ -17,6 +17,36 @@ export default class ProfileManager {
     })
   }
 
+  async addProfile () {
+    const profiles = store.get('profiles.list') || []
+    profiles.push({ name: 'New Profile', mods: [{ name: 'base', version: store.get('mods.factorioVersion') }] })
+
+    store.set('profiles.list', profiles)
+    store.set('profiles.active', profiles.length - 1)
+  }
+
+  async updateCurrentProfile (data) {
+    const profiles = store.get('profiles.list')
+    const active = store.get('profiles.active')
+
+    if (profiles && profiles[active]) {
+      profiles[active] = Object.assign(profiles[active], data)
+      store.set('profiles.list', profiles)
+    }
+  }
+
+  async removeCurrentProfile () {
+    const profiles = store.get('profiles.list')
+    const active = store.get('profiles.active')
+
+    if (profiles && profiles.length > 0 && active >= 0) {
+      profiles.splice(active, 1)
+
+      store.set('profiles.active', 0)
+      store.set('profiles.list', profiles)
+    }
+  }
+
   async addModToCurrentProfile (mod) {
     const profiles = store.get('profiles.list')
     const i = store.get('profiles.active')

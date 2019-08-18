@@ -7,6 +7,7 @@ import * as mutations from './mutations'
 
 const state = {
   activeProfile: undefined,
+  editingProfile: false,
   installedMods: [],
   profiles: [],
   selectedMod: undefined,

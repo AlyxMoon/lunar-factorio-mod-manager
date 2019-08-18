@@ -10,6 +10,10 @@ export const SET_PROFILES = (state, payload) => {
   state.profiles = payload.profiles
 }
 
+export const TOGGLE_EDIT_PROFILE = (state) => {
+  state.editingProfile = !state.editingProfile
+}
+
 export const SET_SELECTED_MOD = (state, payload) => {
   state.selectedMod = payload.selectedMod
 }

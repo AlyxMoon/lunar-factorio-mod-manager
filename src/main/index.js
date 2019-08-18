@@ -7,7 +7,7 @@ import { productName } from '../../package'
 import AppManager from './lib/app_manager'
 import ModManager from './lib/mod_manager'
 import ProfileManager from './lib/profile_manager'
-import { debounce } from './lib/helpers'
+import { debounce } from '../shared/debounce'
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 app.setName(productName)
@@ -63,6 +63,18 @@ const addClientEventListeners = async () => {
 
   ipcMain.on('REMOVE_MOD_FROM_CURRENT_PROFILE', (event, mod) => {
     profileManager.removeModFromCurrentProfile(mod)
+  })
+
+  ipcMain.on('ADD_PROFILE', (event) => {
+    profileManager.addProfile()
+  })
+
+  ipcMain.on('UPDATE_CURRENT_PROFILE', (event, data) => {
+    profileManager.updateCurrentProfile(data)
+  })
+
+  ipcMain.on('REMOVE_CURRENT_PROFILE', (event) => {
+    profileManager.removeCurrentProfile()
   })
 }
 

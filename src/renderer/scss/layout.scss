@@ -42,3 +42,7 @@
     grid-template-rows: calc(50% - 10px);
   }
 }
+
+hr {
+  border-color: $background-primary-color;
+}

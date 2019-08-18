@@ -66,10 +66,6 @@ div.mod-info-content {
   }
 }
 
-hr {
-  border-color: $background-primary-color;
-}
-
 table {
   tbody {
     tr {
