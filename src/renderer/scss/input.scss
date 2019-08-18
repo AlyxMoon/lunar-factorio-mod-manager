@@ -1,0 +1,28 @@
+select {
+  display: inline-block;
+  padding: 4px 10px;
+
+  background-color: $element-background-color;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  &:hover, &:focus {
+    background-color: $highlight-color;
+    border-color: rgba(0, 0, 0, 0);
+    box-shadow: 0 0 2px 2px $highlight-color;
+  }
+
+  option {
+    color: $text-light-color;
+    font-size: 16px;
+
+    background-color: $background-primary-color;
+    border-bottom: 1px solid black;
+
+    &:hover {
+      background-color: $highlight-color;
+      border-color: rgba(0, 0, 0, 0);
+    }
+  }
+}

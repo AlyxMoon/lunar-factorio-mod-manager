@@ -1,0 +1,16 @@
+@import './input.scss';
+@import './layout.scss';
+@import './menu.scss';
+@import './table.scss';
+
+html, body {
+  background-color: $background-primary-color;
+
+  margin: 0;
+  padding: 0;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  overflow: hidden;
+}

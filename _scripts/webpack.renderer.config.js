@@ -59,7 +59,7 @@ const config = {
             options: {
               implementation: require('sass'),
               data: `
-                @import "@/scss/_variables.scss";
+                @import "@/scss/globals/_variables.scss";
               `,
             },
           },
