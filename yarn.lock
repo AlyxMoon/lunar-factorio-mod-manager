@@ -8562,6 +8562,11 @@ vm-browserify@^1.0.1:
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.0.tgz#bd76d6a23323e2ca8ffa12028dc04559c75f9019"
   integrity sha512-iq+S7vZJE60yejDYM0ek6zg308+UZsdtPExWP9VZoCFCz1zkJoXFnAX7aZfd/ZwrkidzdUZL0C/ryW+JwAiIGw==
 
+vue-devtools@^5.1.3:
+  version "5.1.3"
+  resolved "https://registry.yarnpkg.com/vue-devtools/-/vue-devtools-5.1.3.tgz#9f172b420ca87cec4737968769db8080e6e6f7a7"
+  integrity sha512-5hfJ4JiPn9hL3CFjrmdx6UOqZATjqBYNSC8ZyGgwnqO2jQ4VfX/9k6KZcxPTWeyHDIX7D4BEIYP0fgrJL3RKTw==
+
 vue-electron@^1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/vue-electron/-/vue-electron-1.0.6.tgz#e798e03180b8933539defe31f92e53b9242b9406"
@@ -8658,6 +8663,11 @@ vue@^2.6.10:
   version "2.6.10"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.10.tgz#a72b1a42a4d82a721ea438d1b6bf55e66195c637"
   integrity sha512-ImThpeNU9HbdZL3utgMCq0oiMzAkt1mcgy3/E6zWC/G6AaQoeuFdsl9nDhTDU3X1R6FK7nsIUuRACVcjI+A2GQ==
+
+vuex-toast@^0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/vuex-toast/-/vuex-toast-0.1.3.tgz#b3d4c9b9a88f5f8fef960c0aef8dddc0aa031cde"
+  integrity sha512-QfQjm5TnpRW92hAWLHBNgtWywcFDf5xY9d2pVihPyLnXpJbkPL7uZKXN1vE//rB/I0rkVNsnN2plQmj0Lrijgg==
 
 vuex@^3.1.1:
   version "3.1.1"

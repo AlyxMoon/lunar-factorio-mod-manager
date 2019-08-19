@@ -1,17 +1,20 @@
 <template>
   <div id="app">
-    <ComponentNavbar />
+    <Toast position="ne" />
+    <Navbar />
     <RouterView class="content" />
   </div>
 </template>
 
 <script>
+import { Toast } from 'vuex-toast'
 import Navbar from '@/components/Navbar'
 
 export default {
   name: 'App',
   components: {
-    ComponentNavbar: Navbar,
+    Navbar,
+    Toast,
   },
 }
 </script>

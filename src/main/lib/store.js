@@ -5,6 +5,7 @@ const storeFile = new Store({
     mods: { installed: [] },
     profiles: { list: [], active: null },
     paths: {},
+    player: { username: '', token: '' },
     window: {},
   },
 })

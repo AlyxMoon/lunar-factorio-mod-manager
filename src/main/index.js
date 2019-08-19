@@ -44,9 +44,16 @@ const addClientEventListeners = async () => {
     mainWindow.webContents.send('PROFILES_ACTIVE', newValue)
   })
 
+  store.onDidChange('player.username', (newValue) => {
+    mainWindow.webContents.send('PLAYER_USERNAME', newValue)
+  })
+
   if (isDevMode) {
     // Normally won't need to call these events
     // but during development if renderer code is reloaded then the app won't send info again and that's annoying
+    ipcMain.on('REQUEST_PLAYER_USERNAME', (event) => {
+      event.reply('PLAYER_USERNAME', store.get('player.username'))
+    })
     ipcMain.on('REQUEST_INSTALLED_MODS', (event) => {
       event.reply('INSTALLED_MODS', store.get('mods.installed'))
     })
@@ -91,6 +98,7 @@ const initializeApp = async () => {
   await profileManager.init()
   await profileManager.loadProfiles()
 
+  mainWindow.webContents.send('PLAYER_USERNAME', store.get('player.username'))
   mainWindow.webContents.send('INSTALLED_MODS', store.get('mods.installed'))
   mainWindow.webContents.send('PROFILES_LIST', store.get('profiles.list'))
   mainWindow.webContents.send('PROFILES_ACTIVE', store.get('profiles.active'))
@@ -150,8 +158,12 @@ const createWindow = () => {
   }))
 }
 
-app.on('ready', () => {
-  createWindow()
+app.on('ready', async () => {
+  await createWindow()
+
+  if (isDevMode) {
+    require('vue-devtools').install()
+  }
 })
 
 app.on('window-all-closed', () => {

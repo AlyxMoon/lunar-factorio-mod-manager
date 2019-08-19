@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+import Portal from '@/pages/Portal'
 import Profiles from '@/pages/Profiles'
 
 const Mods = Vue.component('Mods', { template: '<div></div>' })
 const Saves = Vue.component('Saves', { template: '<div></div>' })
-const Portal = Vue.component('Portal', { template: '<div></div>' })
 
 Vue.use(Router)
 

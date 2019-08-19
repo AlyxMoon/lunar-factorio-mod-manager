@@ -1,3 +1,7 @@
+export const SET_PLAYER_USERNAME = (state, payload) => {
+  state.username = payload.username
+}
+
 export const SET_INSTALLED_MODS = (state, payload) => {
   state.installedMods = payload.installedMods
 }

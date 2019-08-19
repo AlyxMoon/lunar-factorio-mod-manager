@@ -1,8 +1,10 @@
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
+import { promisify } from 'util'
 import { spawn } from 'child_process'
 import { app, dialog, ipcMain } from 'electron'
+
 import store from './store'
 
 export default class AppManager {
@@ -25,7 +27,18 @@ export default class AppManager {
       }
     }
 
-    this.configureEventListeners()
+    if (!store.get('paths.playerData')) {
+      const thePath = await this.findFactorioPlayerData(mainWindow)
+      if (thePath) {
+        store.set('paths.playerData', thePath)
+      } else {
+        console.error('Unable to find the player-data.json path!')
+      }
+    }
+
+    await this.retrievePlayerData(mainWindow)
+
+    await this.configureEventListeners()
   }
 
   async configureEventListeners () {
@@ -85,7 +98,6 @@ export default class AppManager {
       }],
     })
 
-    console.log(gamePath)
     if (gamePath && !gamePath.canceled) {
       return gamePath.filePaths[0]
     } else {
@@ -139,6 +151,78 @@ export default class AppManager {
       return modlistPath.filePaths[0]
     } else {
       return undefined
+    }
+  }
+
+  async findFactorioPlayerData (mainWindow) {
+    console.log(1, 'Attempting to find player-data.json file.')
+
+    const paths = []
+
+    switch (os.platform()) {
+      case 'win32':
+        // ------------------------------
+        // Guess for common file locations first - Windows
+        paths.push(path.join(app.getPath('appData'), 'Factorio', 'player-data.json'))
+        paths.push(path.join(app.getPath('appData'), 'Factorio', 'config', 'player-data.json'))
+        break
+      case 'linux':
+        // ------------------------------
+        // Guess for common file locations first - Linux
+        paths.push(path.join(app.getPath('home'), '.factorio', 'player-data.json'))
+        paths.push(path.join(app.getPath('home'), 'factorio', 'player-data.json'))
+
+        break
+      case 'darwin':
+        // TODO Add MacOS X support
+        break
+    }
+
+    for (let i = 0, length = paths.length; i < length; i++) {
+      try {
+        fs.readFileSync(paths[i], 'utf8')
+        console.log(1, `Found player-data.json automatically: ${paths[i]}`)
+        return paths[i]
+      } catch (error) { if (error.code !== 'ENOENT') return undefined }
+    }
+
+    // ------------------------------
+    // Prompt if we didn't find anything
+    console.log(1, 'Could not find automatically, prompting user for file location.')
+    const playerDataPath = await dialog.showOpenDialog(mainWindow, {
+      title: 'Find location of player-data.json file',
+      properties: ['openFile'],
+      filters: [{
+        name: 'Factorio Player Data',
+        extensions: ['json'],
+      }],
+    })
+
+    if (playerDataPath && !playerDataPath.canceled) {
+      return playerDataPath.filePaths[0]
+    } else {
+      return undefined
+    }
+  }
+
+  async retrievePlayerData (mainWindow) {
+    const player = store.get('player')
+
+    if (!player.username || !player.token) {
+      const playerDataPath = store.get('paths.playerData')
+      if (!playerDataPath) return console.error('Unable to retrieve Factorio user info as player-data.json file is not known')
+
+      const data = JSON.parse(await promisify(fs.readFile)(playerDataPath, 'utf8'))
+      if (!data['service-username'] || !data['service-token']) {
+        mainWindow.webContents.send('ADD_TOAST', {
+          type: 'warning',
+          text: 'Unable to get user info from the player-data.json file. This is likely due to not having opened Factorio before. You will be unable to download online mods through this app.',
+          dismissAfter: 12000,
+        })
+      } else {
+        store.set('player.username', data['service-username'])
+        store.set('player.token', data['service-token'])
+      }
     }
   }
 
