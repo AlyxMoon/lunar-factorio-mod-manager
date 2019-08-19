@@ -160,10 +160,6 @@ const createWindow = () => {
 
 app.on('ready', async () => {
   await createWindow()
-
-  if (isDevMode) {
-    require('vue-devtools').install()
-  }
 })
 
 app.on('window-all-closed', () => {
