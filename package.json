@@ -10,6 +10,7 @@
     "lint": "eslint --ext .js,.vue src",
     "lint:fix": "eslint --fix --ext .js,.vue src",
     "test": "jest --config test/unit/jest.conf.js",
+    "test:watch": "jest --config test/unit/jest.conf.js --watch",
     "test:coverage": "jest --config test/unit/jest.conf.js --coverage",
     "build": "yarn run pack && node _scripts/build.js",
     "pack": "yarn run pack:main && yarn run pack:renderer",
