@@ -26,6 +26,10 @@ export const SET_SELECTED_MOD = (state, payload) => {
   state.selectedMod = payload.selectedMod
 }
 
+export const SET_SELECTED_ONLINE_MOD = (state, payload) => {
+  state.selectedOnlineMod = payload.selectedOnlineMod
+}
+
 export const SET_ONLINE_MODS_PAGE = (state, payload) => {
   state.onlineModsPage = payload.onlineModsPage
 }

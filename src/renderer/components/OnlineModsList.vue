@@ -2,7 +2,10 @@
   <div class="online-mods-list">
     <table v-if="currentlyDisplayedOnlineMods">
       <tbody>
-        <tr v-for="mod in currentlyDisplayedOnlineMods">
+        <tr
+          v-for="mod in currentlyDisplayedOnlineMods"
+          @click="selectOnlineMod(mod)"
+        >
           <td>
             {{ mod.name }}
           </td>
@@ -27,7 +30,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['fetchOnlineMods']),
+    ...mapActions(['fetchOnlineMods', 'selectOnlineMod']),
   },
 }
 </script>

@@ -49,6 +49,9 @@
           </div>
         </div>
       </div>
+      <div>
+        <OnlineModInfoPanel />
+      </div>
     </div>
   </div>
 </template>
@@ -56,11 +59,13 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex'
 
+import OnlineModInfoPanel from '@/components/OnlineModInfoPanel'
 import OnlineModsList from '@/components/OnlineModsList'
 
 export default {
   name: 'Portal',
   components: {
+    OnlineModInfoPanel,
     OnlineModsList,
   },
   computed: {

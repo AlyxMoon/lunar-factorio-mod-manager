@@ -42,6 +42,10 @@ export const selectMod = (context, mod) => {
   context.commit('SET_SELECTED_MOD', { selectedMod: mod })
 }
 
+export const selectOnlineMod = (context, mod) => {
+  context.commit('SET_SELECTED_ONLINE_MOD', { selectedOnlineMod: mod })
+}
+
 export const decrementCurrentOnlineModsPage = (context) => {
   const newPage = context.state.onlineModsPage - 1 > 0
     ? context.state.onlineModsPage - 1

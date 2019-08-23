@@ -15,6 +15,7 @@ const state = {
   onlineModsPage: 0,
   profiles: [],
   selectedMod: undefined,
+  selectedOnlineMod: undefined,
   username: '',
 }
 
