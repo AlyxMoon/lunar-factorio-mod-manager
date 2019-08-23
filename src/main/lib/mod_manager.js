@@ -2,6 +2,8 @@ import fs from 'fs'
 import path from 'path'
 import { promisify } from 'util'
 import jsZip from 'jszip'
+import fetch from 'node-fetch'
+
 import store from './store'
 
 export default class ModManager {
@@ -28,5 +30,29 @@ export default class ModManager {
     })))
 
     store.set('mods.installed', installedMods)
+  }
+
+  // Retrieve full list of current version mods
+  // Will save to cache to prevent unecessary queries, unless force is true
+  async fetchOnlineMods (force = false) {
+    if (!force) {
+      const onlineCount = store.get('mods.onlineCount')
+      const onlineLastFetch = store.get('mods.onlineLastFetch')
+      if (onlineCount && onlineLastFetch) {
+        const now = Date.now()
+
+        if (now - onlineLastFetch <= 86400000) return
+      }
+    }
+
+    const factorioVersion = store.get('mods.factorioVersion')
+    const apiUrl = `https://mods.factorio.com/api/mods?page_size=max${factorioVersion ? '&version=' + factorioVersion : ''}`
+
+    const data = await (await fetch(apiUrl)).json()
+    store.set({
+      'mods.online': data.results,
+      'mods.onlineCount': data.results.length,
+      'mods.onlineLastFetch': Date.now(),
+    })
   }
 }

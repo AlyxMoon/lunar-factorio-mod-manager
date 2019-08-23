@@ -35,11 +35,11 @@
   }
 
   &.row-1 {
-    grid-template-rows: 1fr;
+    grid-template-rows: 100%;
   }
 
   &.row-2 {
-    grid-template-rows: 1fr 1fr;
+    grid-template-rows: 50% 50%;
   }
 }
 

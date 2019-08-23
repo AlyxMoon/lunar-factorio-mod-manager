@@ -6,6 +6,10 @@ export const SET_INSTALLED_MODS = (state, payload) => {
   state.installedMods = payload.installedMods
 }
 
+export const SET_ONLINE_MODS = (state, payload) => {
+  state.onlineMods = payload.onlineMods
+}
+
 export const SET_ACTIVE_PROFILE = (state, payload) => {
   state.activeProfile = payload.activeProfile
 }
@@ -20,4 +24,8 @@ export const TOGGLE_EDIT_PROFILE = (state) => {
 
 export const SET_SELECTED_MOD = (state, payload) => {
   state.selectedMod = payload.selectedMod
+}
+
+export const SET_ONLINE_MODS_PAGE = (state, payload) => {
+  state.onlineModsPage = payload.onlineModsPage
 }

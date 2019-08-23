@@ -36,6 +36,10 @@ const addClientEventListeners = async () => {
     mainWindow.webContents.send('INSTALLED_MODS', newValue)
   })
 
+  store.onDidChange('mods.online', (newValue) => {
+    mainWindow.webContents.send('ONLINE_MODS', newValue)
+  })
+
   store.onDidChange('profiles.list', (newValue) => {
     mainWindow.webContents.send('PROFILES_LIST', newValue)
   })
@@ -54,8 +58,13 @@ const addClientEventListeners = async () => {
     ipcMain.on('REQUEST_PLAYER_USERNAME', (event) => {
       event.reply('PLAYER_USERNAME', store.get('player.username'))
     })
+
     ipcMain.on('REQUEST_INSTALLED_MODS', (event) => {
       event.reply('INSTALLED_MODS', store.get('mods.installed'))
+    })
+
+    ipcMain.on('REQUEST_ONLINE_MODS', (event) => {
+      event.reply('ONLINE_MODS', store.get('mods.online'))
     })
 
     ipcMain.on('REQUEST_PROFILES', (event) => {
@@ -83,6 +92,10 @@ const addClientEventListeners = async () => {
   ipcMain.on('REMOVE_CURRENT_PROFILE', (event) => {
     profileManager.removeCurrentProfile()
   })
+
+  ipcMain.on('FETCH_ONLINE_MODS', (event) => {
+    modManager.fetchOnlineMods()
+  })
 }
 
 const initializeApp = async () => {
@@ -100,6 +113,7 @@ const initializeApp = async () => {
 
   mainWindow.webContents.send('PLAYER_USERNAME', store.get('player.username'))
   mainWindow.webContents.send('INSTALLED_MODS', store.get('mods.installed'))
+  mainWindow.webContents.send('ONLINE_MODS', store.get('mods.online'))
   mainWindow.webContents.send('PROFILES_LIST', store.get('profiles.list'))
   mainWindow.webContents.send('PROFILES_ACTIVE', store.get('profiles.active'))
 }

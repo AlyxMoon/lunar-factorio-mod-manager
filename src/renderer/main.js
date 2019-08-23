@@ -53,6 +53,10 @@ ipcRenderer.on('INSTALLED_MODS', (event, data) => {
   store.commit('SET_INSTALLED_MODS', { installedMods: data })
 })
 
+ipcRenderer.on('ONLINE_MODS', (event, data) => {
+  store.commit('SET_ONLINE_MODS', { onlineMods: data })
+})
+
 ipcRenderer.on('PROFILES_LIST', (event, data) => {
   store.commit('SET_PROFILES', { profiles: data })
 })
@@ -66,5 +70,6 @@ if (isDev) {
   // but during development if renderer code is reloaded then the app won't send info again and that's annoying
   ipcRenderer.send('REQUEST_PLAYER_USERNAME')
   ipcRenderer.send('REQUEST_INSTALLED_MODS')
+  ipcRenderer.send('REQUEST_ONLINE_MODS')
   ipcRenderer.send('REQUEST_PROFILES')
 }
