@@ -4,15 +4,29 @@
       <div>
         <div class="menu">
           <div class="menu-section">
-            <span
-              v-if="username"
-              class="menu-label"
-            >Logged In As: {{ username }}</span>
-            <span
-              v-else
-              class="menu-label"
-            >Player is not logged in</span>
+            <select @change="setCurrentOnlineModFilter($event.target.value); $event.target.blur()">
+              <option
+                v-for="(category, index) in onlineModCategories"
+                :key="index"
+                :selected="category.name === onlineModsCurrentFilter"
+                :value="category.name"
+              >
+                {{ category.title }}
+              </option>
+            </select>
+
+            <select @change="setCurrentOnlineModSort($event.target.value); $event.target.blur()">
+              <option
+                v-for="(sort, index) in onlineModSorts"
+                :key="index"
+                :selected="sort.name === onlineModsCurrentSort"
+                :value="sort.name"
+              >
+                {{ sort.title }}
+              </option>
+            </select>
           </div>
+
           <div class="menu-section">
             <button
               @click="fetchOnlineMods(true)"
@@ -23,6 +37,20 @@
             </button>
           </div>
         </div>
+
+        <div class="menu">
+          <div class="menu-section">
+            <span
+              v-if="username"
+              class="menu-label"
+            >Logged In As: {{ username }}</span>
+            <span
+              v-else
+              class="menu-label"
+            >Player is not logged in</span>
+          </div>
+        </div>
+
         <OnlineModsList />
         <div class="menu">
           <span class="menu-label">Results: {{ numMods }}</span>
@@ -81,7 +109,11 @@ export default {
   computed: {
     ...mapState({
       numMods: state => (state.onlineMods && state.onlineMods.length) || 0,
+      onlineModCategories: state => state.onlineModCategories,
+      onlineModSorts: state => state.onlineModSorts,
       onlineModsPage: state => state.onlineModsPage,
+      onlineModsCurrentFilter: state => state.onlineModsCurrentFilter,
+      onlineModsCurrentSort: state => state.onlineModsCurrentSort,
       username: state => state.username,
     }),
     ...mapGetters(['maxPageOnlineMods']),
@@ -96,6 +128,8 @@ export default {
       'goToFirstOnlineModsPage',
       'goToLastOnlineModsPage',
       'fetchOnlineMods',
+      'setCurrentOnlineModFilter',
+      'setCurrentOnlineModSort',
     ]),
   },
 }

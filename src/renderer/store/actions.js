@@ -38,6 +38,14 @@ export const removeCurrentProfile = (context) => {
   ipcRenderer.send('REMOVE_CURRENT_PROFILE')
 }
 
+export const setCurrentOnlineModFilter = (context, filter) => {
+  context.commit('SET_CURRENT_ONLINE_MOD_FILTER', { onlineModsCurrentFilter: filter })
+}
+
+export const setCurrentOnlineModSort = (context, sort) => {
+  context.commit('SET_CURRENT_ONLINE_MOD_SORT', { onlineModsCurrentSort: sort })
+}
+
 export const selectMod = (context, mod) => {
   context.commit('SET_SELECTED_MOD', { selectedMod: mod })
 }

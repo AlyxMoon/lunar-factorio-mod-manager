@@ -22,6 +22,16 @@ export const TOGGLE_EDIT_PROFILE = (state) => {
   state.editingProfile = !state.editingProfile
 }
 
+export const SET_CURRENT_ONLINE_MOD_FILTER = (state, payload) => {
+  state.onlineModsCurrentFilter = payload.onlineModsCurrentFilter
+  state.onlineModsPage = 0
+}
+
+export const SET_CURRENT_ONLINE_MOD_SORT = (state, payload) => {
+  state.onlineModsCurrentSort = payload.onlineModsCurrentSort
+  state.onlineModsPage = 0
+}
+
 export const SET_SELECTED_MOD = (state, payload) => {
   state.selectedMod = payload.selectedMod
 }

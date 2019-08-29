@@ -11,13 +11,45 @@ export const isModInCurrentProfile = (state, getters) => (mod) => {
 export const currentlyDisplayedOnlineMods = (state) => {
   if (!state.onlineMods || !state.onlineMods.length === 0) return []
 
+  const mods = state.onlineModsCurrentFilter === 'all'
+    ? state.onlineMods
+    : state.onlineMods.filter(mod => mod.category === state.onlineModsCurrentFilter)
+
   const { onlineModsItemPerPage, onlineModsPage } = state
   const startIndex = onlineModsPage * onlineModsItemPerPage
-  return state.onlineMods.slice(startIndex, startIndex + onlineModsItemPerPage)
+  return mods
+    .concat()
+    .sort((a, b) => {
+      if (state.onlineModsCurrentSort === 'a-z') {
+        if (a.title < b.title) return -1
+        if (a.title > b.title) return 1
+        return 0
+      }
+      if (state.onlineModsCurrentSort === 'popular-most') {
+        if (a.downloads_count > b.downloads_count) return -1
+        if (a.downloads_count < b.downloads_count) return 1
+        return 0
+      }
+      if (state.onlineModsCurrentSort === 'recent-most') {
+        if (a.latest_release.released_at > b.latest_release.released_at) return -1
+        if (a.latest_release.released_at < b.latest_release.released_at) return 1
+        return 0
+      }
+      if (state.onlineModsCurrentSort === 'trending-most') {
+        if (a.score > b.score) return -1
+        if (a.score < b.score) return 1
+        return 0
+      }
+    })
+    .slice(startIndex, startIndex + onlineModsItemPerPage)
 }
 
 export const maxPageOnlineMods = (state) => {
   if (!state.onlineMods || !state.onlineMods.length === 0) return 0
 
-  return Math.floor(state.onlineMods.length / state.onlineModsItemPerPage) - 1
+  const count = state.onlineModsCurrentFilter === 'all'
+    ? state.onlineMods.length
+    : state.onlineMods.filter(mod => mod.category === state.onlineModsCurrentFilter).length
+
+  return Math.floor(count / state.onlineModsItemPerPage) - 1
 }

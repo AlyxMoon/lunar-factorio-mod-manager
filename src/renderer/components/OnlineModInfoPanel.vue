@@ -66,6 +66,7 @@ div.mod-info-panel {
   background-color: $background-secondary-color;
   border: 5px solid $background-primary-color;
   height: 100%;
+  box-sizing: border-box;
 }
 
 div.mod-info-content {

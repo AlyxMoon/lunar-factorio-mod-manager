@@ -35,7 +35,7 @@ export default {
 
 <style lang="scss" scoped>
 .online-mods-list {
-  height: calc(100% - (#{$menu-height} * 2));
+  height: calc(100% - (#{$menu-height} * 3));
   overflow-y: auto;
 }
 </style>
