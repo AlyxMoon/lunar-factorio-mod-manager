@@ -14,7 +14,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="mod in installedMods">
+        <tr
+          v-for="mod in installedMods"
+          :class="{ selected: mod.name === selectedMod.name }"
+        >
           <td class="cell-check">
             <button
               @click="addModToCurrentProfile(mod)"
@@ -42,6 +45,7 @@ export default {
     ...mapState({
       installedMods: state => state.installedMods,
       editingProfile: state => state.editingProfile,
+      selectedMod: state => state.selectedMod || {},
     }),
     ...mapGetters(['isModInCurrentProfile']),
   },

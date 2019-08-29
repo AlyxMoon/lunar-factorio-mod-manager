@@ -5,9 +5,10 @@
         <tr
           v-for="mod in currentlyDisplayedOnlineMods"
           @click="selectOnlineMod(mod)"
+          :class="{ selected: mod.name === selectedOnlineMod.name }"
         >
           <td>
-            {{ mod.name }}
+            {{ mod.title }}
           </td>
         </tr>
       </tbody>
@@ -16,21 +17,18 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
   name: 'OnlineModsList',
   computed: {
+    ...mapState({
+      selectedOnlineMod: state => state.selectedOnlineMod || {},
+    }),
     ...mapGetters(['currentlyDisplayedOnlineMods']),
   },
-  created () {
-    const mods = this.currentlyDisplayedOnlineMods
-    if (!mods || mods.length === 0) {
-      this.fetchOnlineMods()
-    }
-  },
   methods: {
-    ...mapActions(['fetchOnlineMods', 'selectOnlineMod']),
+    ...mapActions(['selectOnlineMod']),
   },
 }
 </script>

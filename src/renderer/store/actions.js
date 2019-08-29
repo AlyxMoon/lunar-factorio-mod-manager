@@ -5,8 +5,8 @@ export const startFactorio = (context) => {
   ipcRenderer.send('START_FACTORIO')
 }
 
-export const fetchOnlineMods = (context) => {
-  ipcRenderer.send('FETCH_ONLINE_MODS')
+export const fetchOnlineMods = (context, force = false) => {
+  ipcRenderer.send('FETCH_ONLINE_MODS', force)
 }
 
 export const setActiveProfile = (context, index) => {

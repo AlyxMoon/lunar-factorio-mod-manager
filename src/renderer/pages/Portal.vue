@@ -13,9 +13,19 @@
               class="menu-label"
             >Player is not logged in</span>
           </div>
+          <div class="menu-section">
+            <button
+              @click="fetchOnlineMods(true)"
+              class="btn"
+              title="Refresh mod list. Please don't overuse this! The mods will normally be cached for a full day before automatically refreshing. This forces a check of the Factorio mod portal."
+            >
+              <i class="fa fa-sync" />
+            </button>
+          </div>
         </div>
         <OnlineModsList />
         <div class="menu">
+          <span class="menu-label">Results: {{ numMods }}</span>
           <span class="menu-label">Page {{ onlineModsPage + 1 }} of {{ maxPageOnlineMods + 1 }}</span>
           <div>
             <button
@@ -70,10 +80,14 @@ export default {
   },
   computed: {
     ...mapState({
+      numMods: state => (state.onlineMods && state.onlineMods.length) || 0,
       onlineModsPage: state => state.onlineModsPage,
       username: state => state.username,
     }),
     ...mapGetters(['maxPageOnlineMods']),
+  },
+  created () {
+    this.fetchOnlineMods()
   },
   methods: {
     ...mapActions([
@@ -81,6 +95,7 @@ export default {
       'incrementCurrentOnlineModsPage',
       'goToFirstOnlineModsPage',
       'goToLastOnlineModsPage',
+      'fetchOnlineMods',
     ]),
   },
 }

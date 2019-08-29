@@ -93,8 +93,8 @@ const addClientEventListeners = async () => {
     profileManager.removeCurrentProfile()
   })
 
-  ipcMain.on('FETCH_ONLINE_MODS', (event) => {
-    modManager.fetchOnlineMods()
+  ipcMain.on('FETCH_ONLINE_MODS', (event, force) => {
+    modManager.fetchOnlineMods(force)
   })
 }
 
