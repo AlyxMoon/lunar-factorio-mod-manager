@@ -69,6 +69,8 @@ export default class AppManager {
       case 'linux':
         // ------------------------------
         // Guess for common file locations first - Linux
+        paths.push(path.join(app.getPath('home'), '.steam/steam/steamapps/common/Factorio/bin/x64/factorio'))
+        paths.push(path.join(app.getPath('home'), '.steam/steam/steamapps/common/Factorio/bin/i386/factorio'))
         paths.push(path.join(app.getPath('home'), '.factorio', 'bin', 'x64', 'factorio'))
         paths.push(path.join(app.getPath('home'), 'factorio', 'bin', 'i386', 'factorio'))
 
@@ -89,12 +91,17 @@ export default class AppManager {
     // ------------------------------
     // Prompt if file was not found automatically
     console.log(1, 'Could not find automatically, prompting user for file location.')
+
+    const extensions = []
+    if (os.platform() === 'win32') extensions.push('exe')
+    if (os.platform() === 'linux') extensions.push('*')
+
     const gamePath = await dialog.showOpenDialog(mainWindow, {
       title: 'Find location of Factorio binary file',
       properties: ['openFile'],
       filters: [{
         name: 'Factorio Executable',
-        extensions: ['exe'],
+        extensions,
       }],
     })
 
