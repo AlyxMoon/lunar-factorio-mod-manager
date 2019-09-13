@@ -4,6 +4,15 @@
       <div>
         <span class="menu-label">{{ mod ? mod.title : 'Selected Mod Info' }}</span>
       </div>
+      <div>
+        <button
+          @click="downloadMod(mod)"
+          class="btn"
+          title="Download Latest Mod Version"
+        >
+          <i class="fa fa-download" />
+        </button>
+      </div>
     </div>
     <div
       v-if="mod"
@@ -50,13 +59,16 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 export default {
   name: 'ModInfoPanel',
   computed: {
     ...mapState({
       mod: state => state.selectedOnlineMod,
     }),
+  },
+  methods: {
+    ...mapActions(['downloadMod']),
   },
 }
 </script>

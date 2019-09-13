@@ -7,6 +7,7 @@ import { productName } from '../../package'
 import AppManager from './lib/app_manager'
 import ModManager from './lib/mod_manager'
 import ProfileManager from './lib/profile_manager'
+import DownloadManager from './lib/download_manager'
 import { debounce } from '../shared/debounce'
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
@@ -16,6 +17,7 @@ let mainWindow
 let appManager
 let modManager
 let profileManager
+let downloadManager
 
 const isDevMode = process.env.NODE_ENV === 'development'
 
@@ -96,6 +98,10 @@ const addClientEventListeners = async () => {
   ipcMain.on('FETCH_ONLINE_MODS', (event, force) => {
     modManager.fetchOnlineMods(force)
   })
+
+  ipcMain.on('DOWNLOAD_MOD', (event, name, title, version, downloadUrl) => {
+    downloadManager.addDownloadRequest(name, title, version, downloadUrl)
+  })
 }
 
 const initializeApp = async () => {
@@ -110,6 +116,9 @@ const initializeApp = async () => {
   profileManager = new ProfileManager()
   await profileManager.init()
   await profileManager.loadProfiles()
+
+  downloadManager = new DownloadManager(mainWindow.webContents, modManager)
+  mainWindow.webContents.session.on('will-download', (event, item) => downloadManager.manageDownload(item))
 
   mainWindow.webContents.send('PLAYER_USERNAME', store.get('player.username'))
   mainWindow.webContents.send('INSTALLED_MODS', store.get('mods.installed'))

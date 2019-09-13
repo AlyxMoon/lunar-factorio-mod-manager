@@ -9,6 +9,10 @@ export const fetchOnlineMods = (context, force = false) => {
   ipcRenderer.send('FETCH_ONLINE_MODS', force)
 }
 
+export const downloadMod = (context, mod) => {
+  ipcRenderer.send('DOWNLOAD_MOD', mod.name, mod.title, mod.latest_release.version, mod.latest_release.download_url)
+}
+
 export const setActiveProfile = (context, index) => {
   ipcRenderer.send('SET_ACTIVE_PROFILE', Number(index))
 }
