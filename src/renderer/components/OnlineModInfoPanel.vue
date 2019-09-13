@@ -1,5 +1,8 @@
 <template>
-  <div class="mod-info-panel">
+  <div
+    v-if="mod"
+    class="mod-info-panel"
+  >
     <div class="menu">
       <div>
         <span class="menu-label">{{ mod ? mod.title : 'Selected Mod Info' }}</span>
@@ -7,17 +10,15 @@
       <div>
         <button
           @click="downloadMod(mod)"
+          :disabled="isModDownloaded(mod.name)"
+          :title="isModDownloaded(mod.name) ? 'Mod is already downloaded' : 'Download Latest Mod Version'"
           class="btn"
-          title="Download Latest Mod Version"
         >
           <i class="fa fa-download" />
         </button>
       </div>
     </div>
-    <div
-      v-if="mod"
-      class="mod-info-content"
-    >
+    <div class="mod-info-content">
       <hr>
       <div>
         <div class="mod-description">
@@ -59,13 +60,14 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 export default {
   name: 'ModInfoPanel',
   computed: {
     ...mapState({
       mod: state => state.selectedOnlineMod,
     }),
+    ...mapGetters(['isModDownloaded']),
   },
   methods: {
     ...mapActions(['downloadMod']),

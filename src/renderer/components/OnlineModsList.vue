@@ -8,6 +8,11 @@
           :class="{ selected: mod.name === selectedOnlineMod.name }"
         >
           <td>
+            <i
+              v-if="isModDownloaded(mod.name)"
+              class="fa fa-check"
+              title="Already Downloaded"
+            />
             {{ mod.title }}
           </td>
         </tr>
@@ -25,7 +30,7 @@ export default {
     ...mapState({
       selectedOnlineMod: state => state.selectedOnlineMod || {},
     }),
-    ...mapGetters(['currentlyDisplayedOnlineMods']),
+    ...mapGetters(['currentlyDisplayedOnlineMods', 'isModDownloaded']),
   },
   methods: {
     ...mapActions(['selectOnlineMod']),

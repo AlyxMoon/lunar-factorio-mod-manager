@@ -53,3 +53,9 @@ export const maxPageOnlineMods = (state) => {
 
   return Math.floor(count / state.onlineModsItemPerPage) - 1
 }
+
+export const isModDownloaded = (state) => (name) => {
+  if (!name || !state.installedMods) return false
+
+  return state.installedMods.some(mod => mod.name === name)
+}
