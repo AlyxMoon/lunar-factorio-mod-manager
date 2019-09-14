@@ -13,6 +13,11 @@ export const downloadMod = (context, mod) => {
   ipcRenderer.send('DOWNLOAD_MOD', mod.name, mod.title, mod.latest_release.version, mod.latest_release.download_url)
 }
 
+export const deleteMod = (context, name) => {
+  ipcRenderer.send('DELETE_MOD', name)
+  context.commit('SET_SELECTED_MOD', { selectedMod: undefined })
+}
+
 export const setActiveProfile = (context, index) => {
   ipcRenderer.send('SET_ACTIVE_PROFILE', Number(index))
 }

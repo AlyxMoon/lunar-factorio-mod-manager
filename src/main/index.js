@@ -102,6 +102,10 @@ const addClientEventListeners = async () => {
   ipcMain.on('DOWNLOAD_MOD', (event, name, title, version, downloadUrl) => {
     downloadManager.addDownloadRequest(name, title, version, downloadUrl)
   })
+
+  ipcMain.on('DELETE_MOD', (event, name) => {
+    modManager.deleteMod(name)
+  })
 }
 
 const initializeApp = async () => {

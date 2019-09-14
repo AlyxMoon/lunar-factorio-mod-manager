@@ -4,6 +4,16 @@
       <div>
         <span class="menu-label">{{ mod ? mod.title : 'Selected Mod Info' }}</span>
       </div>
+      <div v-if="mod">
+        <button
+          v-if="mod.name !== 'base'"
+          @click="deleteMod(mod.name)"
+          class="btn red"
+          title="Delete Mod"
+        >
+          <i class="fa fa-trash-alt" />
+        </button>
+      </div>
     </div>
     <div
       v-if="mod"
@@ -67,7 +77,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 export default {
   name: 'ModInfoPanel',
   computed: {
@@ -75,6 +85,9 @@ export default {
       mod: state => state.selectedMod,
     }),
     ...mapGetters(['filterModDependenciesByType']),
+  },
+  methods: {
+    ...mapActions(['deleteMod']),
   },
 }
 </script>

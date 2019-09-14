@@ -69,6 +69,18 @@ export default class ModManager {
     store.set('mods.installed', parsedMods)
   }
 
+  async deleteMod (name) {
+    const mod = store.get('mods.installed', []).find(m => m.name === name)
+
+    if (mod) {
+      const filePath = path.join(store.get('paths.mods'), `${mod.name}_${mod.version}.zip`)
+      await promisify(fs.unlink)(filePath)
+
+      store.set('mods.installed', store.get('mods.installed').filter(m => m.name !== mod.name))
+      this.parseInstalledModDependencies()
+    }
+  }
+
   // Retrieve full list of current version mods
   // Will save to cache to prevent unecessary queries, unless force is true
   async fetchOnlineMods (force = false) {
