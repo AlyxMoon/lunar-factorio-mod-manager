@@ -49,7 +49,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="mod in profiles[activeProfile].mods">
+        <tr
+          v-for="mod in profiles[activeProfile].mods"
+          :class="{ selected: mod.name === selectedMod.name }"
+        >
           <td class="cell-check">
             <button
               @click="removeModFromCurrentProfile(mod)"
@@ -59,7 +62,7 @@
               <i class="fa fa-minus" />
             </button>
           </td>
-          <td @click="selectMod(mod)">
+          <td @click="selectInstalledMod(mod.name)">
             {{ mod.name }}
           </td>
           <td>{{ mod.version }}</td>
@@ -77,13 +80,14 @@ export default {
     ...mapState({
       profiles: state => state.profiles,
       activeProfile: state => state.activeProfile,
+      selectedMod: state => state.selectedMod || {},
     }),
   },
   methods: {
     ...mapActions([
       'setActiveProfile',
       'removeModFromCurrentProfile',
-      'selectMod',
+      'selectInstalledMod',
       'toggleEditProfile',
       'addProfile',
       'removeCurrentProfile',

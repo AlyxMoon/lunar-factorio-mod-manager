@@ -8,6 +8,10 @@ export const isModInCurrentProfile = (state, getters) => (mod) => {
   return (getters.currentProfile() || { mods: [] }).mods.some(m => m.name === mod.name)
 }
 
+export const filterModDependenciesByType = () => (mod, type = 'required') => {
+  return mod.dependenciesParsed.filter(dependency => dependency.type === type)
+}
+
 export const currentlyDisplayedOnlineMods = (state) => {
   if (!state.onlineMods || !state.onlineMods.length === 0) return []
 

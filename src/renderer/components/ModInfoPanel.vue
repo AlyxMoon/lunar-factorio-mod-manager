@@ -31,18 +31,50 @@
           </tr>
         </tbody>
       </table>
+
+      <table class="mt-1">
+        <thead>
+          <tr>
+            <th
+              colspan="3"
+              class="text-align-center"
+            >
+              Dependencies
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="type of ['required', 'optional', 'incompatible']">
+            <tr v-for="(dependency, index) of filterModDependenciesByType(mod, type)">
+              <td
+                v-if="index === 0"
+                :rowspan="filterModDependenciesByType(mod, type).length"
+              >
+                {{ type }}
+              </td>
+              <td :colspan="dependency.version ? '1' : '2'">
+                {{ dependency.name }}
+              </td>
+              <td v-if="dependency.version">
+                {{ dependency.operator }} {{ dependency.version }}
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 export default {
   name: 'ModInfoPanel',
   computed: {
     ...mapState({
       mod: state => state.selectedMod,
     }),
+    ...mapGetters(['filterModDependenciesByType']),
   },
 }
 </script>
@@ -55,7 +87,7 @@ div.mod-info-panel {
 
 div.mod-info-content {
   height: calc(100% - 40px);
-  padding: 0 10px;
+  padding: 5px 10px;
 
   overflow-y: auto;
 

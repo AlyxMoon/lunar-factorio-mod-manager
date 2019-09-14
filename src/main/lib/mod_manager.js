@@ -30,6 +30,43 @@ export default class ModManager {
     })))
 
     store.set('mods.installed', installedMods)
+    this.parseInstalledModDependencies()
+  }
+
+  parseInstalledModDependencies () {
+    const parsedMods = store.get('mods.installed', []).map(mod => {
+      if (!mod.dependencies) mod.dependencies = ['base']
+      if (typeof mod.dependencies === 'string') mod.dependencies = [mod.dependencies]
+
+      mod.dependenciesParsed = mod.dependencies.map(dependency => {
+        const prefix = dependency.match(/^\W*/)[0].trim()
+        dependency = dependency.replace(/^\W*/, '')
+
+        const name = dependency.match(/^\S*/)[0]
+        dependency = dependency.replace(/^\S*/, '').trim()
+
+        const operator = (dependency.match(/^<=|^>=|^=|^<|^>/) || [''])[0]
+        dependency = dependency.replace(/^<=|^>=|^=|^<|^>/, '').trim()
+
+        const version = dependency
+
+        return {
+          name,
+          operator,
+          version,
+          type: (() => {
+            if (prefix === '!') return 'incompatible'
+            if (prefix === '?') return 'optional'
+            if (prefix === '(?)') return 'optional-hidden'
+            return 'required'
+          })(),
+        }
+      })
+
+      return mod
+    })
+
+    store.set('mods.installed', parsedMods)
   }
 
   // Retrieve full list of current version mods

@@ -1,3 +1,7 @@
+div {
+  box-sizing: border-box;
+}
+
 .content {
   border: 10px solid $background-secondary-color;
   box-sizing: border-box;
@@ -39,10 +43,17 @@
   }
 
   &.row-2 {
-    grid-template-rows: 50% 50%;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
 hr {
   border-color: $background-primary-color;
+}
+
+.mt-1 {
+  margin-top: 10px;
+}
+.mb-1 {
+  margin-bottom: 10px;
 }

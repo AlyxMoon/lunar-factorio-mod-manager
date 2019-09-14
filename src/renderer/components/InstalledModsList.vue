@@ -27,7 +27,7 @@
               <i class="fa fa-plus" />
             </button>
           </td>
-          <td @click="selectMod(mod)">
+          <td @click="selectInstalledMod(mod.name)">
             {{ mod.name }}
           </td>
         </tr>
@@ -50,7 +50,7 @@ export default {
     ...mapGetters(['isModInCurrentProfile']),
   },
   methods: {
-    ...mapActions(['addModToCurrentProfile', 'selectMod']),
+    ...mapActions(['addModToCurrentProfile', 'selectInstalledMod']),
   },
 }
 </script>
