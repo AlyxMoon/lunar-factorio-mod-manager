@@ -55,6 +55,10 @@ export const setCurrentOnlineModSort = (context, sort) => {
   context.commit('SET_CURRENT_ONLINE_MOD_SORT', { onlineModsCurrentSort: sort })
 }
 
+export const setOnlineQuery = (context, query) => {
+  context.commit('SET_ONLINE_QUERY', { onlineQuery: query })
+}
+
 export const selectInstalledMod = (context, name) => {
   const mod = context.state.installedMods.find(m => m.name === name)
   context.commit('SET_SELECTED_MOD', { selectedMod: mod })
