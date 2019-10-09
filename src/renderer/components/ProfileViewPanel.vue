@@ -96,4 +96,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+ .profile-view-panel {
+     overflow-y: auto;
+ }
+</style>
