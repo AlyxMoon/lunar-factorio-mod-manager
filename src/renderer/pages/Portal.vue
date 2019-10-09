@@ -28,6 +28,7 @@
           </div>
 
           <div class="menu-section">
+            <input type="search" placeholder="Search..." class="search-mods" @change="setOnlineQuery($event.target.value); $event.target.focus()" />
             <button
               @click="fetchOnlineMods(true)"
               class="btn"
@@ -115,6 +116,7 @@ export default {
       onlineModsCurrentFilter: state => state.onlineModsCurrentFilter,
       onlineModsCurrentSort: state => state.onlineModsCurrentSort,
       username: state => state.username,
+      onlineQuery: state => state.onlineQuery,
     }),
     ...mapGetters(['maxPageOnlineMods']),
   },
@@ -130,9 +132,14 @@ export default {
       'fetchOnlineMods',
       'setCurrentOnlineModFilter',
       'setCurrentOnlineModSort',
+      'setOnlineQuery',
     ]),
   },
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+ .search-mods {
+     margin-right: 15px;
+ }
+</style>
