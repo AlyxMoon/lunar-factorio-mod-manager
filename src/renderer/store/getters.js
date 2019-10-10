@@ -63,7 +63,7 @@ export const maxPageOnlineMods = (state, getters) => {
     ? state.onlineMods.length
     : state.onlineMods.filter(mod => mod.category === state.onlineModsCurrentFilter).length
 
-  let mods = state.onlineModsCurrentFilter === 'all'
+  const mods = state.onlineModsCurrentFilter === 'all'
     ? state.onlineMods
     : state.onlineMods.filter(mod => mod.category === state.onlineModsCurrentFilter)
 
