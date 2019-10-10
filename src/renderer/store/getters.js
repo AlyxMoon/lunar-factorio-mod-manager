@@ -56,12 +56,20 @@ export const currentlyDisplayedOnlineMods = (state, getters) => {
     .slice(startIndex, startIndex + onlineModsItemPerPage)
 }
 
-export const maxPageOnlineMods = (state) => {
+export const maxPageOnlineMods = (state, getters) => {
   if (!state.onlineMods || !state.onlineMods.length === 0) return 0
 
-  const count = state.onlineModsCurrentFilter === 'all'
+  let count = state.onlineModsCurrentFilter === 'all'
     ? state.onlineMods.length
     : state.onlineMods.filter(mod => mod.category === state.onlineModsCurrentFilter).length
+
+  let mods = state.onlineModsCurrentFilter === 'all'
+    ? state.onlineMods
+    : state.onlineMods.filter(mod => mod.category === state.onlineModsCurrentFilter)
+
+  count = state.onlineQuery === ''
+    ? count
+    : getters.search(state.onlineQuery, mods).length
 
   return Math.floor(count / state.onlineModsItemPerPage) - 1
 }
