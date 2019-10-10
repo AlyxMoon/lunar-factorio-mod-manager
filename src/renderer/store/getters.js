@@ -12,11 +12,11 @@ export const filterModDependenciesByType = () => (mod, type = 'required') => {
   return mod.dependenciesParsed.filter(dependency => dependency.type === type)
 }
 
-export const search = (query, mods) => {
+export const search = (state, getters) => (query, mods) => {
   return mods.filter(mod => mod.title.toLowerCase().search(query.toLowerCase()) > -1)
 }
 
-export const currentlyDisplayedOnlineMods = (state) => {
+export const currentlyDisplayedOnlineMods = (state, getters) => {
   if (!state.onlineMods || !state.onlineMods.length === 0) return []
 
   let mods = state.onlineModsCurrentFilter === 'all'
@@ -25,7 +25,7 @@ export const currentlyDisplayedOnlineMods = (state) => {
 
   mods = state.onlineQuery === ''
     ? mods
-    : search(state.onlineQuery, mods)
+    : getters.search(state.onlineQuery, mods)
 
   const { onlineModsItemPerPage, onlineModsPage } = state
   const startIndex = onlineModsPage * onlineModsItemPerPage
