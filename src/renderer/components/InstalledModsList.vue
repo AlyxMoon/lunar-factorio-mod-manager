@@ -11,6 +11,7 @@
         <tr>
           <th class="cell-check" />
           <th>Name</th>
+          <th>Version</th>
         </tr>
       </thead>
       <tbody>
@@ -29,6 +30,9 @@
           </td>
           <td @click="selectInstalledMod(mod.name)">
             {{ mod.title }}
+          </td>
+          <td @click="selectInstalledMod(mod.name)">
+            {{ mod.version }}
           </td>
         </tr>
       </tbody>
