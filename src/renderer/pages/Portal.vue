@@ -28,7 +28,13 @@
           </div>
 
           <div class="menu-section">
-            <input type="search" placeholder="Search..." class="search-mods" @change="setOnlineQuery($event.target.value); $event.target.focus()" />
+            <input
+              @search="setOnlineQuery($event.target.value);"
+              type="search"
+              placeholder="Search..."
+              class="search-mods"
+            >
+
             <button
               @click="fetchOnlineMods(true)"
               class="btn"
@@ -54,7 +60,7 @@
 
         <OnlineModsList />
         <div class="menu">
-          <span class="menu-label">Results: {{ numMods }}</span>
+          <span class="menu-label">Results: {{ onlineModsCount }}</span>
           <span class="menu-label">Page {{ onlineModsPage + 1 }} of {{ maxPageOnlineMods + 1 }}</span>
           <div>
             <button
@@ -109,7 +115,6 @@ export default {
   },
   computed: {
     ...mapState({
-      numMods: state => (state.onlineMods && state.onlineMods.length) || 0,
       onlineModCategories: state => state.onlineModCategories,
       onlineModSorts: state => state.onlineModSorts,
       onlineModsPage: state => state.onlineModsPage,
@@ -118,7 +123,7 @@ export default {
       username: state => state.username,
       onlineQuery: state => state.onlineQuery,
     }),
-    ...mapGetters(['maxPageOnlineMods']),
+    ...mapGetters(['maxPageOnlineMods', 'onlineModsCount']),
   },
   created () {
     this.fetchOnlineMods()
