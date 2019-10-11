@@ -59,7 +59,7 @@ export const currentlyDisplayedOnlineMods = (state, getters) => {
   const { onlineModsItemPerPage, onlineModsPage } = state
   const startIndex = onlineModsPage * onlineModsItemPerPage
 
-  getters.onlineMods.slice(startIndex, startIndex + onlineModsItemPerPage)
+  return getters.onlineMods.slice(startIndex, startIndex + onlineModsItemPerPage)
 }
 
 export const maxPageOnlineMods = (state, getters) => {
