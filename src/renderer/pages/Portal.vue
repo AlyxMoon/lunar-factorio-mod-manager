@@ -29,7 +29,7 @@
 
           <div class="menu-section">
             <input
-              @change="setOnlineQuery($event.target.value); $event.target.focus()"
+              @search="setOnlineQuery($event.target.value);"
               type="search"
               placeholder="Search..."
               class="search-mods"
