@@ -26,7 +26,9 @@ export default class ModManager {
       const buffer = await promisify(fs.readFile)(path.join(modsPath, mod))
       const zip = await jsZip.loadAsync(buffer)
       const modData = await zip.file(/info\.json/)[0].async('text')
-      return JSON.parse(modData)
+      const data = JSON.parse(modData)
+      data.name = data.name + '_' + data.version
+      return data
     })))
 
     store.set('mods.installed', installedMods)
