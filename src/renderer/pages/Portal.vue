@@ -28,7 +28,13 @@
           </div>
 
           <div class="menu-section">
-            <input type="search" placeholder="Search..." class="search-mods" @change="setOnlineQuery($event.target.value); $event.target.focus()" />
+            <input
+              @change="setOnlineQuery($event.target.value); $event.target.focus()"
+              type="search"
+              placeholder="Search..."
+              class="search-mods"
+            >
+
             <button
               @click="fetchOnlineMods(true)"
               class="btn"
