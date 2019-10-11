@@ -75,7 +75,7 @@ export default class ModManager {
     const mod = store.get('mods.installed', []).find(m => m.name === name)
 
     if (mod) {
-      const filePath = path.join(store.get('paths.mods'), `${mod.name}_${mod.version}.zip`)
+      const filePath = path.join(store.get('paths.mods'), `${mod.name}.zip`)
       await promisify(fs.unlink)(filePath)
 
       store.set('mods.installed', store.get('mods.installed').filter(m => m.name !== mod.name))
