@@ -65,19 +65,7 @@ export const currentlyDisplayedOnlineMods = (state, getters) => {
 export const maxPageOnlineMods = (state, getters) => {
   if (!state.onlineMods || !state.onlineMods.length === 0) return 0
 
-  let count = state.onlineModsCurrentFilter === 'all'
-    ? state.onlineMods.length
-    : state.onlineMods.filter(mod => mod.category === state.onlineModsCurrentFilter).length
-
-  const mods = state.onlineModsCurrentFilter === 'all'
-    ? state.onlineMods
-    : state.onlineMods.filter(mod => mod.category === state.onlineModsCurrentFilter)
-
-  count = state.onlineQuery === ''
-    ? count
-    : getters.search(state.onlineQuery, mods).length
-
-  return Math.floor(count / state.onlineModsItemPerPage) - 1
+  return Math.floor(getters.onlineMods.length / state.onlineModsItemPerPage) - 1
 }
 
 export const isModDownloaded = (state) => (name) => {
