@@ -12,12 +12,20 @@ export const filterModDependenciesByType = () => (mod, type = 'required') => {
   return mod.dependenciesParsed.filter(dependency => dependency.type === type)
 }
 
-export const currentlyDisplayedOnlineMods = (state) => {
+export const search = (state, getters) => (query, mods) => {
+  return mods.filter(mod => mod.title.toLowerCase().search(query.toLowerCase()) > -1)
+}
+
+export const currentlyDisplayedOnlineMods = (state, getters) => {
   if (!state.onlineMods || !state.onlineMods.length === 0) return []
 
-  const mods = state.onlineModsCurrentFilter === 'all'
+  let mods = state.onlineModsCurrentFilter === 'all'
     ? state.onlineMods
     : state.onlineMods.filter(mod => mod.category === state.onlineModsCurrentFilter)
+
+  mods = state.onlineQuery === ''
+    ? mods
+    : getters.search(state.onlineQuery, mods)
 
   const { onlineModsItemPerPage, onlineModsPage } = state
   const startIndex = onlineModsPage * onlineModsItemPerPage
@@ -48,12 +56,20 @@ export const currentlyDisplayedOnlineMods = (state) => {
     .slice(startIndex, startIndex + onlineModsItemPerPage)
 }
 
-export const maxPageOnlineMods = (state) => {
+export const maxPageOnlineMods = (state, getters) => {
   if (!state.onlineMods || !state.onlineMods.length === 0) return 0
 
-  const count = state.onlineModsCurrentFilter === 'all'
+  let count = state.onlineModsCurrentFilter === 'all'
     ? state.onlineMods.length
     : state.onlineMods.filter(mod => mod.category === state.onlineModsCurrentFilter).length
+
+  const mods = state.onlineModsCurrentFilter === 'all'
+    ? state.onlineMods
+    : state.onlineMods.filter(mod => mod.category === state.onlineModsCurrentFilter)
+
+  count = state.onlineQuery === ''
+    ? count
+    : getters.search(state.onlineQuery, mods).length
 
   return Math.floor(count / state.onlineModsItemPerPage) - 1
 }

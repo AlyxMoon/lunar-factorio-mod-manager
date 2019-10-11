@@ -50,6 +50,7 @@ const state = {
   selectedMod: undefined,
   selectedOnlineMod: undefined,
   username: '',
+  onlineQuery: '',
 }
 
 Vue.use(Vuex)

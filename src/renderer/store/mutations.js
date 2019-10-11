@@ -43,3 +43,8 @@ export const SET_SELECTED_ONLINE_MOD = (state, payload) => {
 export const SET_ONLINE_MODS_PAGE = (state, payload) => {
   state.onlineModsPage = payload.onlineModsPage
 }
+
+export const SET_ONLINE_QUERY = (state, payload) => {
+  state.onlineQuery = payload.onlineQuery
+  state.onlineModsPage = 0
+}
