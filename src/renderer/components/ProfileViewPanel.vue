@@ -63,7 +63,7 @@
             </button>
           </td>
           <td @click="selectInstalledMod(mod.name)">
-            {{ mod.name }}
+            {{ mod.title }}
           </td>
           <td>{{ mod.version }}</td>
         </tr>
