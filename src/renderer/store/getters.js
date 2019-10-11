@@ -69,7 +69,7 @@ export const onlineModsCount = (state, getters) => {
 export const maxPageOnlineMods = (state, getters) => {
   if (!state.onlineMods || !state.onlineMods.length === 0) return 0
 
-  return Math.floor(getters.onlineMods.length / state.onlineModsItemPerPage) - 1
+  return Math.floor(getters.onlineModsCount / state.onlineModsItemPerPage) - 1
 }
 
 export const isModDownloaded = (state) => (name) => {
