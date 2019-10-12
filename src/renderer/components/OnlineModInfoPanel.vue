@@ -10,8 +10,8 @@
       <div>
         <button
           @click="downloadMod(mod)"
-          :disabled="isModDownloaded(mod.name)"
-          :title="isModDownloaded(mod.name) ? 'Mod is already downloaded' : 'Download Latest Mod Version'"
+          :disabled="isModDownloaded(mod.name) && !isModUpdateAvailable(mod.name)"
+          :title="isModDownloaded(mod.name) ? (isModUpdateAvailable(mod.name) ? 'Download Update' : 'Mod is already downloaded') : 'Download Latest Mod Version'"
           class="btn"
         >
           <i class="fa fa-download" />
@@ -67,7 +67,7 @@ export default {
     ...mapState({
       mod: state => state.selectedOnlineMod,
     }),
-    ...mapGetters(['isModDownloaded']),
+    ...mapGetters(['isModDownloaded', 'isModUpdateAvailable']),
   },
   methods: {
     ...mapActions(['downloadMod']),

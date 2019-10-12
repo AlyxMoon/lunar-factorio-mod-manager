@@ -29,6 +29,11 @@
             </button>
           </td>
           <td @click="selectInstalledMod(mod.name)">
+            <i
+              v-if="isModUpdateAvailable(mod.name)"
+              class="fa fa-exclamation-circle"
+              title="Update available!"
+            />
             {{ mod.title }}
           </td>
           <td @click="selectInstalledMod(mod.name)">
@@ -51,7 +56,7 @@ export default {
       editingProfile: state => state.editingProfile,
       selectedMod: state => state.selectedMod || {},
     }),
-    ...mapGetters(['isModInCurrentProfile']),
+    ...mapGetters(['isModUpdateAvailable', 'isModInCurrentProfile']),
   },
   methods: {
     ...mapActions(['addModToCurrentProfile', 'selectInstalledMod']),
