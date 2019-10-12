@@ -19,7 +19,7 @@ export default class ProfileManager {
 
   async addProfile () {
     const profiles = store.get('profiles.list') || []
-    profiles.push({ name: 'New Profile', mods: [{ name: 'base', version: store.get('mods.factorioVersion') }] })
+    profiles.push({ name: 'New Profile', mods: [{ name: 'base', title: 'Base Mod', version: store.get('mods.factorioVersion') }] })
 
     store.set('profiles.list', profiles)
     store.set('profiles.active', profiles.length - 1)
@@ -92,7 +92,7 @@ export default class ProfileManager {
 
     store.set({
       'profiles.list': [
-        { name: 'Vanilla', mods: [{ name: 'base', version: store.get('mods.factorioVersion') }] },
+        { name: 'Vanilla', mods: [{ name: 'base', title: 'Base Mod', version: store.get('mods.factorioVersion') }] },
         { name: 'Existing Mod Settings', mods: enabledMods },
       ],
       'profiles.active': 0,
