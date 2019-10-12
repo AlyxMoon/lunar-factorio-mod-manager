@@ -6,6 +6,20 @@ export const currentProfile = (state) => () => {
   }
 }
 
+export const isModMissingDependenciesInActiveProfile = (state) => (modName) => {
+  const profile = state.profiles[state.activeProfile]
+  if (!profile) return
+
+  const installedMods = state.installedMods
+  if (!installedMods) return true
+
+  const mod = installedMods.find(m => m.name === modName)
+  if (!mod) return false
+
+  return mod.dependenciesParsed
+    .some(d => d.type === 'required' && profile.mods.findIndex(m => m.name === d.name) === -1)
+}
+
 export const isModUpdateAvailable = (state) => (modName) => {
   if (!state.installedMods || state.installedMods.length === 0) return false
   if (!state.onlineMods || !state.onlineMods.length === 0) return false

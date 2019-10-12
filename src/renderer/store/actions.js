@@ -37,6 +37,26 @@ export const removeModFromCurrentProfile = (context, mod) => {
   ipcRenderer.send('REMOVE_MOD_FROM_CURRENT_PROFILE', mod)
 }
 
+export const addMissingModDependenciesToActiveProfile = (context, modName) => {
+  const profile = context.state.profiles[context.state.activeProfile]
+  if (!profile) return
+
+  const installedMods = context.state.installedMods
+  if (!installedMods) return true
+
+  const mod = installedMods.find(m => m.name === modName)
+  if (!mod) return
+
+  mod.dependenciesParsed
+    .filter(d => d.type === 'required' && profile.mods.findIndex(m => m.name === d.name) === -1)
+    .forEach(d => {
+      const mod = installedMods.find(m => m.name === d.name)
+      if (mod) {
+        context.dispatch('addModToCurrentProfile', mod)
+      }
+    })
+}
+
 export const addProfile = (context) => {
   ipcRenderer.send('ADD_PROFILE')
 }

@@ -63,6 +63,14 @@
             </button>
           </td>
           <td @click="selectInstalledMod(mod.name)">
+            <button
+              v-if="isModMissingDependenciesInActiveProfile(mod.name)"
+              @click="addMissingModDependenciesToActiveProfile(mod.name)"
+              class="btn green"
+              title="A required dependency is not included in the profile, click here to add any missing dependencies"
+            >
+              <i class="fa fa-exclamation-circle" />
+            </button>
             {{ mod.title }}
           </td>
           <td>{{ mod.version }}</td>
@@ -73,7 +81,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 export default {
   name: 'ProfileViewPanel',
   computed: {
@@ -82,9 +90,11 @@ export default {
       activeProfile: state => state.activeProfile,
       selectedMod: state => state.selectedMod || {},
     }),
+    ...mapGetters(['isModMissingDependenciesInActiveProfile']),
   },
   methods: {
     ...mapActions([
+      'addMissingModDependenciesToActiveProfile',
       'setActiveProfile',
       'removeModFromCurrentProfile',
       'selectInstalledMod',
