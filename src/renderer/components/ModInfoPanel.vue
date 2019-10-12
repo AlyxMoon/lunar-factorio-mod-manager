@@ -11,7 +11,15 @@
           class="btn"
           title="Download Mod Update"
         >
-          <i class="fa fa-download" />
+          <i class="fa fa-arrow-up" />
+        </button>
+        <button
+          v-if="mod.hasMissingRequiredDependencies"
+          @click="downloadMissingDependenciesForMod(mod)"
+          class="btn"
+          title="Download Missing Required Dependencies"
+        >
+          <i class="fa fa-exclamation-circle" />
         </button>
         <button
           v-if="mod.name !== 'base'"
@@ -71,6 +79,11 @@
                 {{ type }}
               </td>
               <td :colspan="dependency.version ? '1' : '2'">
+                <i
+                  v-if="!dependency.installed"
+                  class="fa fa-exclamation-circle"
+                  title="This dependency is not installed!"
+                />
                 {{ dependency.name }}
               </td>
               <td v-if="dependency.version">
@@ -95,7 +108,7 @@ export default {
     ...mapGetters(['filterModDependenciesByType', 'getOnlineInfoForMod', 'isModUpdateAvailable']),
   },
   methods: {
-    ...mapActions(['deleteMod', 'downloadMod']),
+    ...mapActions(['deleteMod', 'downloadMod', 'downloadMissingDependenciesForMod']),
   },
 }
 </script>

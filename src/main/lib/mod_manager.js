@@ -34,7 +34,7 @@ export default class ModManager {
   }
 
   parseInstalledModDependencies () {
-    const parsedMods = store.get('mods.installed', []).map(mod => {
+    const parsedMods = store.get('mods.installed', []).map((mod, i, mods) => {
       if (!mod.dependencies) mod.dependencies = ['base']
       if (typeof mod.dependencies === 'string') mod.dependencies = [mod.dependencies]
 
@@ -42,15 +42,18 @@ export default class ModManager {
         const prefix = dependency.match(/^\W*/)[0].trim()
         dependency = dependency.replace(/^\W*/, '')
 
-        const name = dependency.match(/^\S*/)[0]
-        dependency = dependency.replace(/^\S*/, '').trim()
+        const name = dependency.match(/^[^<>=]*/)[0].trim()
+        dependency = dependency.replace(/^[^<>=]*/, '').trim()
 
         const operator = (dependency.match(/^<=|^>=|^=|^<|^>/) || [''])[0]
         dependency = dependency.replace(/^<=|^>=|^=|^<|^>/, '').trim()
 
         const version = dependency
 
+        const installed = mods.some(m => m.name === name)
+
         return {
+          installed,
           name,
           operator,
           version,
@@ -62,6 +65,8 @@ export default class ModManager {
           })(),
         }
       })
+
+      mod.hasMissingRequiredDependencies = mod.dependenciesParsed.some(d => d.type === 'required' && !d.installed)
 
       return mod
     })

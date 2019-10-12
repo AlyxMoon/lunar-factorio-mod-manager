@@ -19,6 +19,13 @@ export const isModUpdateAvailable = (state) => (modName) => {
     : false
 }
 
+export const getInstalledInfoForMod = (state) => (modName) => {
+  if (!state.installedMods || state.installedMods.length === 0) return
+  if (!modName) return
+
+  return state.installedMods.find(m => m.name === modName)
+}
+
 export const getOnlineInfoForMod = (state) => (mod) => {
   if (!state.onlineMods || state.onlineMods.length === 0) return
   if (!mod || !mod.name) return
