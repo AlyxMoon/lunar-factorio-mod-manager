@@ -51,6 +51,7 @@ ipcRenderer.on('PLAYER_USERNAME', (event, data) => {
 
 ipcRenderer.on('INSTALLED_MODS', (event, data) => {
   store.commit('SET_INSTALLED_MODS', { installedMods: data })
+  store.dispatch('selectInstalledMod', (store.state.selectedMod || { name: '' }).name)
 })
 
 ipcRenderer.on('ONLINE_MODS', (event, data) => {

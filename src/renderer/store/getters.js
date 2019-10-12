@@ -1,7 +1,29 @@
+import { isVersionHigher } from 'src/shared/isVersionHigher'
+
 export const currentProfile = (state) => () => {
   if (state.profiles && state.profiles.length > 0 && state.activeProfile >= 0) {
     return state.profiles[state.activeProfile]
   }
+}
+
+export const isModUpdateAvailable = (state) => (modName) => {
+  if (!state.installedMods || state.installedMods.length === 0) return false
+  if (!state.onlineMods || !state.onlineMods.length === 0) return false
+  if (!modName) return false
+
+  const installedMod = state.installedMods.find(m => m.name === modName)
+  const onlineMod = state.onlineMods.find(m => m.name === modName)
+
+  return (installedMod && onlineMod)
+    ? isVersionHigher(installedMod.version, onlineMod.latest_release.version)
+    : false
+}
+
+export const getOnlineInfoForMod = (state) => (mod) => {
+  if (!state.onlineMods || state.onlineMods.length === 0) return
+  if (!mod || !mod.name) return
+
+  return state.onlineMods.find(m => m.name === mod.name)
 }
 
 export const isModInCurrentProfile = (state, getters) => (mod) => {

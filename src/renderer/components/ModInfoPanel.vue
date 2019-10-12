@@ -6,6 +6,14 @@
       </div>
       <div v-if="mod">
         <button
+          v-if="isModUpdateAvailable(mod.name)"
+          @click="downloadMod(getOnlineInfoForMod(mod))"
+          class="btn"
+          title="Download Mod Update"
+        >
+          <i class="fa fa-download" />
+        </button>
+        <button
           v-if="mod.name !== 'base'"
           @click="deleteMod(mod.name)"
           class="btn red"
@@ -84,10 +92,10 @@ export default {
     ...mapState({
       mod: state => state.selectedMod,
     }),
-    ...mapGetters(['filterModDependenciesByType']),
+    ...mapGetters(['filterModDependenciesByType', 'getOnlineInfoForMod', 'isModUpdateAvailable']),
   },
   methods: {
-    ...mapActions(['deleteMod']),
+    ...mapActions(['deleteMod', 'downloadMod']),
   },
 }
 </script>
