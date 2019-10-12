@@ -29,7 +29,7 @@ export const isModUpdateAvailable = (state) => (modName) => {
   const onlineMod = state.onlineMods.find(m => m.name === modName)
 
   return (installedMod && onlineMod)
-    ? isVersionHigher(installedMod.version, onlineMod.latest_release.version)
+    ? isVersionHigher(installedMod.version, (onlineMod.latest_release || onlineMod.releases[onlineMod.releases.length - 1]).version)
     : false
 }
 

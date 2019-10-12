@@ -34,14 +34,6 @@
       <table>
         <tbody>
           <tr>
-            <th>Version</th>
-            <td>{{ mod.latest_release.version }}</td>
-          </tr>
-          <tr>
-            <th>Factorio Version</th>
-            <td>{{ mod.latest_release.info_json.factorio_version }}</td>
-          </tr>
-          <tr>
             <th>Author</th>
             <td>{{ mod.owner }}</td>
           </tr>
@@ -52,6 +44,32 @@
           <tr>
             <th>Downloads</th>
             <td>{{ mod.downloads_count }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>Releases</h4>
+      <table>
+        <thead>
+          <tr>
+            <th class="cell-check" />
+            <th>Version</th>
+            <th>Game Version</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="release in mod.releases.slice().reverse()">
+            <td class="cell-check">
+              <button
+                @click="downloadModRelease({ mod, release })"
+                class="btn"
+                title="Download this release"
+              >
+                <i class="fa fa-download" />
+              </button>
+            </td>
+            <td>{{ release.version }}</td>
+            <td>{{ release.info_json.factorio_version }}</td>
           </tr>
         </tbody>
       </table>
@@ -70,7 +88,7 @@ export default {
     ...mapGetters(['isModDownloaded', 'isModUpdateAvailable']),
   },
   methods: {
-    ...mapActions(['downloadMod']),
+    ...mapActions(['downloadMod', 'downloadModRelease']),
   },
 }
 </script>

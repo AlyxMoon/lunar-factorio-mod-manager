@@ -56,6 +56,11 @@ ipcRenderer.on('INSTALLED_MODS', (event, data) => {
 
 ipcRenderer.on('ONLINE_MODS', (event, data) => {
   store.commit('SET_ONLINE_MODS', { onlineMods: data })
+
+  const { selectedOnlineMod } = store.state
+  if (selectedOnlineMod) {
+    store.dispatch('selectOnlineMod', data.find(m => m.name === selectedOnlineMod.name))
+  }
 })
 
 ipcRenderer.on('PROFILES_LIST', (event, data) => {

@@ -109,4 +109,21 @@ export default class ModManager {
       'mods.onlineLastFetch': Date.now(),
     })
   }
+
+  async fetchOnlineModDetailedInfo (modName, force = false) {
+    const index = store.get('mods.online', []).findIndex(m => m.name === modName)
+    if (index === -1) return
+
+    const onlineMod = store.get('mods.online')[index]
+    if (!force) {
+      // These two seem to only be provided when getting the /full route, so it's a good check
+      if (onlineMod.changelog || onlineMod.github_path) return
+    }
+
+    const apiUrl = `https://mods.factorio.com/api/mods/${modName}/full`
+
+    const mods = store.get('mods.online')
+    mods[index] = await (await fetch(apiUrl)).json()
+    store.set({ 'mods.online': mods })
+  }
 }

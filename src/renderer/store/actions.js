@@ -10,7 +10,12 @@ export const fetchOnlineMods = (context, force = false) => {
 }
 
 export const downloadMod = (context, mod) => {
-  ipcRenderer.send('DOWNLOAD_MOD', mod.name, mod.title, mod.latest_release.version, mod.latest_release.download_url)
+  const versionData = mod.latest_release || mod.releases[mod.releases.length - 1]
+  ipcRenderer.send('DOWNLOAD_MOD', mod.name, mod.title, versionData.version, versionData.download_url)
+}
+
+export const downloadModRelease = (context, { mod, release }) => {
+  ipcRenderer.send('DOWNLOAD_MOD', mod.name, mod.title, release.version, release.download_url)
 }
 
 export const downloadMissingDependenciesForMod = (context, mod) => {
@@ -92,6 +97,7 @@ export const selectInstalledMod = (context, name) => {
 }
 
 export const selectOnlineMod = (context, mod) => {
+  ipcRenderer.send('FETCH_ONLINE_MOD_DETAILED_INFO', mod.name)
   context.commit('SET_SELECTED_ONLINE_MOD', { selectedOnlineMod: mod })
 }
 
