@@ -8,7 +8,7 @@ import AppManager from './lib/app_manager'
 import ModManager from './lib/mod_manager'
 import ProfileManager from './lib/profile_manager'
 import DownloadManager from './lib/download_manager'
-import { debounce } from '../shared/debounce'
+import { debounce } from 'src/shared/util'
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 app.setName(productName)

@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron'
-import { debounce } from 'src/shared/debounce'
+import { debounce } from 'src/shared/util'
 
 export const startFactorio = (context) => {
   ipcRenderer.send('START_FACTORIO')

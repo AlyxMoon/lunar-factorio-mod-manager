@@ -1,4 +1,4 @@
-import { isVersionHigher } from 'src/shared/isVersionHigher'
+import { isVersionHigher } from 'src/shared/util'
 
 export const currentProfile = (state) => () => {
   if (state.profiles && state.profiles.length > 0 && state.activeProfile >= 0) {
