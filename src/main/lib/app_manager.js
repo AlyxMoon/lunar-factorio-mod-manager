@@ -76,7 +76,7 @@ export default class AppManager {
 
         break
       case 'darwin':
-        // TODO Add MacOS X support
+        paths.push(path.join(app.getPath('home'), 'Library', 'Application Support', 'Steam', 'steamapps', 'common', 'Factorio', 'factorio.app', 'Contents', 'MacOS', 'factorio'))
         break
     }
 
@@ -95,6 +95,7 @@ export default class AppManager {
     const extensions = []
     if (os.platform() === 'win32') extensions.push('exe')
     if (os.platform() === 'linux') extensions.push('*')
+    if (os.platform() === 'darwin') extensions.push('app')
 
     const gamePath = await dialog.showOpenDialog(mainWindow, {
       title: 'Find location of Factorio binary file',
@@ -134,7 +135,7 @@ export default class AppManager {
 
         break
       case 'darwin':
-        // TODO Add MacOS X support
+        paths.push(path.join(app.getPath('home'), 'Library', 'Application Support', 'factorio', 'mods', 'mod-list.json'))
         break
     }
 
@@ -181,7 +182,7 @@ export default class AppManager {
 
         break
       case 'darwin':
-        // TODO Add MacOS X support
+        paths.push(path.join(app.getPath('home'), 'Library', 'Application Support', 'factorio', 'player-data.json'))
         break
     }
 
@@ -269,6 +270,7 @@ export default class AppManager {
       spawn(factorioPath).unref()
     } else if (os.platform() === 'darwin') {
       // TODO Add MacOS X support
+      spawn(factorioPath).unref()
     }
     this.closeApp()
   }
