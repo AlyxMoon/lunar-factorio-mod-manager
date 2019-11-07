@@ -47,7 +47,8 @@ export const addMissingModDependenciesToActiveProfile = (context, modName) => {
   if (!profile) return
 
   const installedMods = context.state.installedMods
-  if (!installedMods) return true
+  const onlineMods = context.state.onlineMods
+  if (!installedMods) return
 
   const mod = installedMods.find(m => m.name === modName)
   if (!mod) return
@@ -58,6 +59,13 @@ export const addMissingModDependenciesToActiveProfile = (context, modName) => {
       const mod = installedMods.find(m => m.name === d.name)
       if (mod) {
         context.dispatch('addModToCurrentProfile', mod)
+      } else if (onlineMods) {
+        const onlineMod = onlineMods.find(m => m.name === d.name)
+        if (onlineMod) {
+          const versionData = onlineMod.latest_release || onlineMod.releases[onlineMod.releases.length - 1]
+          context.dispatch('addModToCurrentProfile', { name: onlineMod.name, title: onlineMod.title, version: versionData.version })
+          context.dispatch('downloadMod', onlineMod)
+        }
       }
     })
 }
