@@ -7,7 +7,7 @@
           <option
             v-for="(profile, index) in profiles"
             :key="index"
-            :selected="index === activeProfile"
+            :selected="index === activeProfileIndex"
             :value="index"
           >
             {{ profile.name }}
@@ -31,7 +31,7 @@
         </button>
         <button
           @click="removeCurrentProfile()"
-          :disabled="profiles.length === 1"
+          :disabled="!profiles || profiles.length === 1"
           class="btn red"
           title="Delete Profile"
         >
@@ -41,7 +41,7 @@
     </div>
 
     <div class="table-responsive-wrapper">
-      <table v-if="profiles && activeProfile >= 0">
+      <table v-if="currentProfile">
         <thead>
           <tr>
             <th class="cell-check" />
@@ -51,7 +51,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="mod in profiles[activeProfile].mods"
+            v-for="mod in currentProfile.mods"
             :class="{ selected: mod.name === selectedMod.name }"
           >
             <td class="cell-check">
@@ -82,7 +82,7 @@
 
     <div class="menu bottom">
       <div class="menu-section">
-        <span class="menu-label">Mods: {{ profiles[activeProfile].mods.length }}</span>
+        <span class="menu-label">Mods: {{ (currentProfile && currentProfile.mods.length) || 0 }}</span>
       </div>
     </div>
   </div>
@@ -95,10 +95,10 @@ export default {
   computed: {
     ...mapState({
       profiles: state => state.profiles,
-      activeProfile: state => state.activeProfile,
+      activeProfileIndex: state => state.activeProfile,
       selectedMod: state => state.selectedMod || {},
     }),
-    ...mapGetters(['isModMissingDependenciesInActiveProfile']),
+    ...mapGetters(['currentProfile', 'isModMissingDependenciesInActiveProfile']),
   },
   methods: {
     ...mapActions([

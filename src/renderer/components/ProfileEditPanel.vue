@@ -31,7 +31,7 @@ export default {
   computed: {
     name: {
       get () {
-        return this.$store.getters.currentProfile().name
+        return this.$store.getters.currentProfile.name
       },
       set (value) {
         this.$store.dispatch('updateCurrentProfile', { name: value })

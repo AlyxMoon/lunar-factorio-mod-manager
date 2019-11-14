@@ -75,7 +75,7 @@ export const addProfile = (context) => {
 }
 
 export const updateCurrentProfile = debounce((context, data) => {
-  const profile = Object.assign({ ...context.getters.currentProfile() }, data)
+  const profile = Object.assign({ ...context.getters.currentProfile }, data)
   ipcRenderer.send('UPDATE_CURRENT_PROFILE', profile)
 })
 
