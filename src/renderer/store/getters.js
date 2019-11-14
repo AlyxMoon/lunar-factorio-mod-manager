@@ -1,9 +1,23 @@
-import { isVersionHigher } from 'src/shared/isVersionHigher'
+import { isVersionHigher } from 'src/shared/util'
 
-export const currentProfile = (state) => () => {
+export const currentProfile = (state) => {
   if (state.profiles && state.profiles.length > 0 && state.activeProfile >= 0) {
     return state.profiles[state.activeProfile]
   }
+}
+
+export const isModMissingDependenciesInActiveProfile = (state) => (modName) => {
+  const profile = state.profiles[state.activeProfile]
+  if (!profile) return
+
+  const installedMods = state.installedMods
+  if (!installedMods) return true
+
+  const mod = installedMods.find(m => m.name === modName)
+  if (!mod) return false
+
+  return (mod.dependenciesParsed || [])
+    .some(d => d.type === 'required' && profile.mods.findIndex(m => m.name === d.name) === -1)
 }
 
 export const isModUpdateAvailable = (state) => (modName) => {
@@ -15,8 +29,15 @@ export const isModUpdateAvailable = (state) => (modName) => {
   const onlineMod = state.onlineMods.find(m => m.name === modName)
 
   return (installedMod && onlineMod)
-    ? isVersionHigher(installedMod.version, onlineMod.latest_release.version)
+    ? isVersionHigher(installedMod.version, (onlineMod.latest_release || onlineMod.releases[onlineMod.releases.length - 1]).version)
     : false
+}
+
+export const getInstalledInfoForMod = (state) => (modName) => {
+  if (!state.installedMods || state.installedMods.length === 0) return
+  if (!modName) return
+
+  return state.installedMods.find(m => m.name === modName)
 }
 
 export const getOnlineInfoForMod = (state) => (mod) => {
@@ -27,14 +48,14 @@ export const getOnlineInfoForMod = (state) => (mod) => {
 }
 
 export const isModInCurrentProfile = (state, getters) => (mod) => {
-  return (getters.currentProfile() || { mods: [] }).mods.some(m => m.name === mod.name)
+  return (getters.currentProfile || { mods: [] }).mods.some(m => m.name === mod.name)
 }
 
 export const filterModDependenciesByType = () => (mod, type = 'required') => {
-  return mod.dependenciesParsed.filter(dependency => dependency.type === type)
+  return (mod.dependenciesParsed || []).filter(dependency => dependency.type === type)
 }
 
-export const search = (state, getters) => (query, mods) => {
+export const search = (state, getters) => (query, mods = []) => {
   return mods.filter(mod => mod.title.toLowerCase().search(query.toLowerCase()) > -1)
 }
 

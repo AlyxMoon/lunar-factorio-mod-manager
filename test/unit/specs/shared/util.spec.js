@@ -1,4 +1,4 @@
-import { isVersionHigher } from '@shared/isVersionHigher'
+import { isVersionHigher } from '@shared/util'
 
 describe('isVersionHigher()', () => {
   it('should return false when all parts of both versions are the same', () => {

@@ -31,8 +31,13 @@
           <td @click="selectInstalledMod(mod.name)">
             <i
               v-if="isModUpdateAvailable(mod.name)"
-              class="fa fa-exclamation-circle"
+              class="fa fa-arrow-up"
               title="Update available!"
+            />
+            <i
+              v-if="mod.hasMissingRequiredDependencies"
+              class="fa fa-exclamation-circle"
+              title="There are required dependencies not installed!"
             />
             {{ mod.title }}
           </td>

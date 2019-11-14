@@ -51,6 +51,8 @@ export default class DownloadManager {
       dismissAfter: 4000,
       text: `Beginning download of: ${downloadInfo.title}`,
     })
+
+    this.downloadInProgress = true
     this.webContents.downloadURL(downloadInfo.link)
   }
 
@@ -60,7 +62,7 @@ export default class DownloadManager {
     item.setSavePath(filePath)
     item.once('done', async (event, state) => {
       if (state === 'completed') {
-        const downloadInfo = this.downloadQueue.pop()
+        const downloadInfo = this.downloadQueue.shift()
 
         if (downloadInfo.existingModPath) {
           await promisify(fs.unlink)(downloadInfo.existingModPath)
@@ -72,8 +74,10 @@ export default class DownloadManager {
         })
 
         if (this.downloadQueue.length > 0) {
+          this.downloadInProgress = true
           this.downloadNextMod()
         } else {
+          this.downloadInProgress = false
           this.modManager.retrieveListOfInstalledMods()
         }
       } else {
