@@ -16,7 +16,7 @@ export const isModMissingDependenciesInActiveProfile = (state) => (modName) => {
   const mod = installedMods.find(m => m.name === modName)
   if (!mod) return false
 
-  return mod.dependenciesParsed
+  return (mod.dependenciesParsed || [])
     .some(d => d.type === 'required' && profile.mods.findIndex(m => m.name === d.name) === -1)
 }
 
@@ -52,10 +52,10 @@ export const isModInCurrentProfile = (state, getters) => (mod) => {
 }
 
 export const filterModDependenciesByType = () => (mod, type = 'required') => {
-  return mod.dependenciesParsed.filter(dependency => dependency.type === type)
+  return (mod.dependenciesParsed || []).filter(dependency => dependency.type === type)
 }
 
-export const search = (state, getters) => (query, mods) => {
+export const search = (state, getters) => (query, mods = []) => {
   return mods.filter(mod => mod.title.toLowerCase().search(query.toLowerCase()) > -1)
 }
 
