@@ -72,7 +72,7 @@
               >
                 <i class="fa fa-exclamation-circle" />
               </button>
-              {{ mod.title }}
+              {{ mod.title || mod.name }}
             </td>
             <td>{{ mod.version }}</td>
           </tr>
