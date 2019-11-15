@@ -5,7 +5,10 @@ import { app } from 'electron'
 const logPath = path.join(app.getPath('userData'), 'logs')
 
 const customFormat = format.printf(info => {
-  return `${info.level}: ${(info.namespace && ('[' + info.namespace + ']')) || ''} ${info.message}`
+  const { level, message } = info
+  const namespace = (info.namespace && ('[' + info.namespace + '] ')) || ''
+  const duration = (info.durationMs && `${info.durationMs}ms`) || ''
+  return `${level}: ${namespace}${message} ${duration}`
 })
 
 const logger = createLogger({
