@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, screen } from 'electron'
+import { app, dialog, BrowserWindow, ipcMain, screen } from 'electron'
 import os from 'os'
 import path from 'path'
 
@@ -36,6 +36,20 @@ if (app.requestSingleInstanceLock()) {
 } else {
   app.quit()
   process.exit(0)
+}
+
+const showErrorAndExit = (error, message) => {
+  log.error(`Error occurred during initialization that would prevent app from running correctly`)
+  log.error(error)
+
+  dialog.showMessageBoxSync({
+    type: 'error',
+    buttons: ['Close'],
+    message: 'Error occurred during initialization that would prevent app from running correctly',
+    details: JSON.stringify(error),
+  })
+
+  app.exit()
 }
 
 const addClientEventListeners = async () => {
@@ -118,19 +132,25 @@ const addClientEventListeners = async () => {
 }
 
 const initializeApp = async () => {
-  await addClientEventListeners()
+  try {
+    appManager = new AppManager()
+    await appManager.init(mainWindow)
 
-  appManager = new AppManager()
-  await appManager.init(mainWindow)
+    modManager = new ModManager()
+    await modManager.retrieveListOfInstalledMods()
 
-  modManager = new ModManager()
-  await modManager.retrieveListOfInstalledMods()
+    profileManager = new ProfileManager()
+    await profileManager.init()
+    await profileManager.loadProfiles()
 
-  profileManager = new ProfileManager()
-  await profileManager.init()
-  await profileManager.loadProfiles()
+    downloadManager = new DownloadManager(mainWindow.webContents, modManager)
 
-  downloadManager = new DownloadManager(mainWindow.webContents, modManager)
+    await addClientEventListeners()
+  } catch (error) {
+    // TODO make actually catch error, currently unavailable in this context
+    showErrorAndExit(error, 'Error occurred during initialization that would prevent app from running correctly')
+  }
+
   mainWindow.webContents.session.on('will-download', (event, item) => downloadManager.manageDownload(item))
 
   mainWindow.webContents.send('PLAYER_USERNAME', store.get('player.username'))
@@ -172,11 +192,11 @@ const createWindow = () => {
     .join(__dirname, '/static')
     .replace(/\\/g, '\\\\')
 
-  mainWindow.on('ready-to-show', () => {
+  mainWindow.on('ready-to-show', async () => {
+    await initializeApp()
+
     mainWindow.show()
     mainWindow.focus()
-
-    initializeApp()
   })
 
   mainWindow.on('closed', () => {
@@ -208,4 +228,9 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+process.on('uncaughtException', (error) => {
+  log.error('An error occurred during the process that was not handled properly', { error })
+  app.quit()
 })
