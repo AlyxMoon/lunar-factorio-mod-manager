@@ -40,16 +40,21 @@ if (app.requestSingleInstanceLock()) {
 
 const showErrorAndExit = (error, message) => {
   log.error(`Error occurred during initialization that would prevent app from running correctly`)
-  log.error(error)
+  log.error(error.stack)
 
-  dialog.showMessageBoxSync({
+  const selection = dialog.showMessageBoxSync({
     type: 'error',
-    buttons: ['Close'],
+    buttons: ['Close App', 'Restart App'],
     message: 'Error occurred during initialization that would prevent app from running correctly',
-    details: JSON.stringify(error),
+    detail: `
+    ${error.message}
+    -----
+    You can find the log files at: ${path.join(app.getPath('userData'), 'logs')}
+    `,
   })
 
-  app.exit()
+  if (selection === 1) app.relaunch()
+  app.exit(error.code)
 }
 
 const addClientEventListeners = async () => {
@@ -132,24 +137,19 @@ const addClientEventListeners = async () => {
 }
 
 const initializeApp = async () => {
-  try {
-    appManager = new AppManager()
-    await appManager.init(mainWindow)
+  appManager = new AppManager()
+  await appManager.init(mainWindow)
 
-    modManager = new ModManager()
-    await modManager.retrieveListOfInstalledMods()
+  modManager = new ModManager()
+  await modManager.retrieveListOfInstalledMods()
 
-    profileManager = new ProfileManager()
-    await profileManager.init()
-    await profileManager.loadProfiles()
+  profileManager = new ProfileManager()
+  await profileManager.init()
+  await profileManager.loadProfiles()
 
-    downloadManager = new DownloadManager(mainWindow.webContents, modManager)
+  downloadManager = new DownloadManager(mainWindow.webContents, modManager)
 
-    await addClientEventListeners()
-  } catch (error) {
-    // TODO make actually catch error, currently unavailable in this context
-    showErrorAndExit(error, 'Error occurred during initialization that would prevent app from running correctly')
-  }
+  await addClientEventListeners()
 
   mainWindow.webContents.session.on('will-download', (event, item) => downloadManager.manageDownload(item))
 
@@ -193,7 +193,11 @@ const createWindow = () => {
     .replace(/\\/g, '\\\\')
 
   mainWindow.on('ready-to-show', async () => {
-    await initializeApp()
+    try {
+      await initializeApp()
+    } catch (error) {
+      return showErrorAndExit(error, 'Error occurred during initialization that would prevent app from running correctly')
+    }
 
     mainWindow.show()
     mainWindow.focus()
@@ -231,6 +235,8 @@ app.on('activate', () => {
 })
 
 process.on('uncaughtException', (error) => {
-  log.error('An error occurred during the process that was not handled properly', { error })
-  app.quit()
+  log.error('An error occurred during the process that was not handled properly')
+  log.error(error.stack)
+
+  process.exit()
 })

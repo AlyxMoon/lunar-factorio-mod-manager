@@ -164,12 +164,11 @@ export default class ProfileManager {
     if (store.get('profiles.list').length === 0) {
       log.info('No profiles exist yet, attempting to create starter profiles', { namespace: 'main.profile_manager.loadProfiles' })
 
-      // await this.createStarterProfiles()
+      await this.createStarterProfiles()
     } else {
       log.info('Profiles already loaded into the state, no profile initaliation needed', { namespace: 'main.profile_manager.loadProfiles' })
     }
 
-    await this.createStarterProfiles()
     log.debug('Exited function', { namespace: 'main.profile_manager.loadProfiles' })
   }
 
@@ -182,7 +181,7 @@ export default class ProfileManager {
       throw new Error('Unable to create profiles as the Factorio mods path has not been set.')
     }
     const factorioVersion = store.get('mods.factorioVersion')
-    if (factorioVersion) {
+    if (!factorioVersion) {
       log.error('factorioVersion not set when creating profiles', { namespace: 'main.profile_manager.createStarterProfiles' })
       throw new Error('Unable to create profiles as the Factorio version has not been set.')
     }
