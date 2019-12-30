@@ -1,4 +1,5 @@
-import { app, BrowserWindow, ipcMain, screen } from 'electron'
+import { app, dialog, BrowserWindow, ipcMain, screen } from 'electron'
+import os from 'os'
 import path from 'path'
 
 import store from './lib/store'
@@ -8,7 +9,11 @@ import AppManager from './lib/app_manager'
 import ModManager from './lib/mod_manager'
 import ProfileManager from './lib/profile_manager'
 import DownloadManager from './lib/download_manager'
+import log from './lib/logger'
 import { debounce } from 'src/shared/util'
+
+log.debug('App starting', { namespace: 'main.index' })
+log.debug(`OS Platform: ${os.platform()}`, { namespace: 'main.index' })
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 app.setName(productName)
@@ -31,6 +36,25 @@ if (app.requestSingleInstanceLock()) {
 } else {
   app.quit()
   process.exit(0)
+}
+
+const showErrorAndExit = (error, message) => {
+  log.error(`Error occurred during initialization that would prevent app from running correctly`)
+  log.error(error.stack)
+
+  const selection = dialog.showMessageBoxSync({
+    type: 'error',
+    buttons: ['Close App', 'Restart App'],
+    message: 'Error occurred during initialization that would prevent app from running correctly',
+    detail: `
+    ${error.message}
+    -----
+    You can find the log files at: ${path.join(app.getPath('userData'), 'logs')}
+    `,
+  })
+
+  if (selection === 1) app.relaunch()
+  app.exit(error.code)
 }
 
 const addClientEventListeners = async () => {
@@ -113,8 +137,6 @@ const addClientEventListeners = async () => {
 }
 
 const initializeApp = async () => {
-  await addClientEventListeners()
-
   appManager = new AppManager()
   await appManager.init(mainWindow)
 
@@ -126,6 +148,9 @@ const initializeApp = async () => {
   await profileManager.loadProfiles()
 
   downloadManager = new DownloadManager(mainWindow.webContents, modManager)
+
+  await addClientEventListeners()
+
   mainWindow.webContents.session.on('will-download', (event, item) => downloadManager.manageDownload(item))
 
   mainWindow.webContents.send('PLAYER_USERNAME', store.get('player.username'))
@@ -167,11 +192,15 @@ const createWindow = () => {
     .join(__dirname, '/static')
     .replace(/\\/g, '\\\\')
 
-  mainWindow.on('ready-to-show', () => {
+  mainWindow.on('ready-to-show', async () => {
+    try {
+      await initializeApp()
+    } catch (error) {
+      return showErrorAndExit(error, 'Error occurred during initialization that would prevent app from running correctly')
+    }
+
     mainWindow.show()
     mainWindow.focus()
-
-    initializeApp()
   })
 
   mainWindow.on('closed', () => {
@@ -203,4 +232,11 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+process.on('uncaughtException', (error) => {
+  log.error('An error occurred during the process that was not handled properly')
+  log.error(error.stack)
+
+  process.exit()
 })
