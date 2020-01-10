@@ -3,7 +3,7 @@ import { join } from 'path'
 import { promisify } from 'util'
 import { ipcMain } from 'electron'
 
-import store from './store'
+import store from '@lib/store'
 import log from './logger'
 
 export default class ProfileManager {

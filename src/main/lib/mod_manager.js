@@ -4,7 +4,7 @@ import { promisify } from 'util'
 import jsZip from 'jszip'
 import fetch from 'node-fetch'
 
-import store from './store'
+import store from '@lib/store'
 import log from './logger'
 
 export default class ModManager {

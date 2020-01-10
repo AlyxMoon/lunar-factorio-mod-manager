@@ -5,7 +5,7 @@ import { promisify } from 'util'
 import { spawn } from 'child_process'
 import { app, dialog, ipcMain } from 'electron'
 
-import store from './store'
+import store from '@lib/store'
 import log from './logger'
 
 export default class AppManager {
