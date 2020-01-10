@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { createModule } from 'vuex-toast'
 
+import { tags } from '@shared/models/_data'
+
 import * as actions from './actions'
 import * as getters from './getters'
 import * as mutations from './mutations'
@@ -11,31 +13,12 @@ const state = {
   editingProfile: false,
   installedMods: [],
   onlineMods: [],
-  onlineModCategories: [
-    { name: 'all', title: 'All' },
-    { name: 'general', title: 'General' },
-    { name: 'non-game-changing', title: 'Non-Game-Changing' },
-    { name: 'helper-mods', title: 'Helper Mods' },
-    { name: 'big-mods', title: 'Big Mods' },
-    { name: 'transportation', title: 'Transportation' },
-    { name: 'logistics', title: 'Logistics' },
-    { name: 'utility', title: 'Utility' },
-    { name: 'balancing', title: 'Balancing' },
-    { name: 'enemies', title: 'Enemies' },
-    { name: 'weapons', title: 'Weapons' },
-    { name: 'armor', title: 'Armor' },
-    { name: 'oil', title: 'Oil' },
-    { name: 'logistics-network', title: 'Logistics Network' },
-    { name: 'storage', title: 'Storage' },
-    { name: 'power-production', title: 'Power Production' },
-    { name: 'manufacture', title: 'Manufacture' },
-    { name: 'blueprints', title: 'Blueprints' },
-    { name: 'cheats', title: 'Cheats' },
-    { name: 'defense', title: 'Defense' },
-    { name: 'mining', title: 'Mining' },
-    { name: 'info', title: 'Info' },
-    { name: 'trains', title: 'Trains' },
-  ],
+  onlineModCategories: tags.map(tag => ({
+    name: tag,
+    title: tag
+      .replace(/-/g, ' ')
+      .replace(/(?:^|\s)\S/g, c => c.toUpperCase()),
+  })),
   onlineModSorts: [
     { name: 'a-z', title: 'A to Z' },
     { name: 'popular-most', title: 'Most Popular' },

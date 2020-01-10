@@ -46,7 +46,9 @@ const config = {
     extensions: ['.js', '.json'],
     alias: {
       '@': path.join(__dirname, '../src'),
-      src: path.join(__dirname, '../src'),
+      '@src': path.join(__dirname, '../src'),
+      '@shared': path.join(__dirname, '../src/shared'),
+      '@lib': path.join(__dirname, '../src/main/lib'),
     },
   },
   target: 'electron-main',

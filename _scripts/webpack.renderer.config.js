@@ -114,6 +114,7 @@ const config = {
       vue$: 'vue/dist/vue.common.js',
       '@': path.join(__dirname, '../src/renderer'),
       src: path.join(__dirname, '../src'),
+      '@shared': path.join(__dirname, '../src/shared'),
     },
     extensions: ['.js', '.vue', '.json'],
   },

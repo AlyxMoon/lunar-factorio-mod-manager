@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { promisify } from 'util'
 
-import store from './store'
+import store from '@lib/store'
 import log from './logger'
 
 export default class DownloadManager {

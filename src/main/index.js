@@ -2,15 +2,15 @@ import { app, dialog, BrowserWindow, ipcMain, screen } from 'electron'
 import os from 'os'
 import path from 'path'
 
-import store from './lib/store'
 import { productName } from '../../package'
 
-import AppManager from './lib/app_manager'
-import ModManager from './lib/mod_manager'
-import ProfileManager from './lib/profile_manager'
-import DownloadManager from './lib/download_manager'
-import log from './lib/logger'
-import { debounce } from 'src/shared/util'
+import store from '@lib/store'
+import AppManager from '@lib/app_manager'
+import ModManager from '@lib/mod_manager'
+import ProfileManager from '@lib/profile_manager'
+import DownloadManager from '@lib/download_manager'
+import log from '@lib/logger'
+import { debounce } from '@shared/util'
 
 log.debug('App starting', { namespace: 'main.index' })
 log.debug(`OS Platform: ${os.platform()}`, { namespace: 'main.index' })
