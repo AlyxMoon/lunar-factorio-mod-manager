@@ -167,7 +167,7 @@ const createWindow = () => {
     minWidth: screenWidth / 2,
     minHeight: screenHeight / 1.25,
     width: store.get('window.width', screenWidth / 2),
-    height: store.get('window.height', screenHeight / 2),
+    height: store.get('window.height', screenHeight),
     x: store.get('window.x', 0),
     y: store.get('window.y', 0),
 
@@ -209,12 +209,18 @@ const createWindow = () => {
 
   mainWindow.on('resize', debounce((event) => {
     const [width, height] = mainWindow.getSize()
-    store.set({ window: { width, height } })
+    store.set({
+      'window.width': width,
+      'window.height': height,
+    })
   }))
 
   mainWindow.on('move', debounce((event) => {
     const [x, y] = mainWindow.getPosition()
-    store.set({ window: { x, y } })
+    store.set({
+      'window.x': x,
+      'window.y': y,
+    })
   }))
 }
 
