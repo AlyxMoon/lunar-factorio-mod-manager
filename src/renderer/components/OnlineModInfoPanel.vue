@@ -18,6 +18,7 @@
         </button>
       </div>
     </div>
+
     <div class="mod-info-content">
       <hr>
       <div>
@@ -31,6 +32,12 @@
           <img :src="'https://mods-data.factorio.com' + mod.thumbnail">
         </div>
       </div>
+
+      <h3 class="mt-2">
+        Mod Info
+      </h3>
+      <hr class="compact">
+
       <table>
         <tbody>
           <tr>
@@ -48,31 +55,39 @@
         </tbody>
       </table>
 
-      <h4>Releases</h4>
-      <table>
-        <thead>
-          <tr>
-            <th class="cell-check" />
-            <th>Version</th>
-            <th>Game Version</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="release in mod.releases.slice().reverse()">
-            <td class="cell-check">
-              <button
-                @click="downloadModRelease({ mod, release })"
-                class="btn"
-                title="Download this release"
-              >
-                <i class="fa fa-download" />
-              </button>
-            </td>
-            <td>{{ release.version }}</td>
-            <td>{{ release.info_json.factorio_version }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <h3 class="mt-2">
+        Releases
+      </h3>
+      <hr class="compact">
+      <template v-if="mod && mod.releases">
+        <table>
+          <thead>
+            <tr>
+              <th class="cell-check" />
+              <th>Version</th>
+              <th>Game Version</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="release in mod.releases.slice().reverse()">
+              <td class="cell-check">
+                <button
+                  @click="downloadModRelease({ mod, release })"
+                  class="btn"
+                  title="Download this release"
+                >
+                  <i class="fa fa-download" />
+                </button>
+              </td>
+              <td>{{ release.version }}</td>
+              <td>{{ release.info_json.factorio_version }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+      <template v-else>
+        <i class="fa fa-cog fa-spin" /> Fetching data
+      </template>
     </div>
   </div>
 </template>
@@ -103,7 +118,7 @@ div.mod-info-panel {
 
 div.mod-info-content {
   height: calc(100% - 40px);
-  padding: 0 10px;
+  padding: 10px;
 
   overflow-y: auto;
 
