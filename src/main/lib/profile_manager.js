@@ -33,11 +33,11 @@ export default class ProfileManager {
     log.debug('Exited function', { namespace: 'main.profile_manager.configureEventListeners' })
   }
 
-  async addProfile () {
+  async addProfile ({ name = 'New Profile' } = {}) {
     log.debug('Entered function', { namespace: 'main.profile_manager.addProfile' })
 
     const profiles = store.get('profiles.list', [])
-    profiles.push({ name: 'New Profile', mods: [{ name: 'base', title: 'Base Mod', version: store.get('mods.factorioVersion') }] })
+    profiles.push({ name, mods: [{ name: 'base', title: 'Base Mod', version: store.get('mods.factorioVersion') }] })
 
     store.set('profiles.list', profiles)
     store.set('profiles.active', profiles.length - 1)

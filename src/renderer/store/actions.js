@@ -70,8 +70,8 @@ export const addMissingModDependenciesToActiveProfile = (context, modName) => {
     })
 }
 
-export const addProfile = (context) => {
-  ipcRenderer.send('ADD_PROFILE')
+export const addProfile = (context, options) => {
+  ipcRenderer.send('ADD_PROFILE', options)
 }
 
 export const updateCurrentProfile = debounce((context, data) => {

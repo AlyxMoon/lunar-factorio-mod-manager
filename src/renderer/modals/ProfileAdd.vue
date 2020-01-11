@@ -1,6 +1,7 @@
 <template>
   <ModalContainer
-    v-on:confirm="addProfile(); hideModal()"
+    v-on:confirm="addProfile({ name }); hideModal()"
+    v-on:hidden="clearData"
   >
     <template v-slot:title>
       Create New Profile
@@ -8,7 +9,10 @@
     <template v-slot:content>
       <label>
         Profile Name:
-        <input type="text">
+        <input
+          v-model="name"
+          type="text"
+        >
       </label>
     </template>
   </ModalContainer>
@@ -21,11 +25,19 @@ import ModalContainer from './_ModalContainer'
 export default {
   name: 'ModalProfileAdd',
   components: { ModalContainer },
+  data () {
+    return {
+      name: '',
+    }
+  },
   methods: {
     ...mapActions(['addProfile']),
     ...mapMutations({
       hideModal: 'HIDE_MODAL',
     }),
+    clearData () {
+      this.name = ''
+    },
   },
 }
 </script>

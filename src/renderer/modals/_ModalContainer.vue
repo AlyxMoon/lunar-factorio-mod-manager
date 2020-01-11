@@ -63,6 +63,16 @@ export default {
       },
     },
   },
+  mounted () {
+    this.$store.watch(
+      ({ modals }) => modals[this.$parent.$vnode.key],
+      () => {
+        if (!this.visible) {
+          this.$emit('hidden')
+        }
+      }
+    )
+  },
   methods: {
     ...mapMutations({
       hideModal: 'HIDE_MODAL',
