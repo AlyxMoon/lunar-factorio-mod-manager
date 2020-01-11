@@ -41,7 +41,7 @@
           {{ mod.description }}
         </div>
       </div>
-      <table>
+      <table class="no-hover">
         <tbody>
           <tr>
             <th>Version</th>
@@ -58,7 +58,7 @@
         </tbody>
       </table>
 
-      <table class="mt-1">
+      <table class="no-hover mt-1">
         <thead>
           <tr>
             <th
@@ -129,16 +129,6 @@ div.mod-info-content {
     display: flex;
     justify-content: space-between;
     padding: 20px 0;
-  }
-}
-
-table {
-  tbody {
-    tr {
-      &:hover {
-        background-color: $background-primary-color;
-      }
-    }
   }
 }
 </style>

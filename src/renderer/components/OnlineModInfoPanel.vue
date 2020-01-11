@@ -9,7 +9,7 @@
       </div>
       <div>
         <button
-          @click="downloadMod(mod)"
+          @click="showModal({ name: 'ModalOnlineModDownload', options: { mod } })"
           :disabled="isModDownloaded(mod.name) && !isModUpdateAvailable(mod.name)"
           :title="isModDownloaded(mod.name) ? (isModUpdateAvailable(mod.name) ? 'Download Update' : 'Mod is already downloaded') : 'Download Latest Mod Version'"
           class="btn"
@@ -38,7 +38,7 @@
       </h3>
       <hr class="compact">
 
-      <table>
+      <table class="no-hover">
         <tbody>
           <tr>
             <th>Author</th>
@@ -60,7 +60,7 @@
       </h3>
       <hr class="compact">
       <template v-if="mod && mod.releases">
-        <table>
+        <table class="no-hover">
           <thead>
             <tr>
               <th class="cell-check" />
@@ -69,10 +69,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="release in mod.releases.slice().reverse()">
+            <tr v-for="(release, i) in mod.releases.slice().reverse()">
               <td class="cell-check">
                 <button
-                  @click="downloadModRelease({ mod, release })"
+                  @click="showModal({
+                    name: 'ModalOnlineModDownload',
+                    options: { mod, release: mod.releases.length - i - 1 }
+                  })"
                   class="btn"
                   title="Download this release"
                 >
@@ -93,7 +96,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 export default {
   name: 'ModInfoPanel',
   computed: {
@@ -103,7 +106,9 @@ export default {
     ...mapGetters(['isModDownloaded', 'isModUpdateAvailable']),
   },
   methods: {
-    ...mapActions(['downloadMod', 'downloadModRelease']),
+    ...mapMutations({
+      showModal: 'SHOW_MODAL',
+    }),
   },
 }
 </script>
@@ -126,16 +131,6 @@ div.mod-info-content {
     display: flex;
     justify-content: space-between;
     padding: 20px 0;
-  }
-}
-
-table {
-  tbody {
-    tr {
-      &:hover {
-        background-color: $background-primary-color;
-      }
-    }
   }
 }
 </style>

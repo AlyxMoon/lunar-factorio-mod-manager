@@ -16,7 +16,7 @@
       </div>
       <div>
         <button
-          @click="showModal({ name: 'ModalProfileCreateOrEdit', option: 'edit' })"
+          @click="showModal({ name: 'ModalProfileCreateOrEdit', options: { mode: 'edit'} })"
           class="btn"
           title="Edit Profile"
         >

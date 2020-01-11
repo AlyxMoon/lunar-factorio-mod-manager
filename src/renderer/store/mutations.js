@@ -45,16 +45,16 @@ export const SET_ONLINE_QUERY = (state, payload) => {
   state.onlineModsPage = 0
 }
 
-export const SHOW_MODAL = (state, { name = '', option } = {}) => {
+export const SHOW_MODAL = (state, { name = '', options = {} } = {}) => {
   for (const modal in state.modals) {
     state.modals[modal] = modal === name
-      ? option || true
-      : false
+      ? { show: true, ...options }
+      : { show: false }
   }
 }
 
 export const HIDE_MODAL = (state) => {
   for (const modal in state.modals) {
-    state.modals[modal] = false
+    state.modals[modal] = { show: false }
   }
 }

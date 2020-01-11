@@ -7,6 +7,8 @@ import fetch from 'node-fetch'
 import store from '@lib/store'
 import log from './logger'
 
+import { parseModDependencies } from '@shared/util'
+
 export default class ModManager {
   async retrieveListOfInstalledMods () {
     log.debug('Entered function', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
@@ -62,38 +64,8 @@ export default class ModManager {
     log.debug('Entered function', { namespace: 'main.mod_manager.parseInstalledModDependencies' })
 
     try {
-      const parsedMods = store.get('mods.installed', []).map((mod, i, mods) => {
-        if (!mod.dependencies) mod.dependencies = ['base']
-        if (typeof mod.dependencies === 'string') mod.dependencies = [mod.dependencies]
-
-        mod.dependenciesParsed = mod.dependencies.map(dependency => {
-          const prefix = dependency.match(/^\W*/)[0].trim()
-          dependency = dependency.replace(/^\W*/, '')
-
-          const name = dependency.match(/^[^<>=]*/)[0].trim()
-          dependency = dependency.replace(/^[^<>=]*/, '').trim()
-
-          const operator = (dependency.match(/^<=|^>=|^=|^<|^>/) || [''])[0]
-          dependency = dependency.replace(/^<=|^>=|^=|^<|^>/, '').trim()
-
-          const version = dependency
-
-          const installed = mods.some(m => m.name === name)
-
-          return {
-            installed,
-            name,
-            operator,
-            version,
-            type: (() => {
-              if (prefix === '!') return 'incompatible'
-              if (prefix === '?') return 'optional'
-              if (prefix === '(?)') return 'optional-hidden'
-              return 'required'
-            })(),
-          }
-        })
-
+      const parsedMods = store.get('mods.installed', []).map((mod, _, mods) => {
+        mod.dependenciesParsed = parseModDependencies(mod.dependencies, mods)
         mod.hasMissingRequiredDependencies = mod.dependenciesParsed.some(d => d.type === 'required' && !d.installed)
         return mod
       })

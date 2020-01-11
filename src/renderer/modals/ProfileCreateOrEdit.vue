@@ -34,7 +34,7 @@ export default {
   },
   computed: {
     ...mapState({
-      editing: state => state.modals.ModalProfileCreateOrEdit === 'edit',
+      editing: state => state.modals.ModalProfileCreateOrEdit.mode === 'edit',
     }),
   },
   watch: {

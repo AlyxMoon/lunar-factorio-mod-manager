@@ -9,13 +9,12 @@ export const fetchOnlineMods = (context, force = false) => {
   ipcRenderer.send('FETCH_ONLINE_MODS', force)
 }
 
-export const downloadMod = (context, mod) => {
-  const versionData = mod.latest_release || mod.releases[mod.releases.length - 1]
-  ipcRenderer.send('DOWNLOAD_MOD', mod.name, mod.title, versionData.version, versionData.download_url)
-}
+export const downloadMod = (context, { mod, release = -1 }) => {
+  const versionData = release > -1
+    ? mod.releases[release]
+    : mod.latest_release || mod.releases[mod.releases.length - 1]
 
-export const downloadModRelease = (context, { mod, release }) => {
-  ipcRenderer.send('DOWNLOAD_MOD', mod.name, mod.title, release.version, release.download_url)
+  ipcRenderer.send('DOWNLOAD_MOD', mod.name, mod.title, versionData.version, versionData.download_url)
 }
 
 export const downloadMissingDependenciesForMod = (context, mod) => {

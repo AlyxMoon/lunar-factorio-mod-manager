@@ -34,8 +34,15 @@ const state = {
   username: '',
   onlineQuery: '',
   modals: {
-    ModalProfileCreateOrEdit: false,
-    ModalProfileDelete: false,
+    ModalOnlineModDownload: {
+      show: false,
+    },
+    ModalProfileCreateOrEdit: {
+      show: false,
+    },
+    ModalProfileDelete: {
+      show: false,
+    },
   },
 }
 

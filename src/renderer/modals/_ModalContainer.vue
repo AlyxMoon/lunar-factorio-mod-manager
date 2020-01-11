@@ -59,13 +59,13 @@ export default {
   computed: {
     visible: {
       get () {
-        return this.$store.state.modals[this.$parent.$vnode.key]
+        return this.$store.state.modals[this.$parent.$vnode.key].show
       },
     },
   },
   mounted () {
     this.$store.watch(
-      ({ modals }) => modals[this.$parent.$vnode.key],
+      ({ modals }) => modals[this.$parent.$vnode.key].show,
       () => {
         if (!this.visible) {
           this.$emit('hidden')
@@ -104,7 +104,9 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   min-width: 500px;
+  max-width: 90%;
   min-height: 400px;
+  max-height: 80%;
   padding: 0 10px;
 
   hr {
