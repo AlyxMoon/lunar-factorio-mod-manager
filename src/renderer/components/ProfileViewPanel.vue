@@ -1,8 +1,8 @@
 <template>
-  <div class="profile-view-panel">
-    <div class="menu">
-      <div>
-        <span class="menu-label">Active Profile</span>
+  <PanelContainer class="profile-view-panel">
+    <PanelMenu>
+      <template v-slot:menu-left>
+        <label>Active Profile</label>
         <select @change="setActiveProfile($event.target.value); $event.target.blur()">
           <option
             v-for="(profile, index) in profiles"
@@ -13,8 +13,8 @@
             {{ profile.name }}
           </option>
         </select>
-      </div>
-      <div>
+      </template>
+      <template v-slot:menu-right>
         <button
           @click="showModal({ name: 'ModalProfileCreateOrEdit', options: { mode: 'edit'} })"
           class="btn"
@@ -37,10 +37,10 @@
         >
           <i class="fa fa-trash-alt" />
         </button>
-      </div>
-    </div>
+      </template>
+    </PanelMenu>
 
-    <div class="table-responsive-wrapper">
+    <PanelContent class="full">
       <table v-if="currentProfile">
         <thead>
           <tr>
@@ -78,20 +78,25 @@
           </tr>
         </tbody>
       </table>
-    </div>
+    </PanelContent>
 
-    <div class="menu bottom">
-      <div class="menu-section">
-        <span class="menu-label">Mods: {{ (currentProfile && currentProfile.mods.length) || 0 }}</span>
-      </div>
-    </div>
-  </div>
+    <PanelMenu position="bottom">
+      <template v-slot:menu-left>
+        Mods: {{ (currentProfile && currentProfile.mods.length) || 0 }}
+      </template>
+    </PanelMenu>
+  </PanelContainer>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import PanelMenu from './partials/PanelMenu'
+import PanelContent from './partials/PanelContent'
+import PanelContainer from './partials/PanelContainer'
+
 export default {
   name: 'ProfileViewPanel',
+  components: { PanelContainer, PanelContent, PanelMenu },
   computed: {
     ...mapState({
       profiles: state => state.profiles,
@@ -116,18 +121,3 @@ export default {
   },
 }
 </script>
-
-<style lang="scss" scoped>
-
- .menu {
-   height: 40px;
-
-   &.bottom {
-     border-top: 2px solid $highlight-color;
-   }
- }
- .table-responsive-wrapper {
-   height: calc(100% - 80px);
-   overflow-y: auto;
- }
-</style>

@@ -4,26 +4,24 @@
       <ProfileViewPanel />
 
       <div class="grid col-1 row-2">
-        <InstalledModsList />
-        <ModInfoPanel />
+        <InstalledModsListPanel />
+        <InstalledModsInfoPanel />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import InstalledModsList from '@/components/InstalledModsList'
-import ModInfoPanel from '@/components/ModInfoPanel'
+import InstalledModsListPanel from '@/components/InstalledModsListPanel'
+import InstalledModsInfoPanel from '@/components/InstalledModsInfoPanel'
 import ProfileViewPanel from '@/components/ProfileViewPanel'
 
 export default {
   name: 'Profiles',
   components: {
-    InstalledModsList,
-    ModInfoPanel,
+    InstalledModsListPanel,
+    InstalledModsInfoPanel,
     ProfileViewPanel,
   },
 }
 </script>
-
-<style lang="scss" scoped></style>
