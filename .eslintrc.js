@@ -21,6 +21,7 @@ module.exports = {
   },
   plugins: ['vue'],
   rules: {
-    'comma-dangle': ['error', 'always-multiline']
+    'comma-dangle': ['error', 'always-multiline'],
+    'vue/require-component-is': 'off',
   }
 };

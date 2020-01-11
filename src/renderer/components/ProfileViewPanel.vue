@@ -23,14 +23,14 @@
           <i class="fa fa-edit" />
         </button>
         <button
-          @click="addProfile()"
+          @click="showModal({ name: 'ModalProfileAdd' })"
           class="btn green"
           title="Add Profile"
         >
           <i class="fa fa-plus" />
         </button>
         <button
-          @click="removeCurrentProfile()"
+          @click="showModal({ name: 'ModalProfileDelete' })"
           :disabled="!profiles || profiles.length === 1"
           class="btn red"
           title="Delete Profile"
@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 export default {
   name: 'ProfileViewPanel',
   computed: {
@@ -101,6 +101,9 @@ export default {
     ...mapGetters(['currentProfile', 'isModMissingDependenciesInActiveProfile']),
   },
   methods: {
+    ...mapMutations({
+      showModal: 'SHOW_MODAL',
+    }),
     ...mapActions([
       'addMissingModDependenciesToActiveProfile',
       'setActiveProfile',

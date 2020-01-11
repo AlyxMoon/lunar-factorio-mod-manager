@@ -48,3 +48,15 @@ export const SET_ONLINE_QUERY = (state, payload) => {
   state.onlineQuery = payload.onlineQuery
   state.onlineModsPage = 0
 }
+
+export const SHOW_MODAL = (state, { name }) => {
+  for (const modal in state.modals) {
+    state.modals[modal] = modal === name
+  }
+}
+
+export const HIDE_MODAL = (state) => {
+  for (const modal in state.modals) {
+    state.modals[modal] = false
+  }
+}

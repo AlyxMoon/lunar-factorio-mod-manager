@@ -60,6 +60,7 @@ const config = {
               implementation: require('sass'),
               data: `
                 @import "@/scss/globals/_variables.scss";
+                @import "@/scss/globals/_mixins.scss";
               `,
             },
           },

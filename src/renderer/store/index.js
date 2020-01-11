@@ -34,6 +34,10 @@ const state = {
   selectedOnlineMod: undefined,
   username: '',
   onlineQuery: '',
+  modals: {
+    ModalProfileAdd: false,
+    ModalProfileDelete: false,
+  },
 }
 
 Vue.use(Vuex)

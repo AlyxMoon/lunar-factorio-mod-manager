@@ -43,6 +43,12 @@
     padding: 5px;
   }
 
+  &.subtle {
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+
   &:disabled {
     background-color: $background-secondary-color;
     border-color: rgba(0, 0, 0, 0);
