@@ -130,7 +130,10 @@ export default {
 
 .modal-content {
   flex-grow: 1;
-  padding: 10px 0;
+  padding: 10px 15px;
+  margin: 0 -10px;
+
+  overflow-y: auto;
 }
 
 .modal-footer {

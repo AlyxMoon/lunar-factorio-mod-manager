@@ -17,7 +17,7 @@
           <thead>
             <tr>
               <th
-                colspan="4"
+                colspan="3"
                 class="text-align-center"
               >
                 Missing Dependencies
@@ -33,22 +33,61 @@
                 >
                   {{ type }}
                 </td>
-                <td :colspan="dependency.version ? '1' : '2'">
+                <td>
                   {{ dependency.name }}
                 </td>
-                <td v-if="dependency.version">
-                  {{ dependency.operator }} {{ dependency.version }}
-                </td>
                 <td class="cell-check">
-                  <input
-                    v-model="dependenciesToInstall[dependency.name]"
-                    type="checkbox"
-                  >
+                  <template v-if="type === 'required'">
+                    <input
+                      v-if="!installRequiredRecursive"
+                      v-model="dependenciesToInstall[dependency.name]"
+                      type="checkbox"
+                    >
+                    <input
+                      v-else
+                      v-model="installRequiredRecursive"
+                      type="checkbox"
+                      disabled
+                    >
+                  </template>
+
+                  <template v-if="type === 'optional'">
+                    <input
+                      v-if="!installOptionalRecursive"
+                      v-model="dependenciesToInstall[dependency.name]"
+                      type="checkbox"
+                    >
+                    <input
+                      v-else
+                      v-model="installOptionalRecursive"
+                      type="checkbox"
+                      disabled
+                    >
+                  </template>
                 </td>
               </tr>
             </template>
           </tbody>
         </table>
+        <div class="mt-1">
+          <label>
+            <input
+              v-model="installRequiredRecursive"
+              type="checkbox"
+            >
+            Download all required dependencies (this includes dependencies of dependencies)
+          </label>
+        </div>
+
+        <div class="mt-1">
+          <label>
+            <input
+              v-model="installOptionalRecursive"
+              type="checkbox"
+            >
+            Download all optional dependencies (this includes dependencies of dependencies)
+          </label>
+        </div>
       </template>
     </template>
   </ModalContainer>
@@ -65,6 +104,8 @@ export default {
   data () {
     return {
       dependenciesToInstall: {},
+      installRequiredRecursive: true,
+      installOptionalRecursive: false,
     }
   },
   computed: {
@@ -81,7 +122,7 @@ export default {
     }),
     ...mapGetters(['filterModDependenciesByType', 'getOnlineInfoForMod']),
     dependencies () {
-      return this.$store.getters.filterModDependenciesByType(
+      return this.filterModDependenciesByType(
         this.releaseData.info_json,
         ['required', 'optional'],
         { parse: true, ignoreInstalled: true, getAsObject: true },
@@ -89,39 +130,54 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['downloadMod']),
+    ...mapActions(['downloadMod', 'fetchFullModInfo']),
     ...mapMutations({
       hideModal: 'HIDE_MODAL',
     }),
     clearData () {
       this.dependenciesToInstall = {}
     },
-    handleConfirm () {
-      const dependenciesDownloadInfo = []
-      for (const dependency in this.dependenciesToInstall) {
-        if (this.dependenciesToInstall[dependency]) {
-          const mod = this.getOnlineInfoForMod({ name: dependency })
+    async handleConfirm () {
+      const downloadQueue = [{ mod: this.mod, release: this.release }]
+      const addingToQueue = [...(new Set(
+        Object.keys(this.dependenciesToInstall)
+          .filter((dependency) => this.dependenciesToInstall[dependency])
+          .concat(this.installRequiredRecursive ? this.dependencies.required.map(({ name }) => name) : [])
+          .concat(this.installOptionalRecursive ? this.dependencies.optional.map(({ name }) => name) : [])
+      ))]
 
-          if (!mod) {
-            this.$store.dispatch(ADD_TOAST_MESSAGE, {
-              text: `
-                The mod cannot be downloaded as one of the dependencies is unable to be downloaded!
-                Dependency: ${dependency}
-              `,
-              type: 'danger',
-              dismissAfter: 8000,
-            })
-            return
-          }
-
-          dependenciesDownloadInfo.push(mod)
-        }
+      const isModInQueue = (name) => {
+        return downloadQueue.some(d => d.mod.name === name)
       }
 
-      this.downloadMod({ mod: this.mod, release: this.release })
-      dependenciesDownloadInfo.forEach(mod => {
-        this.downloadMod({ mod })
-      })
+      while (addingToQueue.length) {
+        const name = addingToQueue.pop()
+        const mod = await this.fetchFullModInfo(name)
+
+        if (!mod) {
+          return this.$store.dispatch(ADD_TOAST_MESSAGE, {
+            text: `
+              The mod cannot be downloaded as one of the dependencies is unable to be downloaded!
+              Dependency: ${name}
+            `,
+            type: 'danger',
+            dismissAfter: 8000,
+          })
+        }
+
+        if (!isModInQueue(name)) downloadQueue.push({ mod })
+
+        const nestedDependencies = this.filterModDependenciesByType(
+          (mod.latest_release || mod.releases[mod.releases.length - 1]).info_json,
+          ['required', 'optional'],
+          { parse: true, ignoreInstalled: true, getAsObject: true },
+        )
+
+        if (this.installRequiredRecursive) addingToQueue.push(...nestedDependencies.required.map(({ name }) => name))
+        if (this.installOptionalRecursive) addingToQueue.push(...nestedDependencies.optional.map(({ name }) => name))
+      }
+
+      downloadQueue.forEach(download => this.downloadMod(download))
     },
   },
 }

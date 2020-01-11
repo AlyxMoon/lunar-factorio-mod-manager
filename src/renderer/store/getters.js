@@ -65,13 +65,13 @@ export const filterModDependenciesByType = (state) => (
 
   const dependencies = (parse
     ? parseModDependencies(mod.dependencies, state.installedMods)
-    : mod.dependenciesParsed)
-    .filter(dependency => {
-      return (
-        allowedTypes.includes(dependency.type) &&
-        (!ignoreInstalled || !dependency.installed)
-      )
-    })
+    : mod.dependenciesParsed
+  ).filter(dependency => {
+    return (
+      allowedTypes.includes(dependency.type) &&
+      (!ignoreInstalled || !dependency.installed)
+    )
+  })
 
   if (getAsObject) {
     const obj = Object.create(null, {
