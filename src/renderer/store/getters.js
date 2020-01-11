@@ -74,19 +74,25 @@ export const filterModDependenciesByType = (state) => (
     })
 
   if (getAsObject) {
-    const obj = Object.create(null)
-    Object.defineProperty(obj, 'length', { value: 0, enumerable: false, writable: true })
-
-    dependencies.forEach((dependency) => {
-      if (!obj[dependency.type]) obj[dependency.type] = []
-      obj[dependency.type].push(dependency)
-      obj.length += 1
+    const obj = Object.create(null, {
+      length: {
+        get: function () {
+          const { required, optional, incompatible, hidden } = this
+          return required.length + optional.length + incompatible.length + hidden.length
+        },
+        enumerable: false,
+      },
+      required: { value: [] },
+      optional: { value: [] },
+      incompatible: { value: [] },
+      hidden: { value: [] },
     })
 
+    dependencies.forEach((dependency) => obj[dependency.type].push(dependency))
     return obj
-  } else {
-    return dependencies
   }
+
+  return dependencies
 }
 
 export const search = (state, getters) => (query, mods = []) => {

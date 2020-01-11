@@ -34,6 +34,7 @@ export const SET_SELECTED_MOD = (state, payload) => {
 
 export const SET_SELECTED_ONLINE_MOD = (state, payload) => {
   state.selectedOnlineMod = payload.selectedOnlineMod
+  state.fetchingOnlineMod = false
 }
 
 export const SET_ONLINE_MODS_PAGE = (state, payload) => {
@@ -43,6 +44,10 @@ export const SET_ONLINE_MODS_PAGE = (state, payload) => {
 export const SET_ONLINE_QUERY = (state, payload) => {
   state.onlineQuery = payload.onlineQuery
   state.onlineModsPage = 0
+}
+
+export const SET_FETCHING_ONLINE_MOD = (state, { fetching = false } = {}) => {
+  state.fetchingOnlineMod = fetching
 }
 
 export const SHOW_MODAL = (state, { name = '', options = {} } = {}) => {

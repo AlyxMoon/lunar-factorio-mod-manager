@@ -123,8 +123,8 @@ const addClientEventListeners = async () => {
     modManager.fetchOnlineMods(force)
   })
 
-  ipcMain.on('FETCH_ONLINE_MOD_DETAILED_INFO', (event, modName, force) => {
-    modManager.fetchOnlineModDetailedInfo(modName, force)
+  ipcMain.handle('FETCH_ONLINE_MOD_DETAILED_INFO', (event, modName, force) => {
+    return modManager.fetchOnlineModDetailedInfo(modName, force)
   })
 
   ipcMain.on('DOWNLOAD_MOD', (event, name, title, version, downloadUrl) => {

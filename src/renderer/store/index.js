@@ -33,6 +33,7 @@ const state = {
   selectedOnlineMod: undefined,
   username: '',
   onlineQuery: '',
+  fetchingOnlineMod: false,
   modals: {
     ModalOnlineModDownload: {
       show: false,

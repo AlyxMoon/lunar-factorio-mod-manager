@@ -156,15 +156,15 @@ export default class ModManager {
       // These two seem to only be provided when getting the /full route, so it's a good check
       if (onlineMod.changelog || onlineMod.github_path) {
         log.info(`Already have retrieved the detailed info for online mod '${modName}'. Skipping retrieval.`, { namespace: 'main.mod_manager.fetchOnlineModDetailedInfo' })
-        return
+        return onlineMod
       }
     } else {
       log.info(`Force refresh of online mod '${modName}' has been recieved`, { namespace: 'main.mod_manager.fetchOnlineModDetailedInfo' })
     }
 
+    const mods = store.get('mods.online')
     try {
       const apiUrl = `https://mods.factorio.com/api/mods/${modName}/full`
-      const mods = store.get('mods.online')
 
       mods[index] = await (await fetch(apiUrl)).json()
       store.set({ 'mods.online': mods })
@@ -175,5 +175,6 @@ export default class ModManager {
     }
 
     log.debug('Leaving function', { namespace: 'main.mod_manager.fetchOnlineModDetailedInfo' })
+    return mods[index]
   }
 }

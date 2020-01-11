@@ -9,6 +9,10 @@ export const fetchOnlineMods = (context, force = false) => {
   ipcRenderer.send('FETCH_ONLINE_MODS', force)
 }
 
+export const fetchFullModInfo = (context, modName = '') => {
+  return ipcRenderer.invoke('FETCH_ONLINE_MOD_DETAILED_INFO', modName)
+}
+
 export const downloadMod = (context, { mod, release = -1 }) => {
   const versionData = release > -1
     ? mod.releases[release]
@@ -99,9 +103,14 @@ export const selectInstalledMod = (context, name) => {
   context.commit('SET_SELECTED_MOD', { selectedMod: mod })
 }
 
-export const selectOnlineMod = (context, mod) => {
-  ipcRenderer.send('FETCH_ONLINE_MOD_DETAILED_INFO', mod.name)
-  context.commit('SET_SELECTED_ONLINE_MOD', { selectedOnlineMod: mod })
+export const selectOnlineMod = async (context, mod) => {
+  context.commit('SET_SELECTED_ONLINE_MOD', { selectedOnlineMod: null })
+  context.commit('SET_FETCHING_ONLINE_MOD', { fetching: mod.name })
+  const fullInfo = (await Promise.all([
+    fetchFullModInfo(null, mod.name),
+    new Promise(resolve => setTimeout(resolve, 700)),
+  ]))[0]
+  context.commit('SET_SELECTED_ONLINE_MOD', { selectedOnlineMod: fullInfo })
 }
 
 export const decrementCurrentOnlineModsPage = (context) => {
