@@ -22,7 +22,7 @@
           <td class="cell-check">
             <button
               @click="addModToCurrentProfile(mod)"
-              :disabled="editingProfile || isModInCurrentProfile(mod)"
+              :disabled="isModInCurrentProfile(mod)"
               class="btn green"
             >
               <i class="fa fa-plus" />
@@ -58,7 +58,6 @@ export default {
   computed: {
     ...mapState({
       installedMods: state => state.installedMods,
-      editingProfile: state => state.editingProfile,
       selectedMod: state => state.selectedMod || {},
     }),
     ...mapGetters(['isModUpdateAvailable', 'isModInCurrentProfile']),

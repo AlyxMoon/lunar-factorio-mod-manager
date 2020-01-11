@@ -79,10 +79,6 @@ export const updateCurrentProfile = debounce((context, data) => {
   ipcRenderer.send('UPDATE_CURRENT_PROFILE', profile)
 })
 
-export const toggleEditProfile = (context) => {
-  context.commit('TOGGLE_EDIT_PROFILE')
-}
-
 export const removeCurrentProfile = (context) => {
   ipcRenderer.send('REMOVE_CURRENT_PROFILE')
 }

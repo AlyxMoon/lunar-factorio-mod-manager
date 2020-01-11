@@ -18,10 +18,6 @@ export const SET_PROFILES = (state, payload) => {
   state.profiles = payload.profiles
 }
 
-export const TOGGLE_EDIT_PROFILE = (state) => {
-  state.editingProfile = !state.editingProfile
-}
-
 export const SET_CURRENT_ONLINE_MOD_FILTER = (state, payload) => {
   state.onlineModsCurrentFilter = payload.onlineModsCurrentFilter
   state.onlineModsPage = 0
@@ -49,9 +45,11 @@ export const SET_ONLINE_QUERY = (state, payload) => {
   state.onlineModsPage = 0
 }
 
-export const SHOW_MODAL = (state, { name }) => {
+export const SHOW_MODAL = (state, { name = '', option } = {}) => {
   for (const modal in state.modals) {
     state.modals[modal] = modal === name
+      ? option || true
+      : false
   }
 }
 

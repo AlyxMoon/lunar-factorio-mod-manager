@@ -10,7 +10,6 @@ import * as mutations from './mutations'
 
 const state = {
   activeProfile: undefined,
-  editingProfile: false,
   installedMods: [],
   onlineMods: [],
   onlineModCategories: tags.map(tag => ({
@@ -35,7 +34,7 @@ const state = {
   username: '',
   onlineQuery: '',
   modals: {
-    ModalProfileAdd: false,
+    ModalProfileCreateOrEdit: false,
     ModalProfileDelete: false,
   },
 }

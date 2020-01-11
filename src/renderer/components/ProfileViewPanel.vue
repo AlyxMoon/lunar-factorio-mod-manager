@@ -16,14 +16,14 @@
       </div>
       <div>
         <button
-          @click="toggleEditProfile()"
+          @click="showModal({ name: 'ModalProfileCreateOrEdit', option: 'edit' })"
           class="btn"
           title="Edit Profile"
         >
           <i class="fa fa-edit" />
         </button>
         <button
-          @click="showModal({ name: 'ModalProfileAdd' })"
+          @click="showModal({ name: 'ModalProfileCreateOrEdit', option: 'create' })"
           class="btn green"
           title="Add Profile"
         >

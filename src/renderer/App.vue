@@ -18,7 +18,7 @@
 import { mapMutations } from 'vuex'
 import { Toast } from 'vuex-toast'
 import Navbar from '@/components/Navbar'
-import ModalProfileAdd from '@/modals/ProfileAdd'
+import ModalProfileCreateOrEdit from '@/modals/ProfileCreateOrEdit'
 import ModalProfileDelete from '@/modals/ProfileDelete'
 
 export default {
@@ -30,7 +30,7 @@ export default {
   data () {
     return {
       modals: [
-        ModalProfileAdd,
+        ModalProfileCreateOrEdit,
         ModalProfileDelete,
       ],
     }
