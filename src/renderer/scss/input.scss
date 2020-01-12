@@ -1,14 +1,21 @@
 label {
   color: $text-active-color;
+  position: relative;
+}
+
+input, select {
+  box-sizing: border-box;
+  height: $standard-input-height;
+  font-size: 16px;
+
+  padding: 0 10px;
+  border: 1px solid $element-background-color;
 }
 
 select {
-  display: inline-block;
-  padding: 4px 10px;
+
 
   background-color: $element-background-color;
-
-  font-size: 16px;
   font-weight: bold;
 
   &:hover, &:focus {
@@ -19,21 +26,50 @@ select {
 
   option {
     color: $text-light-color;
-    font-size: 16px;
-
     background-color: $background-primary-color;
-    border-bottom: 1px solid black;
-
-    &:hover {
-      background-color: $highlight-color;
-      border-color: rgba(0, 0, 0, 0);
-    }
   }
 }
 
 input[type="checkbox"] {
   width: 20px;
-  height: 20px;
   margin: 0;
   vertical-align: middle;
+}
+
+input[type="text"], input[type="search"] {
+  background-color: $background-primary-color;
+  border-color: $highlight-color;
+  color: $text-light-color;
+  padding: 0 3px;
+
+  &::placeholder {
+    color: $text-light-color;
+  }
+}
+
+input[type="search"] {
+  &::-webkit-search-cancel-button{
+    position: relative;
+    right: -1px;
+    -webkit-appearance: none;
+    height: 13px;
+    width: 13px;
+    cursor: pointer;
+  }
+
+  & ~ svg {
+    position: absolute;
+    top: 7px;
+    right: 5px;
+
+    pointer-events: none;
+
+    &.search { visibility: hidden; }
+    &.x { visibility: visible; }
+  }
+
+  &:placeholder-shown ~ svg {
+    &.search { visibility: visible; }
+    &.x { visibility: hidden; }
+  }
 }

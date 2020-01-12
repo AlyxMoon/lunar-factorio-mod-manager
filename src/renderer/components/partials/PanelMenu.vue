@@ -51,6 +51,15 @@ menu.panel-menu {
     margin: 3px 0;
   }
 
+  .menu-left, .menu-center, .menu-right {
+    display: flex;
+    align-items: center;
+
+    & > *:not(:last-child) {
+      margin-right: 4px;
+    }
+  }
+
   &.border {
     border-color: $highlight-color;
     border-style: solid;

@@ -34,12 +34,16 @@
           <i class="fa fa-sync" />
         </button>
 
-        <input
-          @search="setOnlineQuery($event.target.value);"
-          type="search"
-          placeholder="Search..."
-          class="search-mods"
-        >
+        <label>
+          <input
+            @search="setOnlineQuery($event.target.value);"
+            type="search"
+            placeholder="Search..."
+            class="search-mods"
+          >
+          <svgSearch />
+          <svgX />
+        </label>
       </template>
     </PanelMenu>
     <PanelContent class="full">
@@ -121,10 +125,11 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 import PanelMenu from './partials/PanelMenu'
 import PanelContent from './partials/PanelContent'
 import PanelContainer from './partials/PanelContainer'
+import { svgSearch, svgX } from './partials/SVG'
 
 export default {
   name: 'OnlineModsList',
-  components: { PanelContainer, PanelContent, PanelMenu },
+  components: { PanelContainer, PanelContent, PanelMenu, svgSearch, svgX },
   computed: {
     ...mapState({
       onlineModCategories: state => state.onlineModCategories,
