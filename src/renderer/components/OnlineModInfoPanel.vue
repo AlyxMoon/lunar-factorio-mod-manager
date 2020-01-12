@@ -5,14 +5,14 @@
         {{ mod ? mod.title : 'Selected Mod Info' }}
       </template>
       <template
-        v-slot:menu-right
         v-if="mod"
+        v-slot:menu-right
       >
         <button
-          @click="showModal({ name: 'ModalOnlineModDownload', options: { mod } })"
           :disabled="isModDownloaded(mod.name) && !isModUpdateAvailable(mod.name)"
           :title="isModDownloaded(mod.name) ? (isModUpdateAvailable(mod.name) ? 'Download Update' : 'Mod is already downloaded') : 'Download Latest Mod Version'"
           class="btn"
+          @click="showModal({ name: 'ModalOnlineModDownload', options: { mod } })"
         >
           <i class="fa fa-download" />
         </button>
@@ -22,8 +22,8 @@
     <PanelContent>
       <transition name="slide-away-left">
         <div
-          key="loading"
           v-if="fetching"
+          key="loading"
           class="flex h-100"
         >
           <i class="fa fa-cog fa-spin" />
@@ -31,8 +31,8 @@
         </div>
 
         <div
-          key="content"
           v-if="!fetching && mod"
+          key="content"
         >
           <hr>
           <div class="flex justify-space-b align-start">
@@ -83,15 +83,18 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(release, i) in mod.releases.slice().reverse()">
+                <tr
+                  v-for="(release, i) in mod.releases.slice().reverse()"
+                  :key="'release-' + i"
+                >
                   <td class="cell-check">
                     <button
+                      class="btn"
+                      title="Download this release"
                       @click="showModal({
                         name: 'ModalOnlineModDownload',
                         options: { mod, release: mod.releases.length - i - 1 }
                       })"
-                      class="btn"
-                      title="Download this release"
                     >
                       <i class="fa fa-download" />
                     </button>
