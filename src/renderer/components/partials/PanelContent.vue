@@ -19,8 +19,11 @@ section.panel-content {
 
   padding: 5px 10px;
 
+  @include custom-scrollbar;
+
   &.full {
     padding: 0;
   }
 }
+
 </style>

@@ -1,10 +1,7 @@
 <template>
   <table>
-    <thead>
-      <tr>
-        <th>Something</th>
-      </tr>
-    </thead>
+    <thead><tr><slot name="headers" /></tr></thead>
+    <tbody><slot name="body" /></tbody>
   </table>
 </template>
 
