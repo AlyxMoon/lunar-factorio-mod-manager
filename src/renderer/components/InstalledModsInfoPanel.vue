@@ -36,11 +36,11 @@
 
     <PanelContent v-if="mod">
       <hr>
-      <div>
-        <div class="mod-description">
-          {{ mod.description }}
-        </div>
+
+      <div class="mod-description mb-2">
+        {{ mod.description }}
       </div>
+
       <table class="no-hover">
         <tbody>
           <tr>

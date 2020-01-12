@@ -31,7 +31,7 @@ export default {
 
 <style lang="scss" scoped>
 menu.panel-menu {
-  flex-basis: $menu-height;
+  min-height: $menu-height;
 
   display: flex;
   flex-direction: row;
@@ -76,7 +76,7 @@ menu.panel-menu {
 
   &.compact {
     padding: 0 5px;
-    flex-basis: auto;
+    min-height: 0;
   }
 }
 </style>

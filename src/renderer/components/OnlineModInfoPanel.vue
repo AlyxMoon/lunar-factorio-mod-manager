@@ -1,5 +1,5 @@
 <template>
-  <PanelContainer v-if="mod || fetching">
+  <PanelContainer>
     <PanelMenu>
       <template v-slot:menu-left>
         {{ mod ? mod.title : 'Selected Mod Info' }}
@@ -24,7 +24,7 @@
         <div
           key="loading"
           v-if="fetching"
-          class="flex mt-5"
+          class="flex h-100"
         >
           <i class="fa fa-cog fa-spin" />
           <span class="ml-1">Fetching information for {{ fetching }}</span>
@@ -32,7 +32,7 @@
 
         <div
           key="content"
-          v-else
+          v-if="!fetching && mod"
         >
           <hr>
           <div class="flex justify-space-b align-start">

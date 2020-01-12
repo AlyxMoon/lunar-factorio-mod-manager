@@ -64,12 +64,14 @@ input[type="search"] {
 
     pointer-events: none;
 
-    &.search { visibility: hidden; }
-    &.x { visibility: visible; }
+    transition: opacity 0.3s;
+
+    &.search { opacity: 0; }
+    &.x { opacity: 1; }
   }
 
   &:placeholder-shown ~ svg {
-    &.search { visibility: visible; }
-    &.x { visibility: hidden; }
+    &.search { opacity: 1; }
+    &.x { opacity: 0; }
   }
 }

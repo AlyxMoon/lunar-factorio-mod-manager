@@ -16,6 +16,9 @@ article.panel-container {
   display: flex;
   flex-direction: column;
 
+  position: relative;
+  overflow: hidden;
+
   background-color: $background-secondary-color;
   border: 5px solid $background-primary-color;
 

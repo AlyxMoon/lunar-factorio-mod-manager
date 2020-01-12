@@ -17,6 +17,7 @@
 .slide-away-left {
   &-enter-active, &-leave-active {
     transition: all 0.4s;
+    // @include absolute($top: 5px, $left: 10px, $bottom: 5px, $right: 10px);
   }
 
   &-enter {
