@@ -107,15 +107,18 @@ nav.navbar {
     user-select: none;
 
     &:hover {
+      border-color: $highlight-color;
       box-shadow: 0 0 3px 2px $highlight-color;
     }
 
     &.router-link-active {
+      border-color: $element-border-color;
       border-bottom-color: $background-secondary-color;
       box-shadow: none;
 
       background-color: $background-secondary-color;
       color: $text-active-color;
+
     }
   }
 }

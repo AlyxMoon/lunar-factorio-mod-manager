@@ -18,10 +18,13 @@ button {
   text-decoration: none;
   cursor: pointer;
 
+  transition-property: background-color, border-color, box-shadow, color;
+  transition-duration: 0.2s;
+  transition-timing-function: linear;
+
   &:hover {
-    background-color: $highlight-color;
-    border-color: rgba(0, 0, 0, 0);
-    box-shadow: 0 0 2px 2px $highlight-color;
+    background-color: darken($highlight-color, 9);
+    box-shadow: 0 0 7px 2px $element-shadow-color;
   }
 
   &.green {
@@ -29,7 +32,8 @@ button {
     color: $text-light-color;
 
     &:hover {
-      box-shadow: 0 0 2px 2px #28A745;
+      box-shadow: 0 0 7px 2px #28A745;
+      border-color: #28A745;
     }
   }
 
@@ -38,7 +42,8 @@ button {
     color: $text-light-color;
 
     &:hover {
-      box-shadow: 0 0 2px 2px #CB2431;
+      box-shadow: 0 0 7px 2px #CB2431;
+      border-color: #CB2431;
     }
   }
 
@@ -61,6 +66,7 @@ button {
 
     &:hover {
       box-shadow: 0 0 2px 2px $element-shadow-color;
+      border-color: rgba(0, 0, 0, 0);
     }
   }
 }
