@@ -1,0 +1,36 @@
+.zoom {
+  &-enter-active, &-leave-active {
+    transition: all 0.4s;
+  }
+
+  &-enter, &-leave-to {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+
+  &-enter-to, &-leave {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.slide-away-left {
+  &-enter-active, &-leave-active {
+    transition: all 0.4s;
+    // @include absolute($top: 5px, $left: 10px, $bottom: 5px, $right: 10px);
+  }
+
+  &-enter {
+    opacity: 0;
+  }
+
+  &-leave-to {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+
+  &-enter-to, &-leave {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

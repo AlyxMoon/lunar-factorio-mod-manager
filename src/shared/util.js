@@ -36,3 +36,38 @@ export const isVersionHigher = (currentVersion, checkedVersion) => {
 
   return false
 }
+
+export const parseModDependencies = (dependencies = [], mods = []) => {
+  const newDependencies = typeof dependencies === 'string'
+    ? [dependencies]
+    : dependencies.slice()
+  if (newDependencies.length === 0) newDependencies.push('base')
+
+  return newDependencies.map(dependency => {
+    const prefix = dependency.match(/^\W*/)[0].trim()
+    dependency = dependency.replace(/^\W*/, '')
+
+    const name = dependency.match(/^[^<>=]*/)[0].trim()
+    dependency = dependency.replace(/^[^<>=]*/, '').trim()
+
+    const operator = (dependency.match(/^<=|^>=|^=|^<|^>/) || [''])[0]
+    dependency = dependency.replace(/^<=|^>=|^=|^<|^>/, '').trim()
+
+    const version = dependency
+
+    const installed = mods.some(m => m.name === name)
+
+    return {
+      installed,
+      name,
+      operator,
+      version,
+      type: (() => {
+        if (prefix === '!') return 'incompatible'
+        if (prefix === '?') return 'optional'
+        if (prefix === '(?)') return 'optional-hidden'
+        return 'required'
+      })(),
+    }
+  })
+}

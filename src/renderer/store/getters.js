@@ -1,4 +1,7 @@
-import { isVersionHigher } from 'src/shared/util'
+import {
+  isVersionHigher,
+  parseModDependencies,
+} from 'src/shared/util'
 
 export const currentProfile = (state) => {
   if (state.profiles && state.profiles.length > 0 && state.activeProfile >= 0) {
@@ -51,8 +54,45 @@ export const isModInCurrentProfile = (state, getters) => (mod) => {
   return (getters.currentProfile || { mods: [] }).mods.some(m => m.name === mod.name)
 }
 
-export const filterModDependenciesByType = () => (mod, type = 'required') => {
-  return (mod.dependenciesParsed || []).filter(dependency => dependency.type === type)
+export const filterModDependenciesByType = (state) => (
+  mod,
+  type = 'required',
+  { parse = false, ignoreInstalled = false, getAsObject = false } = {},
+) => {
+  const allowedTypes = typeof type === 'string'
+    ? [type]
+    : (type.length && type.slice()) || ['required']
+
+  const dependencies = (parse
+    ? parseModDependencies(mod.dependencies, state.installedMods)
+    : mod.dependenciesParsed
+  ).filter(dependency => {
+    return (
+      allowedTypes.includes(dependency.type) &&
+      (!ignoreInstalled || !dependency.installed)
+    )
+  })
+
+  if (getAsObject) {
+    const obj = Object.create(null, {
+      length: {
+        get: function () {
+          const { required, optional, incompatible, hidden } = this
+          return required.length + optional.length + incompatible.length + hidden.length
+        },
+        enumerable: false,
+      },
+      required: { value: [] },
+      optional: { value: [] },
+      incompatible: { value: [] },
+      hidden: { value: [] },
+    })
+
+    dependencies.forEach((dependency) => obj[dependency.type].push(dependency))
+    return obj
+  }
+
+  return dependencies
 }
 
 export const search = (state, getters) => (query, mods = []) => {

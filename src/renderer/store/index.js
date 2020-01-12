@@ -10,7 +10,6 @@ import * as mutations from './mutations'
 
 const state = {
   activeProfile: undefined,
-  editingProfile: false,
   installedMods: [],
   onlineMods: [],
   onlineModCategories: tags.map(tag => ({
@@ -34,6 +33,18 @@ const state = {
   selectedOnlineMod: undefined,
   username: '',
   onlineQuery: '',
+  fetchingOnlineMod: false,
+  modals: {
+    ModalOnlineModDownload: {
+      show: false,
+    },
+    ModalProfileCreateOrEdit: {
+      show: false,
+    },
+    ModalProfileDelete: {
+      show: false,
+    },
+  },
 }
 
 Vue.use(Vuex)

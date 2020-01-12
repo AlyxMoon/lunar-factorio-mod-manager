@@ -9,13 +9,16 @@ export const fetchOnlineMods = (context, force = false) => {
   ipcRenderer.send('FETCH_ONLINE_MODS', force)
 }
 
-export const downloadMod = (context, mod) => {
-  const versionData = mod.latest_release || mod.releases[mod.releases.length - 1]
-  ipcRenderer.send('DOWNLOAD_MOD', mod.name, mod.title, versionData.version, versionData.download_url)
+export const fetchFullModInfo = (context, modName = '') => {
+  return ipcRenderer.invoke('FETCH_ONLINE_MOD_DETAILED_INFO', modName)
 }
 
-export const downloadModRelease = (context, { mod, release }) => {
-  ipcRenderer.send('DOWNLOAD_MOD', mod.name, mod.title, release.version, release.download_url)
+export const downloadMod = (context, { mod, release = -1 }) => {
+  const versionData = release > -1
+    ? mod.releases[release]
+    : mod.latest_release || mod.releases[mod.releases.length - 1]
+
+  ipcRenderer.send('DOWNLOAD_MOD', mod.name, mod.title, versionData.version, versionData.download_url)
 }
 
 export const downloadMissingDependenciesForMod = (context, mod) => {
@@ -70,18 +73,14 @@ export const addMissingModDependenciesToActiveProfile = (context, modName) => {
     })
 }
 
-export const addProfile = (context) => {
-  ipcRenderer.send('ADD_PROFILE')
+export const addProfile = (context, options) => {
+  ipcRenderer.send('ADD_PROFILE', options)
 }
 
 export const updateCurrentProfile = debounce((context, data) => {
   const profile = Object.assign({ ...context.getters.currentProfile }, data)
   ipcRenderer.send('UPDATE_CURRENT_PROFILE', profile)
 })
-
-export const toggleEditProfile = (context) => {
-  context.commit('TOGGLE_EDIT_PROFILE')
-}
 
 export const removeCurrentProfile = (context) => {
   ipcRenderer.send('REMOVE_CURRENT_PROFILE')
@@ -104,9 +103,14 @@ export const selectInstalledMod = (context, name) => {
   context.commit('SET_SELECTED_MOD', { selectedMod: mod })
 }
 
-export const selectOnlineMod = (context, mod) => {
-  ipcRenderer.send('FETCH_ONLINE_MOD_DETAILED_INFO', mod.name)
-  context.commit('SET_SELECTED_ONLINE_MOD', { selectedOnlineMod: mod })
+export const selectOnlineMod = async (context, mod) => {
+  context.commit('SET_SELECTED_ONLINE_MOD', { selectedOnlineMod: null })
+  context.commit('SET_FETCHING_ONLINE_MOD', { fetching: mod.name })
+  const fullInfo = (await Promise.all([
+    fetchFullModInfo(null, mod.name),
+    new Promise(resolve => setTimeout(resolve, 700)),
+  ]))[0]
+  context.commit('SET_SELECTED_ONLINE_MOD', { selectedOnlineMod: fullInfo })
 }
 
 export const decrementCurrentOnlineModsPage = (context) => {

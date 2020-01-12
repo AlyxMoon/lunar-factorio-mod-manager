@@ -1,47 +1,47 @@
 <template>
   <div class="mod-info-panel">
-    <div class="menu">
-      <div>
-        <span class="menu-label">{{ mod ? mod.title : 'Selected Mod Info' }}</span>
-      </div>
-      <div v-if="mod">
-        <button
-          v-if="isModUpdateAvailable(mod.name)"
-          @click="downloadMod(getOnlineInfoForMod(mod))"
-          class="btn"
-          title="Download Mod Update"
-        >
-          <i class="fa fa-arrow-up" />
-        </button>
-        <button
-          v-if="mod.hasMissingRequiredDependencies"
-          @click="downloadMissingDependenciesForMod(mod)"
-          class="btn"
-          title="Download Missing Required Dependencies"
-        >
-          <i class="fa fa-exclamation-circle" />
-        </button>
-        <button
-          v-if="mod.name !== 'base'"
-          @click="deleteMod(mod.name)"
-          class="btn red"
-          title="Delete Mod"
-        >
-          <i class="fa fa-trash-alt" />
-        </button>
-      </div>
-    </div>
-    <div
-      v-if="mod"
-      class="mod-info-content"
-    >
-      <hr>
-      <div>
-        <div class="mod-description">
-          {{ mod.description }}
+    <PanelMenu>
+      <template v-slot:menu-left>
+        {{ mod ? mod.title : 'Selected Mod Info' }}
+      </template>
+      <template v-slot:menu-right>
+        <div v-if="mod">
+          <button
+            v-if="isModUpdateAvailable(mod.name)"
+            @click="downloadMod(getOnlineInfoForMod(mod))"
+            class="btn"
+            title="Download Mod Update"
+          >
+            <i class="fa fa-arrow-up" />
+          </button>
+          <button
+            v-if="mod.hasMissingRequiredDependencies"
+            @click="downloadMissingDependenciesForMod(mod)"
+            class="btn"
+            title="Download Missing Required Dependencies"
+          >
+            <i class="fa fa-exclamation-circle" />
+          </button>
+          <button
+            v-if="mod.name !== 'base'"
+            @click="deleteMod(mod.name)"
+            class="btn red"
+            title="Delete Mod"
+          >
+            <i class="fa fa-trash-alt" />
+          </button>
         </div>
+      </template>
+    </PanelMenu>
+
+    <PanelContent v-if="mod">
+      <hr>
+
+      <div class="mod-description mb-2">
+        {{ mod.description }}
       </div>
-      <table>
+
+      <table class="no-hover">
         <tbody>
           <tr>
             <th>Version</th>
@@ -58,7 +58,7 @@
         </tbody>
       </table>
 
-      <table class="mt-1">
+      <table class="no-hover mt-1">
         <thead>
           <tr>
             <th
@@ -93,14 +93,18 @@
           </template>
         </tbody>
       </table>
-    </div>
+    </PanelContent>
   </div>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex'
+import PanelMenu from './partials/PanelMenu'
+import PanelContent from './partials/PanelContent'
+
 export default {
-  name: 'ModInfoPanel',
+  name: 'InstalledModsInfoPanel',
+  components: { PanelContent, PanelMenu },
   computed: {
     ...mapState({
       mod: state => state.selectedMod,
@@ -117,6 +121,10 @@ export default {
 div.mod-info-panel {
   background-color: $background-secondary-color;
   border: 5px solid $background-primary-color;
+
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 div.mod-info-content {
@@ -129,16 +137,6 @@ div.mod-info-content {
     display: flex;
     justify-content: space-between;
     padding: 20px 0;
-  }
-}
-
-table {
-  tbody {
-    tr {
-      &:hover {
-        background-color: $background-primary-color;
-      }
-    }
   }
 }
 </style>
