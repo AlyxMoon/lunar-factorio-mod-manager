@@ -3,7 +3,7 @@
   "productName": "LFMM",
   "version": "2.0.0",
   "description": "An unofficial mod manager for Factorio",
-  "main": "dist/main.js",
+  "main": "./dist/main.js",
   "scripts": {
     "debug": "node _scripts/dev-runner.js --remote-debug",
     "dev": "node _scripts/dev-runner.js",
@@ -12,7 +12,10 @@
     "test": "jest --config test/unit/jest.conf.js",
     "test:watch": "jest --config test/unit/jest.conf.js --watch",
     "test:coverage": "jest --config test/unit/jest.conf.js --coverage",
-    "build": "yarn run pack && node _scripts/build.js",
+    "build": "yarn run pack && yarn run build:windows",
+    "build:windows": "yarn run pack && node _scripts/build.js windows",
+    "build:linux": "yarn run pack && node _scripts/build.js linux",
+    "build:mac": "yarn run pack && node _scripts/build.js mac",
     "pack": "yarn run pack:main && yarn run pack:renderer",
     "pack:main": "webpack --mode=production --env.NODE_ENV=production --hide-modules --config _scripts/webpack.main.config.js",
     "pack:renderer": "webpack --mode=production --env.NODE_ENV=production --hide-modules --config _scripts/webpack.renderer.config.js",
@@ -34,7 +37,7 @@
     "url": "https://github.com/AlyxMoon/Lunar-Factorio-Mod-Manager/issues"
   },
   "homepage": "https://github.com/AlyxMoon/Lunar-Factorio-Mod-Manager",
-  "author": "Allister Moon",
+  "author": "Allister Moon <allisterkmoon@gmail.com> (http://www.allistermoon.com)",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.5.5",

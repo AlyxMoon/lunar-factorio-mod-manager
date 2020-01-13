@@ -5,13 +5,12 @@ const { name, productName } = require('../package.json')
 
 const config = {
   appId: `com.alyxmoon.${name}`,
-  copyright: `Copyright @2019 allisterkmoon@gmail.com`,
+  copyright: `Copyright ${(new Date()).getFullYear()} - Allister Moon - allisterkmoon@gmail.com`,
   productName,
   directories: {
     output: 'build/',
   },
   files: [
-    '!**/node_modules/**/*',
     'dist/**/*',
     'src/data/**/*',
   ],
@@ -35,18 +34,18 @@ const config = {
     },
   },
   linux: {
-    // icon: '_icons/icon.png',
-    target: ['deb', 'snap', 'AppImage'],
+    icon: '_icons/icon.png',
+    target: ['deb'],
   },
   mac: {
     category: 'public.app-category.utilities',
-    // icon: '_icons/icon.icns',
-    target: ['dmg', 'zip'],
+    icon: '_icons/icon.icns',
+    target: ['zip'],
     type: 'distribution',
   },
   win: {
-    // icon: '_icons/icon.ico',
-    target: ['nsis', 'zip', 'portable'],
+    icon: '_icons/icon.ico',
+    target: ['zip'],
   },
   nsis: {
     allowToChangeInstallationDirectory: true,
@@ -54,7 +53,17 @@ const config = {
   },
 }
 
+let targets
+
+if (process.argv[2] === 'linux') {
+  targets = Platform.LINUX.createTarget()
+} else if (process.argv[2] === 'mac') {
+  targets = Platform.MAC.createTarget()
+} else {
+  targets = Platform.WINDOWS.createTarget()
+}
+
 builder.build({
-  targets: Platform.WINDOWS.createTarget(),
+  targets,
   config,
 }).then(console.log).catch(console.error)
