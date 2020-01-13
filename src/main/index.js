@@ -134,6 +134,10 @@ const addClientEventListeners = async () => {
   ipcMain.on('DELETE_MOD', (event, name) => {
     modManager.deleteMod(name)
   })
+
+  ipcMain.handle('GET_APP_LATEST_VERSION', () => {
+    return appManager.retrieveLatestAppVersion()
+  })
 }
 
 const initializeApp = async () => {

@@ -63,3 +63,7 @@ export const HIDE_MODAL = (state) => {
     state.modals[modal] = { show: false }
   }
 }
+
+export const SET_APP_LATEST_VERSION = (state, { version }) => {
+  state.appLatestVersion = version
+}
