@@ -1,0 +1,15 @@
+@import './animations.scss';
+@import './button.scss';
+@import './input.scss';
+@import './layout.scss';
+@import './table.scss';
+@import './typography.scss';
+
+html, body {
+  background-color: $background-primary-color;
+
+  margin: 0;
+  padding: 0;
+
+  overflow: hidden;
+}

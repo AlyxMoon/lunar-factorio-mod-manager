@@ -1,0 +1,77 @@
+label {
+  color: $text-active-color;
+  position: relative;
+}
+
+input, select {
+  box-sizing: border-box;
+  height: $standard-input-height;
+  font-size: 16px;
+
+  padding: 0 10px;
+  border: 1px solid $element-background-color;
+}
+
+select {
+
+
+  background-color: $element-background-color;
+  font-weight: bold;
+
+  &:hover, &:focus {
+    background-color: $highlight-color;
+    border-color: rgba(0, 0, 0, 0);
+    box-shadow: 0 0 2px 2px $highlight-color;
+  }
+
+  option {
+    color: $text-light-color;
+    background-color: $background-primary-color;
+  }
+}
+
+input[type="checkbox"] {
+  width: 20px;
+  margin: 0;
+  vertical-align: middle;
+}
+
+input[type="text"], input[type="search"] {
+  background-color: $background-primary-color;
+  border-color: $highlight-color;
+  color: $text-light-color;
+  padding: 0 3px;
+
+  &::placeholder {
+    color: $text-light-color;
+  }
+}
+
+input[type="search"] {
+  &::-webkit-search-cancel-button{
+    position: relative;
+    right: -1px;
+    -webkit-appearance: none;
+    height: 13px;
+    width: 13px;
+    cursor: pointer;
+  }
+
+  & ~ svg {
+    position: absolute;
+    top: 7px;
+    right: 5px;
+
+    pointer-events: none;
+
+    transition: opacity 0.3s;
+
+    &.search { opacity: 0; }
+    &.x { opacity: 1; }
+  }
+
+  &:placeholder-shown ~ svg {
+    &.search { opacity: 1; }
+    &.x { opacity: 0; }
+  }
+}

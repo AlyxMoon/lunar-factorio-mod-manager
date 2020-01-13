@@ -1,0 +1,18 @@
+@mixin absolute ($top: 0, $right: 0, $bottom: 0, $left: 0) {
+  position: absolute;
+  top: $top;
+  right: $right;
+  bottom: $bottom;
+  left: $left;
+}
+
+@mixin custom-scrollbar () {
+  &::-webkit-scrollbar {
+    background-color: $background-primary-color;
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba($highlight-color, 0.3);
+  }
+}
