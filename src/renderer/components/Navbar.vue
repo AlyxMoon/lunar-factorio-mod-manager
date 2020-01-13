@@ -8,29 +8,23 @@
         Profiles
       </router-link>
       <router-link
-        to="/mods"
-        class="btn"
-      >
-        Mods
-      </router-link>
-      <router-link
-        to="/saves"
-        class="btn"
-      >
-        Saves
-      </router-link>
-      <router-link
         to="/portal"
         class="btn"
       >
         Mod Portal
       </router-link>
+      <router-link
+        to="/about"
+        class="btn"
+      >
+        About
+      </router-link>
     </div>
 
     <div class="menu-section commands">
       <button
-        @click="startFactorio()"
         class="btn"
+        @click="startFactorio()"
       >
         Start Factorio
       </button>

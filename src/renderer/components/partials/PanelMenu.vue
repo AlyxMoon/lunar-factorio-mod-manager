@@ -31,8 +31,6 @@ export default {
 
 <style lang="scss" scoped>
 menu.panel-menu {
-  min-height: $menu-height;
-
   display: flex;
   flex-direction: row;
   align-items: center;

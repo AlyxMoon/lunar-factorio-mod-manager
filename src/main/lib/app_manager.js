@@ -4,6 +4,7 @@ import os from 'os'
 import { promisify } from 'util'
 import { spawn } from 'child_process'
 import { app, dialog, ipcMain } from 'electron'
+import fetch from 'node-fetch'
 
 import store from '@lib/store'
 import log from './logger'
@@ -367,6 +368,18 @@ export default class AppManager {
     this.closeApp()
 
     log.debug(`Exiting function`, { namespace: 'main.app_manager.startFactorio' })
+  }
+
+  async retrieveLatestAppVersion () {
+    const url = 'https://api.github.com/repos/AlyxMoon/lunars-factorio-mod-manager/releases/latest'
+    const options = {
+      headers: {
+        'User-Agent': 'request',
+      },
+    }
+
+    const data = await (await fetch(url, options)).json()
+    return data.tag_name.slice(1)
   }
 
   async closeApp () {

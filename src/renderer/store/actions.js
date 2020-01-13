@@ -1,12 +1,21 @@
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, shell } from 'electron'
 import { debounce } from 'src/shared/util'
 
 export const startFactorio = (context) => {
   ipcRenderer.send('START_FACTORIO')
 }
 
+export const openExternalLink = (context, link) => {
+  shell.openExternal(link)
+}
+
 export const fetchOnlineMods = (context, force = false) => {
   ipcRenderer.send('FETCH_ONLINE_MODS', force)
+}
+
+export const retrieveLatestAppVersion = async (context) => {
+  const version = await ipcRenderer.invoke('GET_APP_LATEST_VERSION')
+  context.commit('SET_APP_LATEST_VERSION', { version })
 }
 
 export const fetchFullModInfo = (context, modName = '') => {
