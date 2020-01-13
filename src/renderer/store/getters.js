@@ -1,7 +1,15 @@
+import { remote } from 'electron'
+
 import {
   isVersionHigher,
   parseModDependencies,
 } from 'src/shared/util'
+
+const { app: { getVersion } } = remote
+
+export const appVersion = (state) => {
+  return getVersion()
+}
 
 export const currentProfile = (state) => {
   if (state.profiles && state.profiles.length > 0 && state.activeProfile >= 0) {
