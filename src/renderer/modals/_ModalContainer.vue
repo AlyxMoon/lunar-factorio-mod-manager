@@ -89,6 +89,8 @@ export default {
   justify-content: center;
   align-items: center;
 
+  z-index: 10;
+
   &.transparent {
     background-color: transparent;
     pointer-events: none;
