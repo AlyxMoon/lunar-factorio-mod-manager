@@ -148,3 +148,7 @@ export const goToLastOnlineModsPage = (context) => {
 export const exportProfile = ({ dispatch, state }) => {
   return ipcRenderer.invoke('EXPORT_PROFILE', state.activeProfile)
 }
+
+export const importProfile = ({ dispatch, state }) => {
+  return ipcRenderer.invoke('IMPORT_PROFILE')
+}
