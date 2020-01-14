@@ -58,6 +58,10 @@ ipcRenderer.on('ONLINE_MODS', (event, data) => {
   store.commit('SET_ONLINE_MODS', { onlineMods: data })
 })
 
+ipcRenderer.on('FACTORIO_SAVES', (event, data) => {
+  store.commit('SET_SAVES', { saves: data })
+})
+
 ipcRenderer.on('PROFILES_LIST', (event, data) => {
   store.commit('SET_PROFILES', { profiles: data })
 })

@@ -8,25 +8,25 @@
         <div v-if="mod">
           <button
             v-if="isModUpdateAvailable(mod.name)"
-            @click="downloadMod(getOnlineInfoForMod(mod))"
             class="btn"
             title="Download Mod Update"
+            @click="downloadMod(getOnlineInfoForMod(mod))"
           >
             <i class="fa fa-arrow-up" />
           </button>
           <button
             v-if="mod.hasMissingRequiredDependencies"
-            @click="downloadMissingDependenciesForMod(mod)"
             class="btn"
             title="Download Missing Required Dependencies"
+            @click="downloadMissingDependenciesForMod(mod)"
           >
             <i class="fa fa-exclamation-circle" />
           </button>
           <button
             v-if="mod.name !== 'base'"
-            @click="deleteMod(mod.name)"
             class="btn red"
             title="Delete Mod"
+            @click="deleteMod(mod.name)"
           >
             <i class="fa fa-trash-alt" />
           </button>
@@ -71,7 +71,10 @@
         </thead>
         <tbody>
           <template v-for="type of ['required', 'optional', 'incompatible']">
-            <tr v-for="(dependency, index) of filterModDependenciesByType(mod, type)">
+            <tr
+              v-for="(dependency, index) of filterModDependenciesByType(mod, type)"
+              :key="'dependency-' + index"
+            >
               <td
                 v-if="index === 0"
                 :rowspan="filterModDependenciesByType(mod, type).length"

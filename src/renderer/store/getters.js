@@ -17,6 +17,14 @@ export const currentProfile = (state) => {
   }
 }
 
+export const selectedSave = (state) => {
+  const { saves, selectedSave } = state
+  if (!Array.isArray(saves) || !saves.length) return
+  if (!Number.isInteger(selectedSave) || (selectedSave < 0 || selectedSave >= saves.length)) return
+
+  return state.saves[state.selectedSave]
+}
+
 export const isModMissingDependenciesInActiveProfile = (state) => (modName) => {
   const profile = state.profiles[state.activeProfile]
   if (!profile) return
