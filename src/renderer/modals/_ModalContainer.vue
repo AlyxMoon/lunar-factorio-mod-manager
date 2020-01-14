@@ -2,11 +2,13 @@
   <div
     :class="{ transparent: !visible }"
     class="modal-overlay"
+    @click="hideModal"
   >
     <transition name="zoom">
       <div
         v-if="visible"
         class="modal-container"
+        @click.stop
       >
         <div class="modal-menu">
           <div class="modal-title">
@@ -15,8 +17,8 @@
             </slot>
           </div>
           <button
-            @click="hideModal"
             class="btn subtle"
+            @click="hideModal"
           >
             X
           </button>
@@ -33,16 +35,22 @@
         <div class="modal-footer">
           <slot name="footer">
             <button
-              @click="$emit('confirm')"
               class="btn green small"
+              :disabled="disableFooter"
+              @click="$emit('confirm')"
             >
-              Confirm
+              <slot name="confirm-text">
+                Confirm
+              </slot>
             </button>
             <button
-              @click="hideModal"
               class="btn red small"
+              :disabled="disableFooter"
+              @click="hideModal"
             >
-              Cancel
+              <slot name="cancel-text">
+                Cancel
+              </slot>
             </button>
           </slot>
         </div>
@@ -56,6 +64,12 @@ import { mapMutations } from 'vuex'
 
 export default {
   name: 'ModalContainer',
+  props: {
+    disableFooter: {
+      type: Boolean,
+      default: false,
+    },
+  },
   computed: {
     visible: {
       get () {

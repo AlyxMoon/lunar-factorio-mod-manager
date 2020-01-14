@@ -1,20 +1,52 @@
 <template>
   <ModalContainer
-    v-on:confirm="handleConfirm(); hideModal()"
-    v-on:hidden="clearData"
+    :disable-footer="editing || importing"
+    @confirm="handleConfirm(); hideModal()"
+    @hidden="clearData"
   >
     <template v-slot:title>
       <span v-if="editing">Edit Profile | {{ originalName }}</span>
       <span v-else>Create New Profile</span>
     </template>
     <template v-slot:content>
-      <label>
-        Profile Name:
-        <input
-          v-model="name"
-          type="text"
-        >
-      </label>
+      <div>
+        <label>
+          Profile Name:
+          <input
+            v-model="name"
+            type="text"
+          >
+        </label>
+      </div>
+
+      <button
+        v-if="editing"
+        class="btn mt-2"
+        :disabled="exporting"
+        @click="handleExport"
+      >
+        <i
+          v-if="exporting"
+          class="fa fa-cog fa-spin"
+        />
+        Export profile
+      </button>
+      <button
+        v-else
+        class="btn mt-2"
+        :disabled="importing"
+        @click="handleImport"
+      >
+        <i
+          v-if="importing"
+          class="fa fa-cog fa-spin"
+        />
+        Import profile
+      </button>
+    </template>
+
+    <template v-slot:confirm-text>
+      {{ editing ? 'Save' : 'Create' }}
     </template>
   </ModalContainer>
 </template>
@@ -28,6 +60,8 @@ export default {
   components: { ModalContainer },
   data () {
     return {
+      exporting: false,
+      importing: false,
       name: '',
       originalName: '',
     }
@@ -45,12 +79,15 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['addProfile', 'updateCurrentProfile']),
+    ...mapActions(['addProfile', 'exportProfile', 'importProfile', 'updateCurrentProfile']),
     ...mapMutations({
       hideModal: 'HIDE_MODAL',
     }),
     clearData () {
       this.name = ''
+      this.originalName = ''
+      this.exporting = false
+      this.importing = false
     },
     handleConfirm () {
       if (this.editing) {
@@ -58,6 +95,17 @@ export default {
       } else {
         this.addProfile({ name: this.name })
       }
+    },
+    async handleExport () {
+      this.exporting = true
+      await this.exportProfile()
+      this.exporting = false
+    },
+    async handleImport () {
+      this.importing = true
+      await this.importProfile()
+      this.hideModal()
+      this.importing = false
     },
   },
 }
