@@ -10,7 +10,7 @@ export const SET_ONLINE_MODS = (state, payload) => {
   state.onlineMods = payload.onlineMods
 }
 
-export const SET_SAVES = (state, { saves = [] } = {}) => {
+export const SET_SAVES = (state, { saves = null } = {}) => {
   state.saves = saves
   state.selectedSave = null
 }
