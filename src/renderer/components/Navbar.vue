@@ -8,6 +8,12 @@
         Profiles
       </router-link>
       <router-link
+        to="/saves"
+        class="btn"
+      >
+        Saves
+      </router-link>
+      <router-link
         to="/portal"
         class="btn"
       >

@@ -19,6 +19,11 @@ export const retrieveLatestAppVersion = async (context) => {
   context.commit('SET_APP_LATEST_VERSION', { version })
 }
 
+export const retrieveSaves = ({ commit }) => {
+  commit('SET_SAVES')
+  ipcRenderer.send('RETRIEVE_FACTORIO_SAVES')
+}
+
 export const fetchFullModInfo = (context, modName = '') => {
   return ipcRenderer.invoke('FETCH_ONLINE_MOD_DETAILED_INFO', modName)
 }

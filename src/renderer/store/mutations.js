@@ -10,6 +10,11 @@ export const SET_ONLINE_MODS = (state, payload) => {
   state.onlineMods = payload.onlineMods
 }
 
+export const SET_SAVES = (state, { saves = [] } = {}) => {
+  state.saves = saves
+  state.selectedSave = null
+}
+
 export const SET_ACTIVE_PROFILE = (state, payload) => {
   state.activeProfile = payload.activeProfile
 }
@@ -35,6 +40,10 @@ export const SET_SELECTED_MOD = (state, payload) => {
 export const SET_SELECTED_ONLINE_MOD = (state, payload) => {
   state.selectedOnlineMod = payload.selectedOnlineMod
   state.fetchingOnlineMod = false
+}
+
+export const SET_SELECTED_SAVE = (state, { selected = null } = {}) => {
+  state.selectedSave = selected
 }
 
 export const SET_ONLINE_MODS_PAGE = (state, payload) => {
