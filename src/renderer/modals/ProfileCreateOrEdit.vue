@@ -1,20 +1,34 @@
 <template>
   <ModalContainer
-    v-on:confirm="handleConfirm(); hideModal()"
-    v-on:hidden="clearData"
+    @confirm="handleConfirm(); hideModal()"
+    @hidden="clearData"
   >
     <template v-slot:title>
       <span v-if="editing">Edit Profile | {{ originalName }}</span>
       <span v-else>Create New Profile</span>
     </template>
     <template v-slot:content>
-      <label>
-        Profile Name:
-        <input
-          v-model="name"
-          type="text"
-        >
-      </label>
+      <div>
+        <label>
+          Profile Name:
+          <input
+            v-model="name"
+            type="text"
+          >
+        </label>
+      </div>
+
+      <button
+        class="btn mt-2"
+        :disabled="exporting"
+        @click="handleExport"
+      >
+        <i
+          v-if="exporting"
+          class="fa fa-cog fa-spin"
+        />
+        Export profile
+      </button>
     </template>
   </ModalContainer>
 </template>
@@ -28,6 +42,7 @@ export default {
   components: { ModalContainer },
   data () {
     return {
+      exporting: false,
       name: '',
       originalName: '',
     }
@@ -45,7 +60,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['addProfile', 'updateCurrentProfile']),
+    ...mapActions(['addProfile', 'exportProfile', 'updateCurrentProfile']),
     ...mapMutations({
       hideModal: 'HIDE_MODAL',
     }),
@@ -58,6 +73,11 @@ export default {
       } else {
         this.addProfile({ name: this.name })
       }
+    },
+    async handleExport () {
+      this.exporting = true
+      await this.exportProfile()
+      this.exporting = false
     },
   },
 }
