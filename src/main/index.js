@@ -100,7 +100,7 @@ const addClientEventListeners = async () => {
   }
 
   ipcMain.on('ADD_MOD_TO_CURRENT_PROFILE', (event, mod) => {
-    profileManager.addModToCurrentProfile(mod)
+    profileManager.addModToProfile(mod)
   })
 
   ipcMain.on('REMOVE_MOD_FROM_CURRENT_PROFILE', (event, mod) => {

@@ -49,7 +49,9 @@ export default class ProfileManager {
     const profiles = store.get('profiles.list', [])
     profiles.push({
       name,
-      mods: mods || [{ name: 'base', title: 'Base Mod', version: store.get('mods.factorioVersion') }],
+      mods: mods
+        ? mods.map(({ name, title, version }) => ({ name, title, version }))
+        : [{ name: 'base', title: 'Base Mod', version: store.get('mods.factorioVersion') }],
     })
 
     store.set({
@@ -109,16 +111,17 @@ export default class ProfileManager {
     log.debug('Exited function', { namespace: 'main.profile_manager.removeCurrentProfile' })
   }
 
-  addModToCurrentProfile (mod) {
-    log.debug('Entered function', { namespace: 'main.profile_manager.addModToCurrentProfile' })
+  addModToProfile (mod, profileIndex = store.get('profiles.active')) {
+    log.debug('Entered function', { namespace: 'main.profile_manager.addModToProfile' })
 
     const profiles = store.get('profiles.list', [])
-    const active = store.get('profiles.active')
 
-    if (profiles[active]) {
-      if (!profiles[active].mods.some(m => m.name === mod.name)) {
-        profiles[active].mods.push(mod)
-        profiles[active].mods.sort((a, b) => {
+    if (profiles[profileIndex]) {
+      if (!profiles[profileIndex].mods.some(m => m.name === mod.name)) {
+        profiles[profileIndex].mods.push(({
+          name: mod.name, title: mod.title, version: mod.version,
+        }))
+        profiles[profileIndex].mods.sort((a, b) => {
           if (a.name === 'base' || a.name < b.name) return -1
           if (b.name === 'base' || a.name > b.name) return 1
           return 0
@@ -126,21 +129,21 @@ export default class ProfileManager {
 
         store.set('profiles.list', profiles)
 
-        log.info(`Added mod '${mod.name}' to active profile '${profiles[active].name}'`, { namespace: 'main.profile_manager.addModToCurrentProfile' })
+        log.info(`Added mod '${mod.name}' to profile '${profiles[profileIndex].name}'`, { namespace: 'main.profile_manager.addModToProfile' })
       } else {
         log.warn(
-          `Not adding mod to active profile: '${mod.name}' was already added to active profile '${profiles[active].name}'`,
-          { namespace: 'main.profile_manager.addModToCurrentProfile' }
+          `Not adding mod to profile: '${mod.name}' was already added to profile '${profiles[profileIndex].name}'`,
+          { namespace: 'main.profile_manager.addModToProfile' }
         )
       }
     } else {
       log.error(
-        `Somehow there was no valid active profile, unable to add mod | profile count: ${profiles.length} | activeProfileIndex: ${active}`,
-        { namespace: 'main.profile_manager.addModToCurrentProfile' }
+        `Somehow there was no valid profile, unable to add mod | profile count: ${profiles.length} | index: ${profileIndex}`,
+        { namespace: 'main.profile_manager.addModToProfile' }
       )
     }
 
-    log.debug('Exited function', { namespace: 'main.profile_manager.addModToCurrentProfile' })
+    log.debug('Exited function', { namespace: 'main.profile_manager.addModToProfile' })
   }
 
   removeModFromCurrentProfile (mod) {
@@ -207,6 +210,7 @@ export default class ProfileManager {
     const enabledMods = modsList
       .filter(mod => mod.enabled)
       .map(mod => installedMods.find(m => m.name === mod.name))
+      .map(({ name, title, version }) => ({ name, title, version }))
 
     const profiles = [
       { name: 'Vanilla', mods: [{ name: 'base', title: 'Base Mod', version: factorioVersion }] },
