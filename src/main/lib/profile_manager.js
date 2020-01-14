@@ -1,7 +1,7 @@
-import { readFile } from 'fs'
+import { readFile, writeFile } from 'fs'
 import { join } from 'path'
 import { promisify } from 'util'
-import { ipcMain } from 'electron'
+import { dialog, ipcMain } from 'electron'
 
 import store from '@lib/store'
 import log from './logger'
@@ -28,6 +28,11 @@ export default class ProfileManager {
       } else {
         log.info(`Unable to change active profile, index: ${activeProfile}`, { namespace: 'main.events.profile_manager' })
       }
+    })
+
+    ipcMain.handle('EXPORT_PROFILE', (event) => {
+      log.info('Event "EXPORT_PROFILE" was recieved', { namespace: 'main.events.profile_manager' })
+      return this.exportProfile(event.sender.webContents)
     })
 
     log.debug('Exited function', { namespace: 'main.profile_manager.configureEventListeners' })
@@ -202,5 +207,47 @@ export default class ProfileManager {
     log.info(`Successfully created starter profiles: [${profiles.map(p => p.name)}]`, { namespace: 'main.profile_manager.createStarterProfiles' })
 
     log.debug('Exited function', { namespace: 'main.profile_manager.createStarterProfiles' })
+  }
+
+  async exportProfile (replyChannel, profileIndex) {
+    log.debug('Entered function', { namespace: 'main.profile_manager.exportProfile' })
+
+    const p = (!profileIndex && profileIndex !== 0)
+      ? store.get('profiles.active')
+      : profileIndex
+    const profile = store.get(`profiles.list.${p}`)
+
+    if (!profile) {
+      log.info(`Index for profile to save was invalid or there was another issue. Index: ${p}`, { namespace: 'main.profile_manager.exportProfile' })
+      return
+    }
+
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Export profile',
+      defaultPath: profile.name,
+      buttonLabel: 'Export',
+      filters: [{ name: 'LFMM Profile Data', extensions: ['json'] }],
+    })
+
+    if (canceled || !filePath) {
+      log.info('Not exporting profile as dialog was canceled', { namespace: 'main.profile_manager.exportProfile' })
+      return
+    }
+
+    const formattedPath = filePath + (filePath.endsWith('.json') ? '' : '.json')
+
+    log.info(`Exporting profile, location: ${formattedPath}`)
+    try {
+      await promisify(writeFile)(formattedPath, JSON.stringify(profile, null, 2))
+
+      replyChannel.send('ADD_TOAST', { text: 'Successfully exported profile' })
+      log.info(`Successfully exported profile, location: ${formattedPath}`)
+    } catch (error) {
+      replyChannel.send('ADD_TOAST', { text: 'Failed to export profile', type: 'danger' })
+      log.info(`Failed to profile, location: ${formattedPath} | ${error.message}`)
+    }
+
+    log.debug('Exited function', { namespace: 'main.profile_manager.exportProfile' })
+    return formattedPath
   }
 }

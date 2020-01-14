@@ -15,8 +15,8 @@
             </slot>
           </div>
           <button
-            @click="hideModal"
             class="btn subtle"
+            @click="hideModal"
           >
             X
           </button>
@@ -33,14 +33,14 @@
         <div class="modal-footer">
           <slot name="footer">
             <button
-              @click="$emit('confirm')"
               class="btn green small"
+              @click="$emit('confirm')"
             >
               Confirm
             </button>
             <button
-              @click="hideModal"
               class="btn red small"
+              @click="hideModal"
             >
               Cancel
             </button>

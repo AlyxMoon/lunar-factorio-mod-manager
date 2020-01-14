@@ -1,4 +1,5 @@
 import { ipcRenderer, shell } from 'electron'
+
 import { debounce } from 'src/shared/util'
 
 export const startFactorio = (context) => {
@@ -142,4 +143,8 @@ export const goToFirstOnlineModsPage = (context) => {
 
 export const goToLastOnlineModsPage = (context) => {
   context.commit('SET_ONLINE_MODS_PAGE', { onlineModsPage: context.getters.maxPageOnlineMods })
+}
+
+export const exportProfile = ({ dispatch, state }) => {
+  return ipcRenderer.invoke('EXPORT_PROFILE', state.activeProfile)
 }
