@@ -35,24 +35,34 @@ export default class ProfileManager {
       return this.exportProfile(event.sender.webContents)
     })
 
+    ipcMain.handle('IMPORT_PROFILE', (event) => {
+      log.info('Event "IMPORT_PROFILE" was recieved', { namespace: 'main.events.profile_manager' })
+      return this.importProfile(event.sender.webContents)
+    })
+
     log.debug('Exited function', { namespace: 'main.profile_manager.configureEventListeners' })
   }
 
-  async addProfile ({ name = 'New Profile' } = {}) {
+  addProfile ({ name = 'New Profile', mods } = {}) {
     log.debug('Entered function', { namespace: 'main.profile_manager.addProfile' })
 
     const profiles = store.get('profiles.list', [])
-    profiles.push({ name, mods: [{ name: 'base', title: 'Base Mod', version: store.get('mods.factorioVersion') }] })
+    profiles.push({
+      name,
+      mods: mods || [{ name: 'base', title: 'Base Mod', version: store.get('mods.factorioVersion') }],
+    })
 
-    store.set('profiles.list', profiles)
-    store.set('profiles.active', profiles.length - 1)
+    store.set({
+      'profiles.list': profiles,
+      'profiles.active': profiles.length - 1,
+    })
 
     log.info(`New profile added successfully, new profile count: ${profiles.length}`, { namespace: 'main.profile_manager.addProfile' })
 
     log.debug('Exited function', { namespace: 'main.profile_manager.addProfile' })
   }
 
-  async updateCurrentProfile (data) {
+  updateCurrentProfile (data) {
     log.debug('Entered function', { namespace: 'main.profile_manager.updateCurrentProfile' })
 
     const profiles = store.get('profiles.list', [])
@@ -73,7 +83,7 @@ export default class ProfileManager {
     log.debug('Exited function', { namespace: 'main.profile_manager.updateCurrentProfile' })
   }
 
-  async removeCurrentProfile () {
+  removeCurrentProfile () {
     log.debug('Entered function', { namespace: 'main.profile_manager.removeCurrentProfile' })
 
     const profiles = store.get('profiles.list', [])
@@ -99,7 +109,7 @@ export default class ProfileManager {
     log.debug('Exited function', { namespace: 'main.profile_manager.removeCurrentProfile' })
   }
 
-  async addModToCurrentProfile (mod) {
+  addModToCurrentProfile (mod) {
     log.debug('Entered function', { namespace: 'main.profile_manager.addModToCurrentProfile' })
 
     const profiles = store.get('profiles.list', [])
@@ -133,7 +143,7 @@ export default class ProfileManager {
     log.debug('Exited function', { namespace: 'main.profile_manager.addModToCurrentProfile' })
   }
 
-  async removeModFromCurrentProfile (mod) {
+  removeModFromCurrentProfile (mod) {
     log.debug('Entered function', { namespace: 'main.profile_manager.removeModFromCurrentProfile' })
 
     const profiles = store.get('profiles.list', [])
@@ -244,10 +254,59 @@ export default class ProfileManager {
       log.info(`Successfully exported profile, location: ${formattedPath}`)
     } catch (error) {
       replyChannel.send('ADD_TOAST', { text: 'Failed to export profile', type: 'danger' })
-      log.info(`Failed to profile, location: ${formattedPath} | ${error.message}`)
+      log.info(`Failed to export profile, location: ${formattedPath} | ${error.message}`)
     }
 
     log.debug('Exited function', { namespace: 'main.profile_manager.exportProfile' })
     return formattedPath
+  }
+
+  async importProfile (replyChannel) {
+    log.debug('Entered function', { namespace: 'main.profile_manager.importProfile' })
+
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      title: 'Import profile',
+      properties: ['openFile'],
+      filters: [{ name: 'LFMM Profile Data', extensions: ['json'] }],
+    })
+
+    if (canceled || !filePaths[0]) {
+      log.info('Not importing profile as dialog was canceled', { namespace: 'main.profile_manager.importProfile' })
+      return
+    }
+
+    log.info(`Importing profile, location: ${filePaths[0]}`)
+    try {
+      const profile = JSON.parse(await promisify(readFile)(filePaths[0]))
+      if (!this.isValidProfile(profile)) throw new Error('profile data was invalid')
+
+      this.addProfile(profile)
+
+      replyChannel.send('ADD_TOAST', { text: 'Successfully imported profile' })
+      log.info(`Successfully imported profile, location: ${filePaths[0]}`)
+    } catch (error) {
+      replyChannel.send('ADD_TOAST', { text: 'Failed to import profile', type: 'danger' })
+      log.info(`Failed to import profile, location: ${filePaths[0]} | ${error.message}`)
+    }
+
+    log.debug('Exited function', { namespace: 'main.profile_manager.importProfile' })
+  }
+
+  isValidProfile (profileData) {
+    if (typeof profileData !== 'object') return false
+
+    const keys = ['name', 'mods']
+    const modKeys = ['name', 'title', 'version']
+
+    for (const item in profileData) {
+      if (!keys.includes(item)) return false
+    }
+
+    if (!Array.isArray(profileData.mods)) return false
+    for (const mod of profileData.mods) {
+      if (!modKeys.every(key => key in mod)) return false
+    }
+
+    return true
   }
 }

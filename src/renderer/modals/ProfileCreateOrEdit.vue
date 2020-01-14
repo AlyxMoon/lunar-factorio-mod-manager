@@ -1,5 +1,6 @@
 <template>
   <ModalContainer
+    :disable-footer="editing || importing"
     @confirm="handleConfirm(); hideModal()"
     @hidden="clearData"
   >
@@ -19,6 +20,7 @@
       </div>
 
       <button
+        v-if="editing"
         class="btn mt-2"
         :disabled="exporting"
         @click="handleExport"
@@ -29,6 +31,22 @@
         />
         Export profile
       </button>
+      <button
+        v-else
+        class="btn mt-2"
+        :disabled="importing"
+        @click="handleImport"
+      >
+        <i
+          v-if="importing"
+          class="fa fa-cog fa-spin"
+        />
+        Import profile
+      </button>
+    </template>
+
+    <template v-slot:confirm-text>
+      {{ editing ? 'Save' : 'Create' }}
     </template>
   </ModalContainer>
 </template>
@@ -43,6 +61,7 @@ export default {
   data () {
     return {
       exporting: false,
+      importing: false,
       name: '',
       originalName: '',
     }
@@ -60,12 +79,15 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['addProfile', 'exportProfile', 'updateCurrentProfile']),
+    ...mapActions(['addProfile', 'exportProfile', 'importProfile', 'updateCurrentProfile']),
     ...mapMutations({
       hideModal: 'HIDE_MODAL',
     }),
     clearData () {
       this.name = ''
+      this.originalName = ''
+      this.exporting = false
+      this.importing = false
     },
     handleConfirm () {
       if (this.editing) {
@@ -78,6 +100,12 @@ export default {
       this.exporting = true
       await this.exportProfile()
       this.exporting = false
+    },
+    async handleImport () {
+      this.importing = true
+      await this.importProfile()
+      this.hideModal()
+      this.importing = false
     },
   },
 }
