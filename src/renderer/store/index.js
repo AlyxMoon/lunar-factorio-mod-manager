@@ -12,7 +12,7 @@ const state = {
   activeProfile: undefined,
   installedMods: [],
   onlineMods: [],
-  saves: [],
+  saves: null,
   onlineModCategories: tags.map(tag => ({
     name: tag,
     title: tag

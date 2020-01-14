@@ -10,5 +10,8 @@ export default {
     playerData: {
       type: 'string',
     },
+    saves: {
+      type: 'string',
+    },
   },
 }

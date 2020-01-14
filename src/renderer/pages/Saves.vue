@@ -16,7 +16,7 @@ import SavesListPanel from '../components/SavesListPanel'
 export default {
   name: 'Saves',
   components: { SavesInfoPanel, SavesListPanel },
-  onMounted () {
+  mounted () {
     this.retrieveSaves()
   },
   methods: {

@@ -9,6 +9,7 @@ import AppManager from '@lib/app_manager'
 import ModManager from '@lib/mod_manager'
 import ProfileManager from '@lib/profile_manager'
 import DownloadManager from '@lib/download_manager'
+import SaveManager from '@lib/save_manager'
 import log from '@lib/logger'
 import { debounce } from '@shared/util'
 
@@ -23,6 +24,7 @@ let appManager
 let modManager
 let profileManager
 let downloadManager
+let saveManager
 
 const isDevMode = process.env.NODE_ENV === 'development'
 
@@ -138,6 +140,11 @@ const addClientEventListeners = async () => {
   ipcMain.handle('GET_APP_LATEST_VERSION', () => {
     return appManager.retrieveLatestAppVersion()
   })
+
+  ipcMain.on('RETRIEVE_FACTORIO_SAVES', async (event) => {
+    const saves = await saveManager.retrieveFactorioSaves()
+    event.reply('FACTORIO_SAVES', saves)
+  })
 }
 
 const initializeApp = async () => {
@@ -152,6 +159,8 @@ const initializeApp = async () => {
   await profileManager.loadProfiles()
 
   downloadManager = new DownloadManager(mainWindow.webContents, modManager)
+
+  saveManager = new SaveManager()
 
   await addClientEventListeners()
 
