@@ -1,4 +1,5 @@
 import { ipcRenderer, shell } from 'electron'
+import { ADD_TOAST_MESSAGE } from 'vuex-toast'
 
 import { debounce } from 'src/shared/util'
 
@@ -88,8 +89,13 @@ export const addMissingModDependenciesToActiveProfile = (context, modName) => {
     })
 }
 
-export const addProfile = (context, options) => {
-  ipcRenderer.send('ADD_PROFILE', options)
+export const addProfile = async ({ dispatch }, options, checkReturn = false) => {
+  if (checkReturn) {
+    await ipcRenderer.invoke('ADD_PROFILE', options)
+  } else {
+    ipcRenderer.send('ADD_PROFILE', options)
+  }
+  dispatch(ADD_TOAST_MESSAGE, { text: `Created profile ${options.name}` })
 }
 
 export const updateCurrentProfile = debounce((context, data) => {

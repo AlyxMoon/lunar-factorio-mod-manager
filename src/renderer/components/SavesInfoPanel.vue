@@ -23,7 +23,22 @@
         </tbody>
       </table>
 
-      <h3 class="mt-1">
+      <button
+        v-if="selectedSave.mods && selectedSave.mods.length"
+        class="btn mt-1"
+        :disabled="creatingProfile"
+        @click="handleCreate"
+      >
+        <i
+          v-if="creatingProfile"
+          class="fa fa-cog fa-spin"
+        />
+        Create profile from save
+      </button>
+
+      <h3
+        class="mt-1 mb-1"
+      >
         Mods Used
       </h3>
       <table class="no-hover">
@@ -48,7 +63,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import PanelMenu from './partials/PanelMenu'
 import PanelContent from './partials/PanelContent'
 import PanelContainer from './partials/PanelContainer'
@@ -56,8 +71,28 @@ import PanelContainer from './partials/PanelContainer'
 export default {
   name: 'SavesInfoPanel',
   components: { PanelContainer, PanelContent, PanelMenu },
+  data () {
+    return {
+      creatingProfile: false,
+    }
+  },
   computed: {
     ...mapGetters(['selectedSave']),
+  },
+  methods: {
+    ...mapActions(['addProfile']),
+    async handleCreate () {
+      this.creatingProfile = true
+      const profile = {
+        name: this.selectedSave.name,
+        mods: this.selectedSave.mods,
+      }
+
+      await (() => new Promise(resolve => setTimeout(resolve, 1000)))() // I want to delay a bit for animation
+      await this.addProfile(profile)
+
+      this.creatingProfile = false
+    },
   },
 }
 </script>

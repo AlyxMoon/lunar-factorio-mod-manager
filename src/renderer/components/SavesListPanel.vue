@@ -20,11 +20,6 @@
           v-else
           key="saves"
         >
-          <thead>
-            <tr>
-              <th>Name</th>
-            </tr>
-          </thead>
           <tbody>
             <tr
               v-for="(save, index) of saves"
