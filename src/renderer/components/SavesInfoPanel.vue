@@ -9,6 +9,40 @@
     <PanelContent v-if="selectedSave">
       <hr>
       <img :src="selectedSave.preview">
+
+      <table class="no-hover">
+        <tbody>
+          <tr>
+            <th>Factorio Version</th>
+            <td>{{ selectedSave.version }}</td>
+          </tr>
+          <tr>
+            <th>Scenario</th>
+            <td>{{ selectedSave.scenario }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="mt-1">
+        Mods Used
+      </h3>
+      <table class="no-hover">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Version</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="(mod, index) in selectedSave.mods"
+            :key="'mod-' + index"
+          >
+            <td>{{ mod.name }}</td>
+            <td>{{ mod.version }}</td>
+          </tr>
+        </tbody>
+      </table>
     </PanelContent>
   </PanelContainer>
 </template>
