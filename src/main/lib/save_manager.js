@@ -66,7 +66,7 @@ export default class SaveManager {
 
     if (vMinor === 16) {
       // Can't test format of this right now but save files for v0.16 are for sure different
-      return { version }
+      return { version, scenario: '', mods: [] }
     }
     if (vMinor === 17) {
       modsStartPos = 39

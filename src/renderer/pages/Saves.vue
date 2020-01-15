@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 import SavesInfoPanel from '../components/SavesInfoPanel'
 import SavesListPanel from '../components/SavesListPanel'
@@ -16,8 +16,13 @@ import SavesListPanel from '../components/SavesListPanel'
 export default {
   name: 'Saves',
   components: { SavesInfoPanel, SavesListPanel },
+  computed: {
+    ...mapState({
+      saves: state => state.saves,
+    }),
+  },
   mounted () {
-    this.retrieveSaves()
+    if (!this.saves) this.retrieveSaves()
   },
   methods: {
     ...mapActions(['retrieveSaves']),
