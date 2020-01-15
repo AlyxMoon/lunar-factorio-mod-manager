@@ -17,14 +17,15 @@
         </thead>
         <tbody>
           <tr
-            v-for="mod in installedMods"
+            v-for="(mod, index) in installedMods"
+            :key="'mod-' + index"
             :class="{ selected: mod.name === selectedMod.name }"
           >
             <td class="cell-check">
               <button
-                @click="addModToCurrentProfile(mod)"
                 :disabled="isModInCurrentProfile(mod)"
                 class="btn green"
+                @click="addModToCurrentProfile(mod)"
               >
                 <i class="fa fa-plus" />
               </button>

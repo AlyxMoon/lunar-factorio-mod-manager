@@ -1,4 +1,5 @@
 import { ipcRenderer, shell } from 'electron'
+import { ADD_TOAST_MESSAGE } from 'vuex-toast'
 
 import { debounce } from 'src/shared/util'
 
@@ -17,6 +18,11 @@ export const fetchOnlineMods = (context, force = false) => {
 export const retrieveLatestAppVersion = async (context) => {
   const version = await ipcRenderer.invoke('GET_APP_LATEST_VERSION')
   context.commit('SET_APP_LATEST_VERSION', { version })
+}
+
+export const retrieveSaves = ({ commit }) => {
+  commit('SET_SAVES')
+  ipcRenderer.send('RETRIEVE_FACTORIO_SAVES')
 }
 
 export const fetchFullModInfo = (context, modName = '') => {
@@ -83,8 +89,13 @@ export const addMissingModDependenciesToActiveProfile = (context, modName) => {
     })
 }
 
-export const addProfile = (context, options) => {
-  ipcRenderer.send('ADD_PROFILE', options)
+export const addProfile = async ({ dispatch }, options, checkReturn = false) => {
+  if (checkReturn) {
+    await ipcRenderer.invoke('ADD_PROFILE', options)
+  } else {
+    ipcRenderer.send('ADD_PROFILE', options)
+  }
+  dispatch(ADD_TOAST_MESSAGE, { text: `Created profile ${options.name}` })
 }
 
 export const updateCurrentProfile = debounce((context, data) => {

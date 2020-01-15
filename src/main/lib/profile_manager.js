@@ -62,6 +62,7 @@ export default class ProfileManager {
     log.info(`New profile added successfully, new profile count: ${profiles.length}`, { namespace: 'main.profile_manager.addProfile' })
 
     log.debug('Exited function', { namespace: 'main.profile_manager.addProfile' })
+    return profiles[profiles.length - 1]
   }
 
   updateCurrentProfile (data) {
