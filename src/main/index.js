@@ -46,16 +46,24 @@ const showErrorAndExit = (error, message) => {
 
   const selection = dialog.showMessageBoxSync({
     type: 'error',
-    buttons: ['Close App', 'Restart App'],
-    message: 'Error occurred during initialization that would prevent app from running correctly',
+    buttons: ['Close App', 'Restart App', 'Restart App (and wipe config)'],
+    message: 'Error occurred during initialization that would prevent app from running correctly.',
     detail: `
-    ${error.message}
-    -----
-    You can find the log files at: ${path.join(app.getPath('userData'), 'logs')}
-    `,
+      ${error.message}
+      -----
+      You can find the log files at: ${path.join(app.getPath('userData'), 'logs')}
+      -----
+      It's possible an incorrect configuration may have been set which is causing the issue. You can choose to wipe the app config as a potential fix.
+    `.replace(/  +/g, ''),
   })
 
-  if (selection === 1) app.relaunch()
+  if ([1, 2].includes(selection)) app.relaunch()
+
+  if (selection === 2) {
+    log.info('App configuration wiped during error exit.')
+    store.clear()
+  }
+
   app.exit(error.code)
 }
 

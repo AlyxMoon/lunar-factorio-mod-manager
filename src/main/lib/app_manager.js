@@ -113,7 +113,7 @@ export default class AppManager {
     log.debug('Starting loop to automatically find paths.factorio', { namespace: 'main.app_manager.findFactorioPath' })
     for (let i = 0, length = paths.length; i < length; i++) {
       try {
-        if (fs.existsSync) {
+        if (fs.existsSync(paths[i])) {
           log.info('paths.factorio found with automatic search', { namespace: 'main.app_manager.findFactorioPath' })
           log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.findFactorioPath' })
           return paths[i]
@@ -135,7 +135,7 @@ export default class AppManager {
     if (os.platform() === 'darwin') extensions.push('app')
 
     const gamePath = await dialog.showOpenDialog(mainWindow, {
-      title: 'Find location of Factorio binary file',
+      title: 'Find location of Factorio executable file',
       properties: ['openFile'],
       filters: [{
         name: 'Factorio Executable',
@@ -293,7 +293,7 @@ export default class AppManager {
 
     for (let i = 0, length = paths.length; i < length; i++) {
       try {
-        if (fs.existsSync) {
+        if (fs.existsSync(paths[i])) {
           log.info('paths.playerData found with automatic search', { namespace: 'main.app_manager.findFactorioPlayerData' })
           log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.findFactorioPlayerData' })
           return paths[i]

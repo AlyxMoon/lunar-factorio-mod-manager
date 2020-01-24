@@ -2,9 +2,11 @@ import { definitionsInstalledMod } from './_shared'
 
 export default {
   type: 'object',
+  default: {},
   properties: {
     list: {
       type: 'array',
+      default: [],
       items: {
         type: 'object',
         properties: {
