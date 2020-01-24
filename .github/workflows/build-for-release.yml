@@ -1,2 +1,2 @@
 name: Build binaries for release
-on: push
+on: release
