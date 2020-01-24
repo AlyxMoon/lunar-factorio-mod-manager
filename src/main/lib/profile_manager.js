@@ -1,7 +1,7 @@
-import { readFile } from 'fs'
+import { readFile, writeFile } from 'fs'
 import { join } from 'path'
 import { promisify } from 'util'
-import { ipcMain } from 'electron'
+import { dialog, ipcMain } from 'electron'
 
 import store from '@lib/store'
 import log from './logger'
@@ -30,24 +30,42 @@ export default class ProfileManager {
       }
     })
 
+    ipcMain.handle('EXPORT_PROFILE', (event) => {
+      log.info('Event "EXPORT_PROFILE" was recieved', { namespace: 'main.events.profile_manager' })
+      return this.exportProfile(event.sender.webContents)
+    })
+
+    ipcMain.handle('IMPORT_PROFILE', (event) => {
+      log.info('Event "IMPORT_PROFILE" was recieved', { namespace: 'main.events.profile_manager' })
+      return this.importProfile(event.sender.webContents)
+    })
+
     log.debug('Exited function', { namespace: 'main.profile_manager.configureEventListeners' })
   }
 
-  async addProfile ({ name = 'New Profile' } = {}) {
+  addProfile ({ name = 'New Profile', mods } = {}) {
     log.debug('Entered function', { namespace: 'main.profile_manager.addProfile' })
 
     const profiles = store.get('profiles.list', [])
-    profiles.push({ name, mods: [{ name: 'base', title: 'Base Mod', version: store.get('mods.factorioVersion') }] })
+    profiles.push({
+      name,
+      mods: mods
+        ? mods.map(({ name, title, version }) => ({ name, title, version }))
+        : [{ name: 'base', title: 'Base Mod', version: store.get('mods.factorioVersion') }],
+    })
 
-    store.set('profiles.list', profiles)
-    store.set('profiles.active', profiles.length - 1)
+    store.set({
+      'profiles.list': profiles,
+      'profiles.active': profiles.length - 1,
+    })
 
     log.info(`New profile added successfully, new profile count: ${profiles.length}`, { namespace: 'main.profile_manager.addProfile' })
 
     log.debug('Exited function', { namespace: 'main.profile_manager.addProfile' })
+    return profiles[profiles.length - 1]
   }
 
-  async updateCurrentProfile (data) {
+  updateCurrentProfile (data) {
     log.debug('Entered function', { namespace: 'main.profile_manager.updateCurrentProfile' })
 
     const profiles = store.get('profiles.list', [])
@@ -68,7 +86,7 @@ export default class ProfileManager {
     log.debug('Exited function', { namespace: 'main.profile_manager.updateCurrentProfile' })
   }
 
-  async removeCurrentProfile () {
+  removeCurrentProfile () {
     log.debug('Entered function', { namespace: 'main.profile_manager.removeCurrentProfile' })
 
     const profiles = store.get('profiles.list', [])
@@ -94,16 +112,17 @@ export default class ProfileManager {
     log.debug('Exited function', { namespace: 'main.profile_manager.removeCurrentProfile' })
   }
 
-  async addModToCurrentProfile (mod) {
-    log.debug('Entered function', { namespace: 'main.profile_manager.addModToCurrentProfile' })
+  addModToProfile (mod, profileIndex = store.get('profiles.active')) {
+    log.debug('Entered function', { namespace: 'main.profile_manager.addModToProfile' })
 
     const profiles = store.get('profiles.list', [])
-    const active = store.get('profiles.active')
 
-    if (profiles[active]) {
-      if (!profiles[active].mods.some(m => m.name === mod.name)) {
-        profiles[active].mods.push(mod)
-        profiles[active].mods.sort((a, b) => {
+    if (profiles[profileIndex]) {
+      if (!profiles[profileIndex].mods.some(m => m.name === mod.name)) {
+        profiles[profileIndex].mods.push(({
+          name: mod.name, title: mod.title, version: mod.version,
+        }))
+        profiles[profileIndex].mods.sort((a, b) => {
           if (a.name === 'base' || a.name < b.name) return -1
           if (b.name === 'base' || a.name > b.name) return 1
           return 0
@@ -111,24 +130,24 @@ export default class ProfileManager {
 
         store.set('profiles.list', profiles)
 
-        log.info(`Added mod '${mod.name}' to active profile '${profiles[active].name}'`, { namespace: 'main.profile_manager.addModToCurrentProfile' })
+        log.info(`Added mod '${mod.name}' to profile '${profiles[profileIndex].name}'`, { namespace: 'main.profile_manager.addModToProfile' })
       } else {
         log.warn(
-          `Not adding mod to active profile: '${mod.name}' was already added to active profile '${profiles[active].name}'`,
-          { namespace: 'main.profile_manager.addModToCurrentProfile' }
+          `Not adding mod to profile: '${mod.name}' was already added to profile '${profiles[profileIndex].name}'`,
+          { namespace: 'main.profile_manager.addModToProfile' }
         )
       }
     } else {
       log.error(
-        `Somehow there was no valid active profile, unable to add mod | profile count: ${profiles.length} | activeProfileIndex: ${active}`,
-        { namespace: 'main.profile_manager.addModToCurrentProfile' }
+        `Somehow there was no valid profile, unable to add mod | profile count: ${profiles.length} | index: ${profileIndex}`,
+        { namespace: 'main.profile_manager.addModToProfile' }
       )
     }
 
-    log.debug('Exited function', { namespace: 'main.profile_manager.addModToCurrentProfile' })
+    log.debug('Exited function', { namespace: 'main.profile_manager.addModToProfile' })
   }
 
-  async removeModFromCurrentProfile (mod) {
+  removeModFromCurrentProfile (mod) {
     log.debug('Entered function', { namespace: 'main.profile_manager.removeModFromCurrentProfile' })
 
     const profiles = store.get('profiles.list', [])
@@ -192,6 +211,7 @@ export default class ProfileManager {
     const enabledMods = modsList
       .filter(mod => mod.enabled)
       .map(mod => installedMods.find(m => m.name === mod.name))
+      .map(({ name, title, version }) => ({ name, title, version }))
 
     const profiles = [
       { name: 'Vanilla', mods: [{ name: 'base', title: 'Base Mod', version: factorioVersion }] },
@@ -202,5 +222,96 @@ export default class ProfileManager {
     log.info(`Successfully created starter profiles: [${profiles.map(p => p.name)}]`, { namespace: 'main.profile_manager.createStarterProfiles' })
 
     log.debug('Exited function', { namespace: 'main.profile_manager.createStarterProfiles' })
+  }
+
+  async exportProfile (replyChannel, profileIndex) {
+    log.debug('Entered function', { namespace: 'main.profile_manager.exportProfile' })
+
+    const p = (!profileIndex && profileIndex !== 0)
+      ? store.get('profiles.active')
+      : profileIndex
+    const profile = store.get(`profiles.list.${p}`)
+
+    if (!profile) {
+      log.info(`Index for profile to save was invalid or there was another issue. Index: ${p}`, { namespace: 'main.profile_manager.exportProfile' })
+      return
+    }
+
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Export profile',
+      defaultPath: profile.name,
+      buttonLabel: 'Export',
+      filters: [{ name: 'LFMM Profile Data', extensions: ['json'] }],
+    })
+
+    if (canceled || !filePath) {
+      log.info('Not exporting profile as dialog was canceled', { namespace: 'main.profile_manager.exportProfile' })
+      return
+    }
+
+    const formattedPath = filePath + (filePath.endsWith('.json') ? '' : '.json')
+
+    log.info(`Exporting profile, location: ${formattedPath}`)
+    try {
+      await promisify(writeFile)(formattedPath, JSON.stringify(profile, null, 2))
+
+      replyChannel.send('ADD_TOAST', { text: 'Successfully exported profile' })
+      log.info(`Successfully exported profile, location: ${formattedPath}`)
+    } catch (error) {
+      replyChannel.send('ADD_TOAST', { text: 'Failed to export profile', type: 'danger' })
+      log.info(`Failed to export profile, location: ${formattedPath} | ${error.message}`)
+    }
+
+    log.debug('Exited function', { namespace: 'main.profile_manager.exportProfile' })
+    return formattedPath
+  }
+
+  async importProfile (replyChannel) {
+    log.debug('Entered function', { namespace: 'main.profile_manager.importProfile' })
+
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      title: 'Import profile',
+      properties: ['openFile'],
+      filters: [{ name: 'LFMM Profile Data', extensions: ['json'] }],
+    })
+
+    if (canceled || !filePaths[0]) {
+      log.info('Not importing profile as dialog was canceled', { namespace: 'main.profile_manager.importProfile' })
+      return
+    }
+
+    log.info(`Importing profile, location: ${filePaths[0]}`)
+    try {
+      const profile = JSON.parse(await promisify(readFile)(filePaths[0]))
+      if (!this.isValidProfile(profile)) throw new Error('profile data was invalid')
+
+      this.addProfile(profile)
+
+      replyChannel.send('ADD_TOAST', { text: 'Successfully imported profile' })
+      log.info(`Successfully imported profile, location: ${filePaths[0]}`)
+    } catch (error) {
+      replyChannel.send('ADD_TOAST', { text: 'Failed to import profile', type: 'danger' })
+      log.info(`Failed to import profile, location: ${filePaths[0]} | ${error.message}`)
+    }
+
+    log.debug('Exited function', { namespace: 'main.profile_manager.importProfile' })
+  }
+
+  isValidProfile (profileData) {
+    if (typeof profileData !== 'object') return false
+
+    const keys = ['name', 'mods']
+    const modKeys = ['name', 'title', 'version']
+
+    for (const item in profileData) {
+      if (!keys.includes(item)) return false
+    }
+
+    if (!Array.isArray(profileData.mods)) return false
+    for (const mod of profileData.mods) {
+      if (!modKeys.every(key => key in mod)) return false
+    }
+
+    return true
   }
 }

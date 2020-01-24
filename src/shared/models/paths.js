@@ -1,5 +1,6 @@
 export default {
   type: 'object',
+  default: {},
   properties: {
     factorio: {
       type: 'string',
@@ -8,6 +9,9 @@ export default {
       type: 'string',
     },
     playerData: {
+      type: 'string',
+    },
+    saves: {
       type: 'string',
     },
   },

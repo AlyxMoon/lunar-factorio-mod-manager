@@ -9,6 +9,7 @@ import AppManager from '@lib/app_manager'
 import ModManager from '@lib/mod_manager'
 import ProfileManager from '@lib/profile_manager'
 import DownloadManager from '@lib/download_manager'
+import SaveManager from '@lib/save_manager'
 import log from '@lib/logger'
 import { debounce } from '@shared/util'
 
@@ -23,6 +24,7 @@ let appManager
 let modManager
 let profileManager
 let downloadManager
+let saveManager
 
 const isDevMode = process.env.NODE_ENV === 'development'
 
@@ -44,16 +46,24 @@ const showErrorAndExit = (error, message) => {
 
   const selection = dialog.showMessageBoxSync({
     type: 'error',
-    buttons: ['Close App', 'Restart App'],
-    message: 'Error occurred during initialization that would prevent app from running correctly',
+    buttons: ['Close App', 'Restart App', 'Restart App (and wipe config)'],
+    message: 'Error occurred during initialization that would prevent app from running correctly.',
     detail: `
-    ${error.message}
-    -----
-    You can find the log files at: ${path.join(app.getPath('userData'), 'logs')}
-    `,
+      ${error.message}
+      -----
+      You can find the log files at: ${path.join(app.getPath('userData'), 'logs')}
+      -----
+      It's possible an incorrect configuration may have been set which is causing the issue. You can choose to wipe the app config as a potential fix.
+    `.replace(/  +/g, ''),
   })
 
-  if (selection === 1) app.relaunch()
+  if ([1, 2].includes(selection)) app.relaunch()
+
+  if (selection === 2) {
+    log.info('App configuration wiped during error exit.')
+    store.clear()
+  }
+
   app.exit(error.code)
 }
 
@@ -100,15 +110,19 @@ const addClientEventListeners = async () => {
   }
 
   ipcMain.on('ADD_MOD_TO_CURRENT_PROFILE', (event, mod) => {
-    profileManager.addModToCurrentProfile(mod)
+    profileManager.addModToProfile(mod)
   })
 
   ipcMain.on('REMOVE_MOD_FROM_CURRENT_PROFILE', (event, mod) => {
     profileManager.removeModFromCurrentProfile(mod)
   })
 
-  ipcMain.on('ADD_PROFILE', (event, { name } = {}) => {
-    profileManager.addProfile({ name })
+  ipcMain.on('ADD_PROFILE', ({ reply }, { name, mods } = {}) => {
+    profileManager.addProfile({ name, mods })
+  })
+
+  ipcMain.handle('ADD_PROFILE', async ({ reply }, { name, mods } = {}) => {
+    return profileManager.addProfile({ name, mods })
   })
 
   ipcMain.on('UPDATE_CURRENT_PROFILE', (event, data) => {
@@ -138,6 +152,11 @@ const addClientEventListeners = async () => {
   ipcMain.handle('GET_APP_LATEST_VERSION', () => {
     return appManager.retrieveLatestAppVersion()
   })
+
+  ipcMain.on('RETRIEVE_FACTORIO_SAVES', async (event) => {
+    const saves = await saveManager.retrieveFactorioSaves()
+    event.reply('FACTORIO_SAVES', saves)
+  })
 }
 
 const initializeApp = async () => {
@@ -152,6 +171,8 @@ const initializeApp = async () => {
   await profileManager.loadProfiles()
 
   downloadManager = new DownloadManager(mainWindow.webContents, modManager)
+
+  saveManager = new SaveManager()
 
   await addClientEventListeners()
 
