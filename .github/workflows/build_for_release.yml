@@ -1,17 +1,7 @@
 on: release
 jobs:
   generate:
-    strategy:
-      matrix:
-        os: [windows-latest, ubuntu-latest, macOS_latest]
-    name: Create release-artifacts for ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@master
-      - name: Generate the artifacts
-        uses: skx/github-action-build@master
-      - name: Upload the artifacts
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
