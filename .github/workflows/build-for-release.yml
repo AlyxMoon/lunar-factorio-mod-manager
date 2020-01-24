@@ -1,2 +1,4 @@
 name: Build binaries for release
-on: release
+on:
+  release:
+    types: [created]
