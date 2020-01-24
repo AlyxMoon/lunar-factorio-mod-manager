@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2.0.0
-        with:
-          repository: master
       - name: Install needed libraries
         uses: actions/setup-node@v1
         with:
