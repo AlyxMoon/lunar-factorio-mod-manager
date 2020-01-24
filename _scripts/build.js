@@ -7,6 +7,7 @@ const config = {
   appId: `com.alyxmoon.${name}`,
   copyright: `Copyright ${(new Date()).getFullYear()} - Allister Moon - allisterkmoon@gmail.com`,
   productName,
+  asar: true,
   directories: {
     output: 'build/',
   },
@@ -35,17 +36,17 @@ const config = {
   },
   linux: {
     icon: '_icons/icon.png',
-    target: ['deb'],
+    target: ['AppImage', 'deb', 'zip'],
   },
   mac: {
     category: 'public.app-category.utilities',
-    icon: '_icons/icon.icns',
-    target: ['zip'],
+    icon: '_icons/icon.png',
+    target: ['dmg', 'zip'],
     type: 'distribution',
   },
   win: {
-    icon: '_icons/icon.ico',
-    target: ['zip'],
+    icon: '_icons/icon.png',
+    target: ['nsis', 'zip'],
   },
   nsis: {
     allowToChangeInstallationDirectory: true,
@@ -55,12 +56,18 @@ const config = {
 
 let targets
 
-if (process.argv[2] === 'linux') {
-  targets = Platform.LINUX.createTarget()
-} else if (process.argv[2] === 'mac') {
-  targets = Platform.MAC.createTarget()
-} else {
-  targets = Platform.WINDOWS.createTarget()
+if (process.argv[2]) {
+  switch (process.argv[2]) {
+    case 'linux':
+      targets = Platform.LINUX.createTarget()
+      break
+    case 'mac':
+      targets = Platform.MAC.createTarget()
+      break
+    case 'windows':
+    default:
+      targets = Platform.WINDOWS.createTarget()
+  }
 }
 
 builder.build({
