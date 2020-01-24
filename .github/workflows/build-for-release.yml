@@ -25,6 +25,7 @@ jobs:
           path: build 
   upload:
     name: Upload artifacts to release
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Grab artifacts - windows
