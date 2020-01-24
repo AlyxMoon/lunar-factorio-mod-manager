@@ -1,5 +1,6 @@
 export default {
   type: 'object',
+  default: {},
   properties: {
     width: {
       type: 'number',

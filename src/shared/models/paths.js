@@ -1,5 +1,6 @@
 export default {
   type: 'object',
+  default: {},
   properties: {
     factorio: {
       type: 'string',
