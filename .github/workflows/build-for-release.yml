@@ -2,3 +2,9 @@ name: Build binaries for release
 on:
   release:
     types: [created]
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@master
