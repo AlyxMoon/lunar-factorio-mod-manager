@@ -1,7 +1,7 @@
+name: Build binaries for release
 on:
   release:
-    types: [created]
-name: Build binaries for release
+    types: created
 jobs:
   generate:
     strategy:
