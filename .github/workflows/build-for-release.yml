@@ -5,6 +5,3 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-    - name: Checkout the repository
-      uses: actions/checkout@master
