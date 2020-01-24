@@ -3,10 +3,10 @@ on:
   release:
     types: [created]
 jobs:
-  generate:
+  build:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macOS_latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
     name: Create release-artifacts for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -18,7 +18,30 @@ jobs:
           node-version: '12.x'
       - run: yarn install
       - run: yarn build
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with: 
+          name: build_${{ matrix.os }}
+          path: build 
+  upload:
+    name: Upload artifacts to release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Grab artifacts - windows
+        uses: actions/download-artifact@v1.0.0
+        with: 
+          name: build_windows-latest
+      - name: Grab artifacts - linux
+        uses: actions/download-artifact@v1.0.0
+        with: 
+          name: build_ubuntu-latest
+      - name: Grab artifacts - mac
+        uses: actions/download-artifact@v1.0.0
+        with: 
+          name: build_macos-latest
       - name: Upload the artifacts
         uses: skx/github-action-publish-binaries@master
+        with:
+          args: 'LFMM*'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
