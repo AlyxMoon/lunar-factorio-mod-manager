@@ -1,5 +1,5 @@
 name: Build binaries for release
-on: release
+on: push
 jobs:
   generate:
     runs-on: ubuntu-latest
