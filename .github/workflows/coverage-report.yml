@@ -1,0 +1,19 @@
+name: Test for Coveralls
+on: [push, pull_request]
+jobs:
+  report:
+    name: Generate test report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2.0.0
+      - name: Install needed libraries
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - run: yarn install
+      - run: 'yarn run test:coveralls'
+      - name: Coveralls
+        uses: coverallsapp/github-action@v1.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
