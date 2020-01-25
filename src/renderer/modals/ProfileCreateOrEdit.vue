@@ -1,6 +1,6 @@
 <template>
   <ModalContainer
-    :disable-footer="editing || importing"
+    :disable-footer="exporting || importing"
     @confirm="handleConfirm(); hideModal()"
     @hidden="clearData"
   >
