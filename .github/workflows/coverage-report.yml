@@ -21,11 +21,11 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-              
+
       - run: yarn install
-      - run: 'yarn run test:coveralls'
+      - run: 'yarn run test:coverage'
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: test/unit/coverage/lcov.info
+          path-to-lcov: ./test/unit/coverage/lcov.info
