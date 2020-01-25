@@ -1,7 +1,7 @@
 {
   "name": "lunar-mod-manager",
   "productName": "LFMM",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "An unofficial mod manager for Factorio",
   "main": "./dist/main.js",
   "scripts": {
