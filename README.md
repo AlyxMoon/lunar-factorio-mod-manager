@@ -1,5 +1,7 @@
 # Lunar's Factorio Mod Manager (LFMM)
 [![Standard - JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](http://standardjs.com/)
+[![Coverage Status](https://coveralls.io/repos/github/AlyxMoon/lunar-factorio-mod-manager/badge.svg?branch=develop)](https://coveralls.io/github/AlyxMoon/lunar-factorio-mod-manager?branch=develop)
+
 [![Total Downloads](https://img.shields.io/github/downloads/AlyxMoon/Lunars-Factorio-Mod-Manager/total.svg?label=Total%20Downloads)](https://github.com/AlyxMoon/Lunars-Factorio-Mod-Manager/releases)
 
 LFMM is a tool for managing mods in Factorio. The aim is to make it easy to use many different sets of mods at a time.
