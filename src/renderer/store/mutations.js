@@ -76,3 +76,9 @@ export const HIDE_MODAL = (state) => {
 export const SET_APP_LATEST_VERSION = (state, { version }) => {
   state.appLatestVersion = version
 }
+
+export const UPDATE_OPTIONS = (state, { options }) => {
+  for (const key in options) {
+    state.options[key] = options[key]
+  }
+}

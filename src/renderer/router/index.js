@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 import About from '@/pages/About'
+import Options from '@/pages/Options'
 import Portal from '@/pages/Portal'
 import Profiles from '@/pages/Profiles'
 import Saves from '@/pages/Saves'
@@ -13,6 +14,10 @@ const router = new Router({
     {
       path: '/about',
       component: About,
+    },
+    {
+      path: '/options',
+      component: Options,
     },
     {
       path: '/portal',

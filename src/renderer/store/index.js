@@ -48,6 +48,7 @@ const state = {
     },
   },
   appLatestVersion: undefined,
+  options: {},
 }
 
 Vue.use(Vuex)

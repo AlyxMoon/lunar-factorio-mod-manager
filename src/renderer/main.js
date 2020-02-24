@@ -70,6 +70,10 @@ ipcRenderer.on('PROFILES_ACTIVE', (event, data) => {
   store.commit('SET_ACTIVE_PROFILE', { activeProfile: data })
 })
 
+ipcRenderer.on('OPTIONS', (event, data) => {
+  store.commit('UPDATE_OPTIONS', { options: data })
+})
+
 if (isDev) {
   // Normally won't need to call these events
   // but during development if renderer code is reloaded then the app won't send info again and that's annoying
@@ -77,4 +81,5 @@ if (isDev) {
   ipcRenderer.send('REQUEST_INSTALLED_MODS')
   ipcRenderer.send('REQUEST_ONLINE_MODS')
   ipcRenderer.send('REQUEST_PROFILES')
+  ipcRenderer.send('REQUEST_OPTIONS')
 }

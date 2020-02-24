@@ -20,6 +20,12 @@
         Mod Portal
       </router-link>
       <router-link
+        to="/options"
+        class="btn"
+      >
+        Options
+      </router-link>
+      <router-link
         to="/about"
         class="btn"
       >
