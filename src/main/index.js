@@ -165,6 +165,10 @@ const addClientEventListeners = async () => {
     const saves = await saveManager.retrieveFactorioSaves()
     event.reply('FACTORIO_SAVES', saves)
   })
+
+  ipcMain.on('UPDATE_OPTION', (event, { name, value }) => {
+    store.set(`options.${name}`, value)
+  })
 }
 
 const initializeApp = async () => {

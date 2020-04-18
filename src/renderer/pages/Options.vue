@@ -3,23 +3,25 @@
     <label>
       Close app when starting Factorio
       <input
-        v-model="options.closeOnStartup"
         type="checkbox"
+        :checked="options.closeOnStartup"
+        @change="updateOption({ name: 'closeOnStartup', value: $event.target.checked })"
       >
     </label>
 
     <label>
       How often to poll the mod portal for all online mods
       <input
-        v-model="options.onlinePollingInterval"
         type="number"
+        :value="options.onlinePollingInterval"
+        @change="updateOption({ name: 'onlinePollingInterval', value: $event.target.value })"
       >
     </label>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'PageOptions',
@@ -27,6 +29,9 @@ export default {
     ...mapState({
       options: 'options',
     }),
+  },
+  methods: {
+    ...mapActions(['updateOption']),
   },
 }
 </script>
