@@ -1,26 +1,51 @@
 <template>
   <div class="page-options">
-    <label>
-      Close app when starting Factorio
-      <input
-        type="checkbox"
-        :checked="options.closeOnStartup"
-        @change="updateOption({ name: 'closeOnStartup', value: $event.target.checked })"
-      >
-    </label>
+    <form @submit.prevent>
+      <label>
+        Close app when starting Factorio
+        <input
+          type="checkbox"
+          :checked="options.closeOnStartup"
+          @change="updateOption({ name: 'closeOnStartup', value: $event.target.checked })"
+        >
+      </label>
 
-    <label>
-      How often to poll the mod portal (in days) for all online mods
-      <input
-        type="number"
-        :value="options.onlinePollingInterval"
-        @change="updateOption({ name: 'onlinePollingInterval', value: $event.target.value })"
-      >
-    </label>
+      <label>
+        How often to poll the mod portal (in days) for all online mods
+        <input
+          type="number"
+          :value="options.onlinePollingInterval"
+          @change="updateOption({ name: 'onlinePollingInterval', value: parseInt($event.target.value, 10) })"
+        >
+      </label>
+    </form>
+
+    <div class="paths-container">
+      <button @click="openFolder(userDataPath)">
+        Open Folder
+      </button>
+      <label>AppData Directory</label>
+      <span>{{ userDataPath }}</span>
+
+      <button @click="openFolder(logsPath)">
+        Open Folder
+      </button>
+      <label>Logs Directory</label>
+      <span>{{ logsPath }}</span>
+
+      <button @click="openFolder(configPath)">
+        Open Folder
+      </button>
+      <label>Config Directory</label>
+      <span>{{ configPath }}</span>
+    </div>
   </div>
 </template>
 
 <script>
+import { join } from 'path'
+import { remote } from 'electron'
+
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -29,9 +54,21 @@ export default {
     ...mapState({
       options: 'options',
     }),
+    userDataPath () {
+      return remote.app.getPath('userData')
+    },
+    logsPath () {
+      return join(this.userDataPath, 'logs')
+    },
+    configPath () {
+      return join(this.userDataPath, 'data')
+    },
   },
   methods: {
     ...mapActions(['updateOption']),
+    openFolder (path) {
+      remote.shell.openItem(path)
+    },
   },
 }
 </script>
@@ -41,10 +78,12 @@ export default {
   padding: 10px 20px;
 }
 
-label {
-  display: flex;
-  flex-direction: column;
-  align-items: left;
+form {
+  label {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+  }
 
   input {
     margin-top: 5px;
@@ -57,5 +96,14 @@ label {
       height: 20px;
     }
   }
+}
+
+.paths-container {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  grid-template-rows: 1fr;
+
+  align-items: center;
+  grid-gap: 10px;
 }
 </style>

@@ -111,6 +111,7 @@ nav.navbar {
     border-top-right-radius: 5px;
 
     user-select: none;
+    height: auto;
 
     &:hover {
       border-color: $highlight-color;
