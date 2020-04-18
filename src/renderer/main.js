@@ -70,7 +70,8 @@ ipcRenderer.on('PROFILES_ACTIVE', (event, data) => {
   store.commit('SET_ACTIVE_PROFILE', { activeProfile: data })
 })
 
-ipcRenderer.on('OPTIONS', (event, data) => {
+ipcRenderer.on('APP_OPTIONS', (event, data) => {
+  console.log('got options', data)
   store.commit('UPDATE_OPTIONS', { options: data })
 })
 
