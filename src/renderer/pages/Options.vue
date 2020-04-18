@@ -32,12 +32,27 @@
       </button>
       <label>Logs Directory</label>
       <span>{{ logsPath }}</span>
+      <span /><span />
+      <div>
+        <button @click="openFolder(logsPath + '/info-log.txt')">
+          Open Info Log
+        </button>
+        <button @click="openFolder(logsPath + '/error-log.txt')">
+          Open Error Log
+        </button>
+      </div>
 
       <button @click="openFolder(configPath)">
         Open Folder
       </button>
       <label>Config Directory</label>
       <span>{{ configPath }}</span>
+      <span /><span />
+      <div>
+        <button @click="openFolder(configPath + '/config.json')">
+          Open Configuration File
+        </button>
+      </div>
     </div>
   </div>
 </template>
