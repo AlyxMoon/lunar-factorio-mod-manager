@@ -115,9 +115,11 @@ export default class ModManager {
     if (!force) {
       const onlineCount = onlineModsCache.get('count')
       const onlineLastFetch = onlineModsCache.get('lastFetch')
+      const pollingInterval = store.get('options.onlinePollingInterval')
+
       if (onlineCount && onlineLastFetch) {
         const now = Date.now()
-        if (now - onlineLastFetch <= 86400000) {
+        if (now - onlineLastFetch <= (pollingInterval * 86400000)) {
           log.info('Skipping refresh of online mod list, as last fetch time was too recent.', { namespace: 'main.mod_manager.fetchOnlineMods' })
           return
         }

@@ -10,7 +10,7 @@
     </label>
 
     <label>
-      How often to poll the mod portal for all online mods
+      How often to poll the mod portal (in days) for all online mods
       <input
         type="number"
         :value="options.onlinePollingInterval"

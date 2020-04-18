@@ -10,7 +10,7 @@ export default {
     // How long before last check of online mods before the app will check again. In milliseconds.
     onlinePollingInterval: {
       type: 'number',
-      default: 86400000,
+      default: 1,
     },
   },
 }
