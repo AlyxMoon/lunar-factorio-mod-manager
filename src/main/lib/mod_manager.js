@@ -4,7 +4,10 @@ import { promisify } from 'util'
 import jsZip from 'jszip'
 import fetch from 'node-fetch'
 
-import store from '@lib/store'
+import {
+  config as store,
+  onlineModsCache,
+} from '@lib/store'
 import log from './logger'
 
 import { parseModDependencies } from '@shared/util'
@@ -110,11 +113,13 @@ export default class ModManager {
     log.debug('Entered function', { namespace: 'main.mod_manager.fetchOnlineMods' })
 
     if (!force) {
-      const onlineCount = store.get('mods.onlineCount')
-      const onlineLastFetch = store.get('mods.onlineLastFetch')
+      const onlineCount = onlineModsCache.get('count')
+      const onlineLastFetch = onlineModsCache.get('lastFetch')
+      const pollingInterval = store.get('options.onlinePollingInterval')
+
       if (onlineCount && onlineLastFetch) {
         const now = Date.now()
-        if (now - onlineLastFetch <= 86400000) {
+        if (now - onlineLastFetch <= (pollingInterval * 86400000)) {
           log.info('Skipping refresh of online mod list, as last fetch time was too recent.', { namespace: 'main.mod_manager.fetchOnlineMods' })
           return
         }
@@ -128,10 +133,10 @@ export default class ModManager {
 
     try {
       const data = await (await fetch(apiUrl)).json()
-      store.set({
-        'mods.online': data.results,
-        'mods.onlineCount': data.results.length,
-        'mods.onlineLastFetch': Date.now(),
+      onlineModsCache.set({
+        mods: data.results,
+        count: data.results.length,
+        lastFetch: Date.now(),
       })
       log.info(`Successfully retrieved list of online mods. Count: ${data.results.length}`, { namespace: 'main.mod_manager.fetchOnlineMods' })
     } catch (error) {
@@ -145,13 +150,13 @@ export default class ModManager {
   async fetchOnlineModDetailedInfo (modName, force = false) {
     log.debug('Entered function', { namespace: 'main.mod_manager.fetchOnlineModDetailedInfo' })
 
-    const index = store.get('mods.online', []).findIndex(m => m.name === modName)
+    const index = onlineModsCache.get('mods', []).findIndex(m => m.name === modName)
     if (index === -1) {
       log.info(`Attempted to retrieve detailed info for online mod '${modName}' but online mods have not been retrieved yet. Skipping.`, { namespace: 'main.mod_manager.fetchOnlineModDetailedInfo' })
       return
     }
 
-    const onlineMod = store.get('mods.online')[index]
+    const onlineMod = onlineModsCache.get('mods')[index]
     if (!force) {
       // These two seem to only be provided when getting the /full route, so it's a good check
       if (onlineMod.changelog || onlineMod.github_path) {
@@ -162,12 +167,12 @@ export default class ModManager {
       log.info(`Force refresh of online mod '${modName}' has been recieved`, { namespace: 'main.mod_manager.fetchOnlineModDetailedInfo' })
     }
 
-    const mods = store.get('mods.online')
+    const mods = onlineModsCache.get('mods')
     try {
       const apiUrl = `https://mods.factorio.com/api/mods/${modName}/full`
 
       mods[index] = await (await fetch(apiUrl)).json()
-      store.set({ 'mods.online': mods })
+      onlineModsCache.set({ mods: mods })
 
       log.info(`Detailed info successfully retrieved for '${modName}' and saved in the app`, { namespace: 'main.mod_manager.fetchOnlineModDetailedInfo' })
     } catch (error) {

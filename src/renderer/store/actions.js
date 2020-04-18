@@ -163,3 +163,11 @@ export const exportProfile = ({ dispatch, state }) => {
 export const importProfile = ({ dispatch, state }) => {
   return ipcRenderer.invoke('IMPORT_PROFILE')
 }
+
+export const updateOption = ({ commit }, { name, value }) => {
+  ipcRenderer.send('UPDATE_OPTION', { name, value })
+}
+
+export const promptNewFactorioPath = (_, name) => {
+  ipcRenderer.send('PROMPT_NEW_FACTORIO_PATH', name)
+}
