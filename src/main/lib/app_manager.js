@@ -439,7 +439,9 @@ export default class AppManager {
       log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.startFactorio' })
     }
 
-    this.closeApp()
+    if (store.get('options.closeOnStartup')) {
+      this.closeApp()
+    }
 
     log.debug(`Exiting function`, { namespace: 'main.app_manager.startFactorio' })
   }
