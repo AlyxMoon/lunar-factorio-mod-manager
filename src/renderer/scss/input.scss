@@ -3,18 +3,17 @@ label {
   position: relative;
 }
 
-input, select {
+form button, input, select {
   box-sizing: border-box;
   height: $standard-input-height;
   font-size: 16px;
+  font-weight: normal;
 
   padding: 0 10px;
   border: 1px solid $element-background-color;
 }
 
 select {
-
-
   background-color: $element-background-color;
   font-weight: bold;
 
@@ -36,7 +35,7 @@ input[type="checkbox"] {
   vertical-align: middle;
 }
 
-input[type="text"], input[type="search"] {
+form button, input[type="text"], input[type="search"] {
   background-color: $background-primary-color;
   border-color: $highlight-color;
   color: $text-light-color;
@@ -75,3 +74,42 @@ input[type="search"] {
     &.x { opacity: 0; }
   }
 }
+
+form {
+  label {
+    font-size: 0.95rem;
+  }
+
+  button {
+    background-color: $background-secondary-color;
+    height: 32px;
+    padding: 0 20px;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+
+    &:not(:first-of-type) {
+      margin-top: 10px;
+    }
+
+    label {
+      width: 100%;
+      padding: 5px;
+      border: 1px solid $highlight-color {
+        bottom: none;
+      }
+    }
+
+    input {
+      flex-grow: 1;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+}
+
+

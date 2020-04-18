@@ -92,6 +92,10 @@ const addClientEventListeners = async () => {
     mainWindow.webContents.send('APP_OPTIONS', newValue)
   })
 
+  store.onDidChange('paths', (newValue) => {
+    mainWindow.webContents.send('FACTORIO_PATHS', newValue)
+  })
+
   if (isDevMode) {
     // Normally won't need to call these events
     // but during development if renderer code is reloaded then the app won't send info again and that's annoying
@@ -114,6 +118,21 @@ const addClientEventListeners = async () => {
 
     ipcMain.on('REQUEST_OPTIONS', (event) => {
       event.reply('APP_OPTIONS', store.get('options'))
+    })
+
+    ipcMain.on('REQUEST_FACTORIO_PATHS', (event) => {
+      event.reply('FACTORIO_PATHS', store.get('paths'))
+    })
+
+    ipcMain.on('PROMPT_NEW_FACTORIO_PATH', async (event, pathName) => {
+      let path
+
+      if (pathName === 'factorio') path = await appManager.findFactorioPath(mainWindow, true)
+      if (pathName === 'mods') path = await appManager.findFactorioModPath(mainWindow, true)
+      if (pathName === 'saves') path = await appManager.findFactorioSavesPath(mainWindow, true)
+      if (pathName === 'playerData') path = await appManager.findFactorioPlayerData(mainWindow, true)
+
+      if (path) store.set(`paths.${pathName}`, path)
     })
   }
 
@@ -169,6 +188,10 @@ const addClientEventListeners = async () => {
   ipcMain.on('UPDATE_OPTION', (event, { name, value }) => {
     store.set(`options.${name}`, value)
   })
+
+  ipcMain.on('UPDATE_FACTORIO_PATH', (event, { name, value }) => {
+    store.set(`paths.${name}`, value)
+  })
 }
 
 const initializeApp = async () => {
@@ -196,6 +219,7 @@ const initializeApp = async () => {
   mainWindow.webContents.send('PROFILES_LIST', store.get('profiles.list'))
   mainWindow.webContents.send('PROFILES_ACTIVE', store.get('profiles.active'))
   mainWindow.webContents.send('APP_OPTIONS', store.get('options'))
+  mainWindow.webContents.send('FACTORIO_PATHS', store.get('paths'))
 }
 
 const createWindow = () => {

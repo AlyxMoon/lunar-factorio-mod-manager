@@ -48,6 +48,7 @@ const state = {
     },
   },
   appLatestVersion: undefined,
+  paths: {},
   options: {},
 }
 

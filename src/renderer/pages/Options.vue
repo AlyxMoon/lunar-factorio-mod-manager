@@ -13,12 +13,32 @@
       <label>
         How often to poll the mod portal (in days) for all online mods
         <input
-          type="number"
+          type="text"
           :value="options.onlinePollingInterval"
           @change="updateOption({ name: 'onlinePollingInterval', value: parseInt($event.target.value, 10) })"
         >
       </label>
+
+      <div
+        v-for="path of pathOptions"
+        :key="'path-' + path.variable"
+        class="input-group"
+      >
+        <label>{{ path.text }}</label>
+        <button
+          @click="promptNewFactorioPath(path.variable)"
+        >
+          Change
+        </button>
+        <input
+          type="text"
+          :value="paths[path.variable]"
+          disabled
+        >
+      </div>
     </form>
+
+    <hr>
 
     <div class="paths-container">
       <button @click="openFolder(userDataPath)">
@@ -65,9 +85,18 @@ import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'PageOptions',
+  data: () => ({
+    pathOptions: [
+      { text: 'Factorio Exe Path', variable: 'factorio' },
+      { text: 'Mods Folder Path', variable: 'mods' },
+      { text: 'PlayerData File Path', variable: 'playerData' },
+      { text: 'Saves Folder Path', variable: 'saves' },
+    ],
+  }),
   computed: {
     ...mapState({
       options: 'options',
+      paths: 'paths',
     }),
     userDataPath () {
       return remote.app.getPath('userData')
@@ -80,7 +109,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['updateOption']),
+    ...mapActions(['promptNewFactorioPath', 'updateOption']),
     openFolder (path) {
       remote.shell.openItem(path)
     },
@@ -93,23 +122,25 @@ export default {
   padding: 10px 20px;
 }
 
-form {
-  label {
-    display: flex;
-    flex-direction: column;
-    align-items: left;
+label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+input {
+  margin-top: 5px;
+  margin-bottom: 20px;
+  padding: 15px;
+  width: fit-content;
+
+  &[type="checkbox"] {
+    width: 20px;
+    height: 20px;
   }
 
-  input {
-    margin-top: 5px;
-    margin-bottom: 20px;
-    padding: 15px;
-    width: fit-content;
-
-    &[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-    }
+  &:disabled {
+    cursor: text;
   }
 }
 

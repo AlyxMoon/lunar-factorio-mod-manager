@@ -83,45 +83,47 @@ export default class AppManager {
     log.debug('Leaving function', { namespace: 'main.app_manager.configureEventListeners' })
   }
 
-  async findFactorioPath (mainWindow) {
+  async findFactorioPath (mainWindow, forceManual = false) {
     log.debug('Entering function', { namespace: 'main.app_manager.findFactorioPath' })
 
-    // Compile a list of what I guess are common paths
-    const paths = []
-    switch (os.platform()) {
-      case 'win32':
-        paths.push(path.join('C:\\', 'Program Files', 'Factorio', 'bin', 'Win32', 'factorio.exe'))
-        paths.push(path.join('C:\\', 'Program Files', 'Factorio', 'bin', 'x64', 'factorio.exe'))
-        paths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'bin', 'Win32', 'factorio.exe'))
-        paths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'bin', 'x64', 'factorio.exe'))
-        paths.push(path.join('C:\\', 'Program Files', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'Win32', 'factorio.exe'))
-        paths.push(path.join('C:\\', 'Program Files', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'x64', 'factorio.exe'))
-        paths.push(path.join('C:\\', 'Program Files (x86)', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'Win32', 'factorio.exe'))
-        paths.push(path.join('C:\\', 'Program Files (x86)', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'x64', 'factorio.exe'))
-        break
-      case 'linux':
-        paths.push(path.join(app.getPath('home'), '.steam/steam/steamapps/common/Factorio/bin/x64/factorio'))
-        paths.push(path.join(app.getPath('home'), '.steam/steam/steamapps/common/Factorio/bin/i386/factorio'))
-        paths.push(path.join(app.getPath('home'), '.factorio', 'bin', 'x64', 'factorio'))
-        paths.push(path.join(app.getPath('home'), 'factorio', 'bin', 'i386', 'factorio'))
-        break
-      case 'darwin':
-        paths.push(path.join(app.getPath('home'), 'Library', 'Application Support', 'Steam', 'steamapps', 'common', 'Factorio', 'factorio.app', 'Contents', 'MacOS', 'factorio'))
-        break
-    }
+    if (!forceManual) {
+      // Compile a list of what I guess are common paths
+      const paths = []
+      switch (os.platform()) {
+        case 'win32':
+          paths.push(path.join('C:\\', 'Program Files', 'Factorio', 'bin', 'Win32', 'factorio.exe'))
+          paths.push(path.join('C:\\', 'Program Files', 'Factorio', 'bin', 'x64', 'factorio.exe'))
+          paths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'bin', 'Win32', 'factorio.exe'))
+          paths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'bin', 'x64', 'factorio.exe'))
+          paths.push(path.join('C:\\', 'Program Files', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'Win32', 'factorio.exe'))
+          paths.push(path.join('C:\\', 'Program Files', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'x64', 'factorio.exe'))
+          paths.push(path.join('C:\\', 'Program Files (x86)', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'Win32', 'factorio.exe'))
+          paths.push(path.join('C:\\', 'Program Files (x86)', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'x64', 'factorio.exe'))
+          break
+        case 'linux':
+          paths.push(path.join(app.getPath('home'), '.steam/steam/steamapps/common/Factorio/bin/x64/factorio'))
+          paths.push(path.join(app.getPath('home'), '.steam/steam/steamapps/common/Factorio/bin/i386/factorio'))
+          paths.push(path.join(app.getPath('home'), '.factorio', 'bin', 'x64', 'factorio'))
+          paths.push(path.join(app.getPath('home'), 'factorio', 'bin', 'i386', 'factorio'))
+          break
+        case 'darwin':
+          paths.push(path.join(app.getPath('home'), 'Library', 'Application Support', 'Steam', 'steamapps', 'common', 'Factorio', 'factorio.app', 'Contents', 'MacOS', 'factorio'))
+          break
+      }
 
-    log.debug('Starting loop to automatically find paths.factorio', { namespace: 'main.app_manager.findFactorioPath' })
-    for (let i = 0, length = paths.length; i < length; i++) {
-      try {
-        if (fs.existsSync(paths[i])) {
-          log.info('paths.factorio found with automatic search', { namespace: 'main.app_manager.findFactorioPath' })
-          log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.findFactorioPath' })
-          return paths[i]
-        }
-      } catch (error) {
-        if (error.code !== 'ENOENT') {
-          log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioPath' })
-          return
+      log.debug('Starting loop to automatically find paths.factorio', { namespace: 'main.app_manager.findFactorioPath' })
+      for (let i = 0, length = paths.length; i < length; i++) {
+        try {
+          if (fs.existsSync(paths[i])) {
+            log.info('paths.factorio found with automatic search', { namespace: 'main.app_manager.findFactorioPath' })
+            log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.findFactorioPath' })
+            return paths[i]
+          }
+        } catch (error) {
+          if (error.code !== 'ENOENT') {
+            log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioPath' })
+            return
+          }
         }
       }
     }
@@ -156,37 +158,39 @@ export default class AppManager {
     log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioPath' })
   }
 
-  async findFactorioModPath (mainWindow) {
+  async findFactorioModPath (mainWindow, forceManual = false) {
     log.debug('Entering function', { namespace: 'main.app_manager.findFactorioModPath' })
 
-    // Compile a list of what I guess are common paths
-    const paths = []
-    switch (os.platform()) {
-      case 'win32':
-        paths.push(path.join(app.getPath('appData'), 'Factorio', 'mods', 'mod-list.json'))
-        paths.push(path.join('C:\\', 'Program Files', 'Factorio', 'mods', 'mod-list.json'))
-        paths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'mods', 'mod-list.json'))
-        break
-      case 'linux':
-        paths.push(path.join(app.getPath('home'), '.factorio', 'mods', 'mod-list.json'))
-        paths.push(path.join(app.getPath('home'), 'factorio', 'mods', 'mod-list.json'))
-        break
-      case 'darwin':
-        paths.push(path.join(app.getPath('home'), 'Library', 'Application Support', 'factorio', 'mods', 'mod-list.json'))
-        break
-    }
+    if (!forceManual) {
+      // Compile a list of what I guess are common paths
+      const paths = []
+      switch (os.platform()) {
+        case 'win32':
+          paths.push(path.join(app.getPath('appData'), 'Factorio', 'mods', 'mod-list.json'))
+          paths.push(path.join('C:\\', 'Program Files', 'Factorio', 'mods', 'mod-list.json'))
+          paths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'mods', 'mod-list.json'))
+          break
+        case 'linux':
+          paths.push(path.join(app.getPath('home'), '.factorio', 'mods', 'mod-list.json'))
+          paths.push(path.join(app.getPath('home'), 'factorio', 'mods', 'mod-list.json'))
+          break
+        case 'darwin':
+          paths.push(path.join(app.getPath('home'), 'Library', 'Application Support', 'factorio', 'mods', 'mod-list.json'))
+          break
+      }
 
-    for (let i = 0, length = paths.length; i < length; i++) {
-      try {
-        if (fs.existsSync(paths[i])) {
-          log.info('paths.mods found with automatic search', { namespace: 'main.app_manager.findFactorioModPath' })
-          log.debug(`Exiting function, retval: ${path.join(paths[i], '..')}`, { namespace: 'main.app_manager.findFactorioModPath' })
-          return path.join(paths[i], '..')
-        }
-      } catch (error) {
-        if (error.code !== 'ENOENT') {
-          log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioModPath' })
-          return
+      for (let i = 0, length = paths.length; i < length; i++) {
+        try {
+          if (fs.existsSync(paths[i])) {
+            log.info('paths.mods found with automatic search', { namespace: 'main.app_manager.findFactorioModPath' })
+            log.debug(`Exiting function, retval: ${path.join(paths[i], '..')}`, { namespace: 'main.app_manager.findFactorioModPath' })
+            return path.join(paths[i], '..')
+          }
+        } catch (error) {
+          if (error.code !== 'ENOENT') {
+            log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioModPath' })
+            return
+          }
         }
       }
     }
@@ -211,43 +215,45 @@ export default class AppManager {
     log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioModPath' })
   }
 
-  async findFactorioSavesPath (mainWindow) {
+  async findFactorioSavesPath (mainWindow, forceManual = false) {
     log.debug('Entering function', { namespace: 'main.app_manager.findFactorioSavesPath' })
 
-    // Compile a list of what I guess are common paths
-    const paths = []
-    switch (os.platform()) {
-      case 'win32':
-        paths.push(
-          path.join(app.getPath('appData'), 'Factorio/saves'),
-          path.join('C:\\', 'Program Files/Factorio/saves'),
-          path.join('C:\\', 'Program Files (x86)/Factorio/saves'),
-        )
-        break
-      case 'linux':
-        paths.push(
-          path.join(app.getPath('home'), '.factorio/saves'),
-          path.join(app.getPath('home'), 'factorio/saves'),
-        )
-        break
-      case 'darwin':
-        paths.push(
-          path.join(app.getPath('home'), 'Library/Application Support/factorio/saves'),
-        )
-        break
-    }
+    if (!forceManual) {
+      // Compile a list of what I guess are common paths
+      const paths = []
+      switch (os.platform()) {
+        case 'win32':
+          paths.push(
+            path.join(app.getPath('appData'), 'Factorio/saves'),
+            path.join('C:\\', 'Program Files/Factorio/saves'),
+            path.join('C:\\', 'Program Files (x86)/Factorio/saves'),
+          )
+          break
+        case 'linux':
+          paths.push(
+            path.join(app.getPath('home'), '.factorio/saves'),
+            path.join(app.getPath('home'), 'factorio/saves'),
+          )
+          break
+        case 'darwin':
+          paths.push(
+            path.join(app.getPath('home'), 'Library/Application Support/factorio/saves'),
+          )
+          break
+      }
 
-    for (let i = 0, length = paths.length; i < length; i++) {
-      try {
-        if (fs.existsSync(paths[i])) {
-          log.info('paths.saves found with automatic search', { namespace: 'main.app_manager.findFactorioSavesPath' })
-          log.debug(`Exiting function, retval: ${path.join(paths[i])}`, { namespace: 'main.app_manager.findFactorioSavesPath' })
-          return path.join(paths[i])
-        }
-      } catch (error) {
-        if (error.code !== 'ENOENT') {
-          log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioSavesPath' })
-          return
+      for (let i = 0, length = paths.length; i < length; i++) {
+        try {
+          if (fs.existsSync(paths[i])) {
+            log.info('paths.saves found with automatic search', { namespace: 'main.app_manager.findFactorioSavesPath' })
+            log.debug(`Exiting function, retval: ${path.join(paths[i])}`, { namespace: 'main.app_manager.findFactorioSavesPath' })
+            return path.join(paths[i])
+          }
+        } catch (error) {
+          if (error.code !== 'ENOENT') {
+            log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioSavesPath' })
+            return
+          }
         }
       }
     }
@@ -272,36 +278,38 @@ export default class AppManager {
     log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioSavesPath' })
   }
 
-  async findFactorioPlayerData (mainWindow) {
+  async findFactorioPlayerData (mainWindow, forceManual = false) {
     log.debug(`Entering function`, { namespace: 'main.app_manager.findFactorioPlayerData' })
 
-    // Compile a list of what I guess are common paths
-    const paths = []
-    switch (os.platform()) {
-      case 'win32':
-        paths.push(path.join(app.getPath('appData'), 'Factorio', 'player-data.json'))
-        paths.push(path.join(app.getPath('appData'), 'Factorio', 'config', 'player-data.json'))
-        break
-      case 'linux':
-        paths.push(path.join(app.getPath('home'), '.factorio', 'player-data.json'))
-        paths.push(path.join(app.getPath('home'), 'factorio', 'player-data.json'))
-        break
-      case 'darwin':
-        paths.push(path.join(app.getPath('home'), 'Library', 'Application Support', 'factorio', 'player-data.json'))
-        break
-    }
+    if (!forceManual) {
+      // Compile a list of what I guess are common paths
+      const paths = []
+      switch (os.platform()) {
+        case 'win32':
+          paths.push(path.join(app.getPath('appData'), 'Factorio', 'player-data.json'))
+          paths.push(path.join(app.getPath('appData'), 'Factorio', 'config', 'player-data.json'))
+          break
+        case 'linux':
+          paths.push(path.join(app.getPath('home'), '.factorio', 'player-data.json'))
+          paths.push(path.join(app.getPath('home'), 'factorio', 'player-data.json'))
+          break
+        case 'darwin':
+          paths.push(path.join(app.getPath('home'), 'Library', 'Application Support', 'factorio', 'player-data.json'))
+          break
+      }
 
-    for (let i = 0, length = paths.length; i < length; i++) {
-      try {
-        if (fs.existsSync(paths[i])) {
-          log.info('paths.playerData found with automatic search', { namespace: 'main.app_manager.findFactorioPlayerData' })
-          log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.findFactorioPlayerData' })
-          return paths[i]
-        }
-      } catch (error) {
-        if (error.code !== 'ENOENT') {
-          log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioPlayerData' })
-          return
+      for (let i = 0, length = paths.length; i < length; i++) {
+        try {
+          if (fs.existsSync(paths[i])) {
+            log.info('paths.playerData found with automatic search', { namespace: 'main.app_manager.findFactorioPlayerData' })
+            log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.findFactorioPlayerData' })
+            return paths[i]
+          }
+        } catch (error) {
+          if (error.code !== 'ENOENT') {
+            log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioPlayerData' })
+            return
+          }
         }
       }
     }
