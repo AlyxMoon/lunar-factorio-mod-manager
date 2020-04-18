@@ -2,9 +2,10 @@ import { app, dialog, BrowserWindow, ipcMain, screen } from 'electron'
 import os from 'os'
 import path from 'path'
 
-import { productName } from '../../package'
-
-import store from '@lib/store'
+import {
+  config as store,
+  onlineModsCache,
+} from '@lib/store'
 import AppManager from '@lib/app_manager'
 import ModManager from '@lib/mod_manager'
 import ProfileManager from '@lib/profile_manager'
@@ -17,7 +18,6 @@ log.debug('App starting', { namespace: 'main.index' })
 log.debug(`OS Platform: ${os.platform()}`, { namespace: 'main.index' })
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
-app.setName(productName)
 
 let mainWindow
 let appManager
@@ -72,7 +72,7 @@ const addClientEventListeners = async () => {
     mainWindow.webContents.send('INSTALLED_MODS', newValue)
   })
 
-  store.onDidChange('mods.online', (newValue) => {
+  onlineModsCache.onDidChange('mods', (newValue) => {
     mainWindow.webContents.send('ONLINE_MODS', newValue)
   })
 
@@ -88,6 +88,14 @@ const addClientEventListeners = async () => {
     mainWindow.webContents.send('PLAYER_USERNAME', newValue)
   })
 
+  store.onDidChange('options', (newValue) => {
+    mainWindow.webContents.send('APP_OPTIONS', newValue)
+  })
+
+  store.onDidChange('paths', (newValue) => {
+    mainWindow.webContents.send('FACTORIO_PATHS', newValue)
+  })
+
   if (isDevMode) {
     // Normally won't need to call these events
     // but during development if renderer code is reloaded then the app won't send info again and that's annoying
@@ -100,12 +108,31 @@ const addClientEventListeners = async () => {
     })
 
     ipcMain.on('REQUEST_ONLINE_MODS', (event) => {
-      event.reply('ONLINE_MODS', store.get('mods.online'))
+      event.reply('ONLINE_MODS', onlineModsCache.get('mods'))
     })
 
     ipcMain.on('REQUEST_PROFILES', (event) => {
       event.reply('PROFILES_LIST', store.get('profiles.list'))
       event.reply('PROFILES_ACTIVE', store.get('profiles.active'))
+    })
+
+    ipcMain.on('REQUEST_OPTIONS', (event) => {
+      event.reply('APP_OPTIONS', store.get('options'))
+    })
+
+    ipcMain.on('REQUEST_FACTORIO_PATHS', (event) => {
+      event.reply('FACTORIO_PATHS', store.get('paths'))
+    })
+
+    ipcMain.on('PROMPT_NEW_FACTORIO_PATH', async (event, pathName) => {
+      let path
+
+      if (pathName === 'factorio') path = await appManager.findFactorioPath(mainWindow, true)
+      if (pathName === 'mods') path = await appManager.findFactorioModPath(mainWindow, true)
+      if (pathName === 'saves') path = await appManager.findFactorioSavesPath(mainWindow, true)
+      if (pathName === 'playerData') path = await appManager.findFactorioPlayerData(mainWindow, true)
+
+      if (path) store.set(`paths.${pathName}`, path)
     })
   }
 
@@ -157,6 +184,14 @@ const addClientEventListeners = async () => {
     const saves = await saveManager.retrieveFactorioSaves()
     event.reply('FACTORIO_SAVES', saves)
   })
+
+  ipcMain.on('UPDATE_OPTION', (event, { name, value }) => {
+    store.set(`options.${name}`, value)
+  })
+
+  ipcMain.on('UPDATE_FACTORIO_PATH', (event, { name, value }) => {
+    store.set(`paths.${name}`, value)
+  })
 }
 
 const initializeApp = async () => {
@@ -180,21 +215,25 @@ const initializeApp = async () => {
 
   mainWindow.webContents.send('PLAYER_USERNAME', store.get('player.username'))
   mainWindow.webContents.send('INSTALLED_MODS', store.get('mods.installed'))
-  mainWindow.webContents.send('ONLINE_MODS', store.get('mods.online'))
+  mainWindow.webContents.send('ONLINE_MODS', onlineModsCache.get('mods'))
   mainWindow.webContents.send('PROFILES_LIST', store.get('profiles.list'))
   mainWindow.webContents.send('PROFILES_ACTIVE', store.get('profiles.active'))
+  mainWindow.webContents.send('APP_OPTIONS', store.get('options'))
+  mainWindow.webContents.send('FACTORIO_PATHS', store.get('paths'))
 }
 
 const createWindow = () => {
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
 
+  const { width, height, x, y } = store.get('window')
+
   mainWindow = new BrowserWindow({
     minWidth: screenWidth / 2,
     minHeight: screenHeight / 1.25,
-    width: store.get('window.width', screenWidth / 2),
-    height: store.get('window.height', screenHeight),
-    x: store.get('window.x', 0),
-    y: store.get('window.y', 0),
+    width: width || screenWidth / 2,
+    height: height || screenHeight,
+    x: x || 0,
+    y: y || 0,
 
     show: false,
     webPreferences: {

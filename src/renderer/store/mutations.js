@@ -76,3 +76,11 @@ export const HIDE_MODAL = (state) => {
 export const SET_APP_LATEST_VERSION = (state, { version }) => {
   state.appLatestVersion = version
 }
+
+export const UPDATE_OPTIONS = (state, { options }) => {
+  state.options = Object.assign({}, state.options, options)
+}
+
+export const UPDATE_FACTORIO_PATHS = (state, { paths }) => {
+  state.paths = Object.assign({}, state.paths, paths)
+}

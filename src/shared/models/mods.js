@@ -1,4 +1,4 @@
-import { definitionsInstalledMod, definitionsOnlineMod } from './_shared'
+import { definitionsInstalledMod } from './_shared'
 import { version } from './_validators'
 
 export default {
@@ -11,20 +11,6 @@ export default {
         ...definitionsInstalledMod,
       },
       default: [],
-    },
-    online: {
-      type: 'array',
-      items: {
-        ...definitionsOnlineMod,
-      },
-      default: [],
-    },
-    onlineCount: {
-      type: 'number',
-      default: 0,
-    },
-    onlineLastFetch: {
-      type: 'number',
     },
     factorioVersion: {
       type: 'string',

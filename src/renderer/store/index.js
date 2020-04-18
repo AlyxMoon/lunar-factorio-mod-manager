@@ -48,6 +48,8 @@ const state = {
     },
   },
   appLatestVersion: undefined,
+  paths: {},
+  options: {},
 }
 
 Vue.use(Vuex)

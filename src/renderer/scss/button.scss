@@ -1,8 +1,7 @@
-button {
+button, .btn {
   height: $standard-input-height;
-}
+  width: auto;
 
-.btn {
   background-color: $element-background-color;
   color: $text-primary-color;
 
