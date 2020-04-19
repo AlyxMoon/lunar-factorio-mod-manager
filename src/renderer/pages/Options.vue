@@ -36,44 +36,44 @@
           disabled
         >
       </div>
+
+      <hr>
+
+      <div class="paths-container">
+        <button @click="openFolder(userDataPath)">
+          Open Folder
+        </button>
+        <label>AppData Directory</label>
+        <span>{{ userDataPath }}</span>
+
+        <button @click="openFolder(logsPath)">
+          Open Folder
+        </button>
+        <label>Logs Directory</label>
+        <span>{{ logsPath }}</span>
+        <span /><span />
+        <div>
+          <button @click="openFolder(logsPath + '/info-log.txt')">
+            Open Info Log
+          </button>
+          <button @click="openFolder(logsPath + '/error-log.txt')">
+            Open Error Log
+          </button>
+        </div>
+
+        <button @click="openFolder(configPath)">
+          Open Folder
+        </button>
+        <label>Config Directory</label>
+        <span>{{ configPath }}</span>
+        <span /><span />
+        <div>
+          <button @click="openFolder(configPath + '/config.json')">
+            Open Configuration File
+          </button>
+        </div>
+      </div>
     </form>
-
-    <hr>
-
-    <div class="paths-container">
-      <button @click="openFolder(userDataPath)">
-        Open Folder
-      </button>
-      <label>AppData Directory</label>
-      <span>{{ userDataPath }}</span>
-
-      <button @click="openFolder(logsPath)">
-        Open Folder
-      </button>
-      <label>Logs Directory</label>
-      <span>{{ logsPath }}</span>
-      <span /><span />
-      <div>
-        <button @click="openFolder(logsPath + '/info-log.txt')">
-          Open Info Log
-        </button>
-        <button @click="openFolder(logsPath + '/error-log.txt')">
-          Open Error Log
-        </button>
-      </div>
-
-      <button @click="openFolder(configPath)">
-        Open Folder
-      </button>
-      <label>Config Directory</label>
-      <span>{{ configPath }}</span>
-      <span /><span />
-      <div>
-        <button @click="openFolder(configPath + '/config.json')">
-          Open Configuration File
-        </button>
-      </div>
-    </div>
   </div>
 </template>
 
