@@ -31,7 +31,7 @@ export default class ModManager {
     const installedMods = []
 
     try {
-      const baseModData = await promisify(fs.readFile)(path.join(factorioPath, '../../../data/base/info.json'), 'utf8')
+      const baseModData = await promisify(fs.readFile)(path.join(factorioPath, '../../../Contents/data/base/info.json'), 'utf8')
       installedMods.push(JSON.parse(baseModData))
       store.set('mods.factorioVersion', installedMods[0].version)
 
