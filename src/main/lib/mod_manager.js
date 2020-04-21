@@ -3,6 +3,7 @@ import path from 'path'
 import { promisify } from 'util'
 import jsZip from 'jszip'
 import fetch from 'node-fetch'
+import os from 'os'
 
 import {
   config as store,
@@ -31,10 +32,16 @@ export default class ModManager {
     const installedMods = []
 
     try {
-      const baseModData = await promisify(fs.readFile)(path.join(factorioPath, '../../../Contents/data/base/info.json'), 'utf8')
-      installedMods.push(JSON.parse(baseModData))
-      store.set('mods.factorioVersion', installedMods[0].version)
-
+      if (os.platform == "darwin") {
+        const baseModData = await promisify(fs.readFile)(path.join(factorioPath, '../../../Contents/data/base/info.json'), 'utf8')
+        installedMods.push(JSON.parse(baseModData))
+        store.set('mods.factorioVersion', installedMods[0].version)
+      } else {
+        const baseModData = await promisify(fs.readFile)(path.join(factorioPath, '../../../data/base/info.json'), 'utf8')
+        installedMods.push(JSON.parse(baseModData))
+        store.set('mods.factorioVersion', installedMods[0].version)
+      }
+      
       log.info('Factorio base mod has been parsed and stored in the app.', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
     } catch (error) {
       log.error(`Error when loading base mod data: ${error.message}`, { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
