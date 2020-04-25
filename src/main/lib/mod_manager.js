@@ -32,16 +32,15 @@ export default class ModManager {
     const installedMods = []
 
     try {
-      if (os.platform == "darwin") {
-        const baseModData = await promisify(fs.readFile)(path.join(factorioPath, '../../../Contents/data/base/info.json'), 'utf8')
-        installedMods.push(JSON.parse(baseModData))
-        store.set('mods.factorioVersion', installedMods[0].version)
-      } else {
-        const baseModData = await promisify(fs.readFile)(path.join(factorioPath, '../../../data/base/info.json'), 'utf8')
-        installedMods.push(JSON.parse(baseModData))
-        store.set('mods.factorioVersion', installedMods[0].version)
-      }
-      
+      const baseModPath = os.platform() === 'darwin'
+        ? path.join(factorioPath, '../../../Contents/data/base/info.json')
+        : path.join(factorioPath, '../../../data/base/info.json')
+
+      const baseModData = await promisify(fs.readFile)(baseModPath, 'utf8')
+
+      installedMods.push(JSON.parse(baseModData))
+      store.set('mods.factorioVersion', installedMods[0].version)
+
       log.info('Factorio base mod has been parsed and stored in the app.', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
     } catch (error) {
       log.error(`Error when loading base mod data: ${error.message}`, { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
