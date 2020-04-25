@@ -2,7 +2,7 @@ import { copyFileSync, existsSync, mkdirSync, unlinkSync } from 'fs'
 import { join } from 'path'
 import { app } from 'electron'
 
-import logger from '@lib/logger'
+import logger from '@main/lib/logger'
 
 export const config = {
   '>=2.1.1': store => {

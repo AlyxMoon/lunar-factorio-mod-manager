@@ -6,9 +6,9 @@ import { spawn } from 'child_process'
 import { app, dialog, ipcMain } from 'electron'
 import fetch from 'node-fetch'
 
-import store from '@lib/store'
-import log from './logger'
-import pathGuesses from '@/main/data/path-guesses'
+import store from '@/lib/store'
+import log from '@/lib/logger'
+import pathGuesses from '@/data/path-guesses'
 
 export default class AppManager {
   async init (mainWindow) {

@@ -1,6 +1,6 @@
 import Store from 'electron-store'
 
-import packageData from '@/../package.json'
+import packageData from '@/../../package.json'
 import * as migrations from '@shared/migrations'
 import schema from '@shared/models'
 

@@ -5,13 +5,13 @@ import path from 'path'
 import {
   config as store,
   onlineModsCache,
-} from '@lib/store'
-import AppManager from '@lib/app_manager'
-import ModManager from '@lib/mod_manager'
-import ProfileManager from '@lib/profile_manager'
-import DownloadManager from '@lib/download_manager'
-import SaveManager from '@lib/save_manager'
-import log from '@lib/logger'
+} from '@/lib/store'
+import AppManager from '@/lib/app_manager'
+import ModManager from '@/lib/mod_manager'
+import ProfileManager from '@/lib/profile_manager'
+import DownloadManager from '@/lib/download_manager'
+import SaveManager from '@/lib/save_manager'
+import log from '@/lib/logger'
 import { debounce } from '@shared/util'
 
 log.debug('App starting', { namespace: 'main.index' })

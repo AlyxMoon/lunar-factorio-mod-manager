@@ -3,7 +3,7 @@ import { remote } from 'electron'
 import {
   isVersionHigher,
   parseModDependencies,
-} from 'src/shared/util'
+} from '@shared/util'
 
 const { app: { getVersion } } = remote
 

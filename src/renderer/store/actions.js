@@ -1,7 +1,7 @@
 import { ipcRenderer, shell } from 'electron'
 import { ADD_TOAST_MESSAGE } from 'vuex-toast'
 
-import { debounce } from 'src/shared/util'
+import { debounce } from '@shared/util'
 
 export const startFactorio = (context) => {
   ipcRenderer.send('START_FACTORIO')
