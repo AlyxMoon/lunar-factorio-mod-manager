@@ -32,4 +32,9 @@ export const onlineModsCache = new Store({
   projectVersion: packageData.version,
 })
 
+// Workaround for an issue with app version 2.2.0 where migrations were being set incorrectly with the electron-store version of 5.1.1, causing migrations to only be run a single time until config was reset
+if (config.get('__internal__.migrations.version') === '5.1.1') {
+  config.delete('__internal__.migrations')
+}
+
 export default config
