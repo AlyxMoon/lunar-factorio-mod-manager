@@ -10,7 +10,7 @@ export default class SaveManager {
   async retrieveFactorioSaves () {
     log.debug('Entered function', { namespace: 'main.save_manager.retrieveFactorioSave' })
 
-    const savesPath = store.get('paths.saves')
+    const savesPath = store.get('paths.saveDir')
     if (!savesPath) {
       log.error('Path to the saves folder was not set when trying to retrieve saves', { namespace: 'main.save_manager.retrieveFactorioSave' })
       throw new Error('Unable to get saves info as the saves path has not been set.')

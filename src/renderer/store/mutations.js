@@ -1,3 +1,7 @@
+export const SET_APP_STATUS = (state, { firstTime }) => {
+  state.appStatus.firstTime = firstTime
+}
+
 export const SET_PLAYER_USERNAME = (state, payload) => {
   state.username = payload.username
 }

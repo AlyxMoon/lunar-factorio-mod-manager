@@ -37,6 +37,27 @@ export const config = {
       throw error
     }
   },
+  '>=2.2.0': store => {
+    logger.info('Beginning store migration >=2.2.0')
+
+    try {
+      logger.info('updating path naming scheme')
+
+      const existingPaths = store.get('paths', {})
+      store.set('paths', {
+        factorioDataDir: '',
+        factorioExe: existingPaths.factorio || '',
+        modDir: existingPaths.mods || '',
+        playerDataFile: existingPaths.playerData || '',
+        saveDir: existingPaths.saves || '',
+      })
+
+      logger.info('Finished store migration >=2.2.0')
+    } catch (error) {
+      logger.error(`Error during migration: ${error.message}`)
+      throw error
+    }
+  },
 }
 
 export const onlineModsCache = {}

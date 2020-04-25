@@ -1,5 +1,6 @@
 import Store from 'electron-store'
 
+import packageData from '@/../package.json'
 import * as migrations from '@shared/migrations'
 import schema from '@shared/models'
 
@@ -18,6 +19,7 @@ export const config = new Store({
 
   migrations: migrations.config,
   schema: configSchema,
+  projectVersion: packageData.version,
 })
 
 export const onlineModsCache = new Store({
@@ -27,6 +29,7 @@ export const onlineModsCache = new Store({
 
   migrations: migrations.onlineModsCache,
   schema: schema.onlineModsCache,
+  projectVersion: packageData.version,
 })
 
 export default config

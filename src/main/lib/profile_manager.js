@@ -194,7 +194,7 @@ export default class ProfileManager {
   async createStarterProfiles () {
     log.debug('Entered function', { namespace: 'main.profile_manager.createStarterProfiles' })
 
-    const modsPath = store.get('paths.mods')
+    const modsPath = store.get('paths.modDir')
     if (!modsPath) {
       log.error('modPath not set when creating profiles', { namespace: 'main.profile_manager.createStarterProfiles' })
       throw new Error('Unable to create profiles as the Factorio mods path has not been set.')

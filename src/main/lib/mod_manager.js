@@ -17,13 +17,13 @@ export default class ModManager {
   async retrieveListOfInstalledMods () {
     log.debug('Entered function', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
 
-    const modsPath = store.get('paths.mods')
+    const modsPath = store.get('paths.modDir')
     if (!modsPath) {
       log.error('Path to Factorio mods was not set when trying to retrieve mods', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
       throw new Error('Unable to get mods as the Factorio mods path has not been set.')
     }
 
-    const factorioPath = store.get('paths.factorio')
+    const factorioPath = store.get('paths.factorioExe')
     if (!factorioPath) {
       log.error('Path to the Factorio bin folder was not set when trying to retrieve mods', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
       throw new Error('Unable to get base mod info as the Factorio path has not been set.')
@@ -95,7 +95,7 @@ export default class ModManager {
     try {
       const mod = store.get('mods.installed', []).find(m => m.name === name)
       if (mod) {
-        const filePath = path.join(store.get('paths.mods'), `${mod.name}_${mod.version}.zip`)
+        const filePath = path.join(store.get('paths.modDir'), `${mod.name}_${mod.version}.zip`)
         await promisify(fs.unlink)(filePath)
 
         store.set('mods.installed', store.get('mods.installed').filter(m => m.name !== mod.name))

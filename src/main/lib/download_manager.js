@@ -47,7 +47,7 @@ export default class DownloadManager {
       title,
       link,
       existingModPath: existingMod
-        ? path.join(store.get('paths.mods'), `${existingMod.name}_${existingMod.version}.zip`)
+        ? path.join(store.get('paths.modDir'), `${existingMod.name}_${existingMod.version}.zip`)
         : '',
     })
     log.info(`Added download request to queue: ${name} v. ${version}`)
@@ -84,7 +84,7 @@ export default class DownloadManager {
   manageDownload (item) {
     log.debug('Entering function', { namespace: 'main.download_manager.manageDownload' })
 
-    const filePath = path.join(store.get('paths.mods'), item.getFilename())
+    const filePath = path.join(store.get('paths.modDir'), item.getFilename())
 
     item.setSavePath(filePath)
     item.once('done', async (event, state) => {
