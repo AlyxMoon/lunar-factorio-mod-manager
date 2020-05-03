@@ -12,8 +12,8 @@ export const appVersion = (state) => {
 }
 
 export const currentProfile = (state) => {
-  if (state.profiles && state.profiles.length > 0 && state.activeProfile >= 0) {
-    return state.profiles[state.activeProfile]
+  if (state.profiles && state.profiles.length > 0 && state.profileSelected >= 0) {
+    return state.profiles[state.profileSelected]
   }
 }
 
@@ -26,7 +26,7 @@ export const selectedSave = (state) => {
 }
 
 export const isModMissingDependenciesInActiveProfile = (state) => (modName) => {
-  const profile = state.profiles[state.activeProfile]
+  const profile = state.profiles[state.profileSelected]
   if (!profile) return
 
   const installedMods = state.installedMods

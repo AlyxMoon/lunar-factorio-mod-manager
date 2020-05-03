@@ -5,6 +5,7 @@ import * as migrations from '@shared/migrations'
 import schema from '@shared/models'
 
 const configSchema = {
+  meta: schema.meta,
   mods: schema.mods,
   options: schema.options,
   profiles: schema.profiles,

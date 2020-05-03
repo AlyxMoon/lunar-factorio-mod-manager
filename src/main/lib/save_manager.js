@@ -3,8 +3,8 @@ import { join } from 'path'
 import { promisify } from 'util'
 import jsZip from 'jszip'
 
-import store from '@/lib/store'
-import log from './logger'
+import store from '@shared/store'
+import log from '@shared/logger'
 
 export default class SaveManager {
   async retrieveFactorioSaves () {

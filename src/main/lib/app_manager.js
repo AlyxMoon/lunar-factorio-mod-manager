@@ -6,71 +6,77 @@ import { spawn } from 'child_process'
 import { app, dialog, ipcMain } from 'electron'
 import fetch from 'node-fetch'
 
-import store from '@/lib/store'
-import log from '@/lib/logger'
+import store from '@shared/store'
+import log from '@shared/logger'
 import pathGuesses from '@/data/path-guesses'
 
 export default class AppManager {
   async init (mainWindow) {
     log.debug('Entered function', { namespace: 'main.app_manager.init' })
 
-    if (!store.get('paths.factorioExe')) {
+    if (!store.get('meta.firstRun')) {
+      await this.initiateFirstRun(mainWindow)
+    }
+
+    await this.retrievePlayerData(mainWindow)
+    await this.configureEventListeners()
+
+    log.debug('Leaving function', { namespace: 'main.app_manager.init' })
+  }
+
+  async initiateFirstRun (mainWindow) {
+    const paths = store.get('paths')
+
+    if (!paths.factorioExe) {
       log.info('paths.factorioExe not found in config', { namespace: 'main.app_manager.init' })
-      const thePath = await this.findFactorioPath(mainWindow)
+      const thePath = await this.findFactorioPath(mainWindow, true)
       if (thePath) {
         log.info(`paths.factorioExe was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
         store.set('paths.factorioExe', thePath)
-      } else {
-        log.error('paths.factorioExe could not be retrieved', { namespace: 'main.app_manager.init' })
       }
     } else {
       log.info('Found paths.factorioExe in config', { namespace: 'main.app_manager.init' })
     }
 
-    if (!store.get('paths.modDir')) {
+    if (!paths.modDir) {
       log.info('paths.modDir not found in config', { namespace: 'main.app_manager.init' })
-      const thePath = await this.findFactorioModPath(mainWindow)
+      const thePath = await this.findFactorioModPath(mainWindow, true)
       if (thePath) {
         log.info(`paths.modDir was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
         store.set('paths.modDir', thePath)
-      } else {
-        log.error('paths.modDir could not be retrieved', { namespace: 'main.app_manager.init' })
       }
     } else {
       log.info('Found paths.modDir in config', { namespace: 'main.app_manager.init' })
     }
 
-    if (!store.get('paths.saveDir')) {
+    if (!paths.saveDir) {
       log.info('paths.saveDir not found in config', { namespace: 'main.app_manager.init' })
-      const thePath = await this.findFactorioSavesPath(mainWindow)
+      const thePath = await this.findFactorioSavesPath(mainWindow, true)
       if (thePath) {
         log.info(`paths.saveDir was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
         store.set('paths.saveDir', thePath)
-      } else {
-        log.error('paths.saveDir could not be retrieved', { namespace: 'main.app_manager.init' })
       }
     } else {
       log.info('Found paths.saveDir in config', { namespace: 'main.app_manager.init' })
     }
 
-    if (!store.get('paths.playerDataFile')) {
+    if (!paths.playerDataFile) {
       log.info('paths.playerDataFile not found in config', { namespace: 'main.app_manager.init' })
-      const thePath = await this.findFactorioPlayerData(mainWindow)
+      const thePath = await this.findFactorioPlayerData(mainWindow, true)
       if (thePath) {
         log.info(`paths.playerDataFile was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
         store.set('paths.playerDataFile', thePath)
-      } else {
-        log.error('paths.playerDataFile could not be retrieved', { namespace: 'main.app_manager.init' })
       }
     } else {
       log.info('Found paths.playerDataFile in config', { namespace: 'main.app_manager.init' })
     }
 
-    await this.retrievePlayerData(mainWindow)
+    mainWindow.show()
+    mainWindow.webContents.send('CHANGE_PAGE', 'PageFirstRun')
 
-    await this.configureEventListeners()
-
-    log.debug('Leaving function', { namespace: 'main.app_manager.init' })
+    await new Promise(resolve => ipcMain.once('FINISH_FIRST_RUN', resolve))
+    mainWindow.webContents.send('CHANGE_PAGE', 'PageProfiles')
+    store.set('meta.firstRun', true)
   }
 
   async configureEventListeners () {
@@ -84,10 +90,10 @@ export default class AppManager {
     log.debug('Leaving function', { namespace: 'main.app_manager.configureEventListeners' })
   }
 
-  async findFactorioPath (mainWindow, forceManual = false) {
+  async findFactorioPath (mainWindow, auto = false) {
     log.debug('Entering function', { namespace: 'main.app_manager.findFactorioPath' })
 
-    if (!forceManual) {
+    if (auto) {
       const paths = pathGuesses.factorioExe
 
       log.debug('Starting loop to automatically find paths.factorioExe', { namespace: 'main.app_manager.findFactorioPath' })
@@ -96,6 +102,7 @@ export default class AppManager {
           if (fs.existsSync(paths[i])) {
             log.info('paths.factorioExe found with automatic search', { namespace: 'main.app_manager.findFactorioPath' })
             log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.findFactorioPath' })
+
             return paths[i]
           }
         } catch (error) {
@@ -105,6 +112,8 @@ export default class AppManager {
           }
         }
       }
+
+      return
     }
 
     // ------------------------------
@@ -137,10 +146,10 @@ export default class AppManager {
     log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioPath' })
   }
 
-  async findFactorioModPath (mainWindow, forceManual = false) {
+  async findFactorioModPath (mainWindow, auto = false) {
     log.debug('Entering function', { namespace: 'main.app_manager.findFactorioModPath' })
 
-    if (!forceManual) {
+    if (auto) {
       const paths = pathGuesses.modDir
 
       for (let i = 0, length = paths.length; i < length; i++) {
@@ -157,6 +166,8 @@ export default class AppManager {
           }
         }
       }
+
+      return
     }
 
     // ------------------------------
@@ -165,6 +176,8 @@ export default class AppManager {
       title: 'Find location of Factorio mods directory',
       properties: ['openDirectory'],
     })
+
+    console.log('GOT THING', modlistPath)
 
     if (modlistPath) {
       if (modlistPath.canceled) {
@@ -179,10 +192,10 @@ export default class AppManager {
     log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioModPath' })
   }
 
-  async findFactorioSavesPath (mainWindow, forceManual = false) {
+  async findFactorioSavesPath (mainWindow, auto = false) {
     log.debug('Entering function', { namespace: 'main.app_manager.findFactorioSavesPath' })
 
-    if (!forceManual) {
+    if (auto) {
       // Compile a list of what I guess are common paths
       const paths = pathGuesses.saveDir
 
@@ -191,6 +204,7 @@ export default class AppManager {
           if (fs.existsSync(paths[i])) {
             log.info('paths.saveDir found with automatic search', { namespace: 'main.app_manager.findFactorioSavesPath' })
             log.debug(`Exiting function, retval: ${path.join(paths[i])}`, { namespace: 'main.app_manager.findFactorioSavesPath' })
+
             return path.join(paths[i])
           }
         } catch (error) {
@@ -200,6 +214,8 @@ export default class AppManager {
           }
         }
       }
+
+      return
     }
 
     // ------------------------------
@@ -222,10 +238,10 @@ export default class AppManager {
     log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioSavesPath' })
   }
 
-  async findFactorioPlayerData (mainWindow, forceManual = false) {
+  async findFactorioPlayerData (mainWindow, auto = false) {
     log.debug(`Entering function`, { namespace: 'main.app_manager.findFactorioPlayerData' })
 
-    if (!forceManual) {
+    if (auto) {
       // Compile a list of what I guess are common paths
       const paths = pathGuesses.playerDataFile
 
@@ -243,6 +259,8 @@ export default class AppManager {
           }
         }
       }
+
+      return
     }
 
     const playerDataPath = await dialog.showOpenDialog(mainWindow, {

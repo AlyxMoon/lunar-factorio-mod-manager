@@ -8,8 +8,8 @@ import os from 'os'
 import {
   config as store,
   onlineModsCache,
-} from '@/lib/store'
-import log from './logger'
+} from '@shared/store'
+import log from '@shared/logger'
 
 import { parseModDependencies } from '@shared/util'
 

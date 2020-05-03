@@ -1,8 +1,10 @@
 import { copyFileSync, existsSync, mkdirSync, unlinkSync } from 'fs'
 import { join } from 'path'
-import { app } from 'electron'
+import electron from 'electron'
 
-import logger from '@main/lib/logger'
+import logger from '@shared/logger'
+
+const app = (electron.app || electron.remote.app)
 
 export const config = {
   '>=2.1.1': store => {

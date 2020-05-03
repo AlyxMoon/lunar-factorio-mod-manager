@@ -25,9 +25,7 @@
         class="input-group"
       >
         <label>{{ path.text }}</label>
-        <button
-          @click="promptNewFactorioPath(path.variable)"
-        >
+        <button @click="promptNewFactorioPath(path.variable)">
           Change
         </button>
         <input
@@ -87,10 +85,10 @@ export default {
   name: 'PageOptions',
   data: () => ({
     pathOptions: [
-      { text: 'Factorio Exe Path', variable: 'factorio' },
-      { text: 'Mods Folder Path', variable: 'mods' },
-      { text: 'PlayerData File Path', variable: 'playerData' },
-      { text: 'Saves Folder Path', variable: 'saves' },
+      { text: 'Factorio Exe Path', variable: 'factorioExe' },
+      { text: 'Mods Folder Path', variable: 'modDir' },
+      { text: 'PlayerData File Path', variable: 'playerDataFile' },
+      { text: 'Saves Folder Path', variable: 'saveDir' },
     ],
   }),
   computed: {

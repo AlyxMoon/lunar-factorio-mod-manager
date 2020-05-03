@@ -5,13 +5,13 @@ import path from 'path'
 import {
   config as store,
   onlineModsCache,
-} from '@/lib/store'
+} from '@shared/store'
 import AppManager from '@/lib/app_manager'
 import ModManager from '@/lib/mod_manager'
 import ProfileManager from '@/lib/profile_manager'
 import DownloadManager from '@/lib/download_manager'
 import SaveManager from '@/lib/save_manager'
-import log from '@/lib/logger'
+import log from '@shared/logger'
 import { debounce } from '@shared/util'
 
 log.debug('App starting', { namespace: 'main.index' })
@@ -68,69 +68,17 @@ const showErrorAndExit = (error, message) => {
 }
 
 const addClientEventListeners = async () => {
-  store.onDidChange('mods.installed', (newValue) => {
-    mainWindow.webContents.send('INSTALLED_MODS', newValue)
-  })
-
-  onlineModsCache.onDidChange('mods', (newValue) => {
-    mainWindow.webContents.send('ONLINE_MODS', newValue)
-  })
-
-  store.onDidChange('profiles.list', (newValue) => {
-    mainWindow.webContents.send('PROFILES_LIST', newValue)
-  })
-
-  store.onDidChange('profiles.active', (newValue) => {
-    mainWindow.webContents.send('PROFILES_ACTIVE', newValue)
-  })
-
-  store.onDidChange('player.username', (newValue) => {
-    mainWindow.webContents.send('PLAYER_USERNAME', newValue)
-  })
-
-  store.onDidChange('options', (newValue) => {
-    mainWindow.webContents.send('APP_OPTIONS', newValue)
-  })
-
-  store.onDidChange('paths', (newValue) => {
-    mainWindow.webContents.send('FACTORIO_PATHS', newValue)
-  })
-
   if (isDevMode) {
     // Normally won't need to call these events
     // but during development if renderer code is reloaded then the app won't send info again and that's annoying
-    ipcMain.on('REQUEST_PLAYER_USERNAME', (event) => {
-      event.reply('PLAYER_USERNAME', store.get('player.username'))
-    })
-
-    ipcMain.on('REQUEST_INSTALLED_MODS', (event) => {
-      event.reply('INSTALLED_MODS', store.get('mods.installed'))
-    })
-
-    ipcMain.on('REQUEST_ONLINE_MODS', (event) => {
-      event.reply('ONLINE_MODS', onlineModsCache.get('mods'))
-    })
-
-    ipcMain.on('REQUEST_PROFILES', (event) => {
-      event.reply('PROFILES_LIST', store.get('profiles.list'))
-      event.reply('PROFILES_ACTIVE', store.get('profiles.active'))
-    })
-
-    ipcMain.on('REQUEST_OPTIONS', (event) => {
-      event.reply('APP_OPTIONS', store.get('options'))
-    })
-
-    ipcMain.on('REQUEST_FACTORIO_PATHS', (event) => {
-      event.reply('FACTORIO_PATHS', store.get('paths'))
-    })
 
     ipcMain.on('PROMPT_NEW_FACTORIO_PATH', async (event, pathName) => {
       let path
 
-      if (pathName === 'factorio') path = await appManager.findFactorioPath(mainWindow, true)
-      if (pathName === 'mods') path = await appManager.findFactorioModPath(mainWindow, true)
-      if (pathName === 'saves') path = await appManager.findFactorioSavesPath(mainWindow, true)
-      if (pathName === 'playerData') path = await appManager.findFactorioPlayerData(mainWindow, true)
+      if (pathName === 'factorioExe') path = await appManager.findFactorioPath(mainWindow, true)
+      if (pathName === 'modDir') path = await appManager.findFactorioModPath(mainWindow, true)
+      if (pathName === 'saveDir') path = await appManager.findFactorioSavesPath(mainWindow, true)
+      if (pathName === 'playerDataFile') path = await appManager.findFactorioPlayerData(mainWindow, true)
 
       if (path) store.set(`paths.${pathName}`, path)
     })
@@ -264,7 +212,6 @@ const createWindow = () => {
     }
 
     mainWindow.show()
-    mainWindow.focus()
   })
 
   mainWindow.on('closed', () => {

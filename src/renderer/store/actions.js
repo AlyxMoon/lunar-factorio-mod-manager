@@ -1,6 +1,7 @@
 import { ipcRenderer, shell } from 'electron'
 import { ADD_TOAST_MESSAGE } from 'vuex-toast'
 
+import { config } from '@shared/store'
 import { debounce } from '@shared/util'
 
 export const startFactorio = (context) => {
@@ -50,7 +51,7 @@ export const deleteMod = (context, name) => {
 }
 
 export const setActiveProfile = (context, index) => {
-  ipcRenderer.send('SET_ACTIVE_PROFILE', Number(index))
+  config.set('profiles.active', Number(index))
 }
 
 export const addModToCurrentProfile = (context, mod) => {
@@ -62,7 +63,7 @@ export const removeModFromCurrentProfile = (context, mod) => {
 }
 
 export const addMissingModDependenciesToActiveProfile = (context, modName) => {
-  const profile = context.state.profiles[context.state.activeProfile]
+  const profile = context.state.profiles[context.state.profileSelected]
   if (!profile) return
 
   const installedMods = context.state.installedMods
@@ -119,6 +120,12 @@ export const setOnlineQuery = (context, query) => {
   context.commit('SET_ONLINE_QUERY', { onlineQuery: query })
 }
 
+export const setInstalledMods = ({ commit, dispatch, state }, { mods }) => {
+  commit('SET_INSTALLED_MODS', { installedMods: mods })
+
+  if (state.selectedMod) dispatch('selectInstalledMod', state.selectedMod.name)
+}
+
 export const selectInstalledMod = (context, name) => {
   const mod = context.state.installedMods.find(m => m.name === name)
   context.commit('SET_SELECTED_MOD', { selectedMod: mod })
@@ -157,7 +164,7 @@ export const goToLastOnlineModsPage = (context) => {
 }
 
 export const exportProfile = ({ dispatch, state }) => {
-  return ipcRenderer.invoke('EXPORT_PROFILE', state.activeProfile)
+  return ipcRenderer.invoke('EXPORT_PROFILE', state.profileSelected)
 }
 
 export const importProfile = ({ dispatch, state }) => {
@@ -170,4 +177,8 @@ export const updateOption = ({ commit }, { name, value }) => {
 
 export const promptNewFactorioPath = (_, name) => {
   ipcRenderer.send('PROMPT_NEW_FACTORIO_PATH', name)
+}
+
+export const finishFirstRun = () => {
+  ipcRenderer.send('FINISH_FIRST_RUN')
 }

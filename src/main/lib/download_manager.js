@@ -2,8 +2,8 @@ import fs from 'fs'
 import path from 'path'
 import { promisify } from 'util'
 
-import store from '@/lib/store'
-import log from './logger'
+import store from '@shared/store'
+import log from '@shared/logger'
 
 export default class DownloadManager {
   constructor (webContents, modManager) {
