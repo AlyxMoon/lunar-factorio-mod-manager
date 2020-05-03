@@ -14,12 +14,12 @@ export default class AppManager {
   async init (mainWindow) {
     log.debug('Entered function', { namespace: 'main.app_manager.init' })
 
-    // if (!store.get('meta.firstRun')) {
+    if (!store.get('meta.firstRun')) {
       await this.initiateFirstRun(mainWindow)
-    // }
-
-    await this.retrievePlayerData(mainWindow)
-    await this.configureEventListeners()
+    } else {
+      await this.retrievePlayerData(mainWindow)
+      await this.configureEventListeners()
+    }
 
     log.debug('Leaving function', { namespace: 'main.app_manager.init' })
   }
@@ -71,12 +71,7 @@ export default class AppManager {
       log.info('Found paths.playerDataFile in config', { namespace: 'main.app_manager.init' })
     }
 
-    mainWindow.show()
     mainWindow.webContents.send('CHANGE_PAGE', 'PageFirstRun')
-
-    await new Promise(resolve => ipcMain.once('FINISH_FIRST_RUN', resolve))
-    mainWindow.webContents.send('CHANGE_PAGE', 'PageProfiles')
-    store.set('meta.firstRun', true)
   }
 
   async configureEventListeners () {

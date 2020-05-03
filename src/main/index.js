@@ -68,21 +68,16 @@ const showErrorAndExit = (error, message) => {
 }
 
 const addClientEventListeners = async () => {
-  if (isDevMode) {
-    // Normally won't need to call these events
-    // but during development if renderer code is reloaded then the app won't send info again and that's annoying
+  ipcMain.on('PROMPT_NEW_FACTORIO_PATH', async (event, pathName) => {
+    let path
 
-    ipcMain.on('PROMPT_NEW_FACTORIO_PATH', async (event, pathName) => {
-      let path
+    if (pathName === 'factorioExe') path = await appManager.findFactorioPath(mainWindow)
+    if (pathName === 'modDir') path = await appManager.findFactorioModPath(mainWindow)
+    if (pathName === 'saveDir') path = await appManager.findFactorioSavesPath(mainWindow)
+    if (pathName === 'playerDataFile') path = await appManager.findFactorioPlayerData(mainWindow)
 
-      if (pathName === 'factorioExe') path = await appManager.findFactorioPath(mainWindow, true)
-      if (pathName === 'modDir') path = await appManager.findFactorioModPath(mainWindow, true)
-      if (pathName === 'saveDir') path = await appManager.findFactorioSavesPath(mainWindow, true)
-      if (pathName === 'playerDataFile') path = await appManager.findFactorioPlayerData(mainWindow, true)
-
-      if (path) store.set(`paths.${pathName}`, path)
-    })
-  }
+    if (path) store.set(`paths.${pathName}`, path)
+  })
 
   ipcMain.on('ADD_MOD_TO_CURRENT_PROFILE', (event, mod) => {
     profileManager.addModToProfile(mod)
@@ -145,6 +140,16 @@ const addClientEventListeners = async () => {
 const initializeApp = async () => {
   appManager = new AppManager()
   await appManager.init(mainWindow)
+
+  if (!store.get('meta.firstRun')) {
+    ipcMain.once('FINISH_FIRST_RUN', async () => {
+      store.set('meta.firstRun', true)
+
+      await initializeApp()
+      mainWindow.webContents.send('CHANGE_PAGE', 'PageProfiles')
+    })
+    return
+  }
 
   modManager = new ModManager()
   await modManager.retrieveListOfInstalledMods()
