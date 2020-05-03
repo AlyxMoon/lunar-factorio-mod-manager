@@ -14,9 +14,9 @@ export default class AppManager {
   async init (mainWindow) {
     log.debug('Entered function', { namespace: 'main.app_manager.init' })
 
-    if (!store.get('meta.firstRun')) {
+    // if (!store.get('meta.firstRun')) {
       await this.initiateFirstRun(mainWindow)
-    }
+    // }
 
     await this.retrievePlayerData(mainWindow)
     await this.configureEventListeners()

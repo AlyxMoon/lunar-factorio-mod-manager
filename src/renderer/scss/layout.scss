@@ -99,6 +99,10 @@ hr {
   border-color: $background-primary-color;
   margin: 10px 0;
 
+  &.highlight {
+    border-color: $highlight-color;
+  }
+
   &.compact {
     margin: 5px 0;
   }
