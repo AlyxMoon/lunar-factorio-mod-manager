@@ -1,9 +1,11 @@
 <template>
-  <PanelContainer>
-    <PanelContent>
-      <AppOptions />
-    </PanelContent>
-  </PanelContainer>
+  <div class="page-options">
+    <PanelContainer>
+      <PanelContent>
+        <AppOptions />
+      </PanelContent>
+    </PanelContainer>
+  </div>
 </template>
 
 <script>
@@ -22,4 +24,12 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.page-options {
+  border: {
+    bottom: none;
+    left: none;
+    right: none;
+  };
+}
+</style>
