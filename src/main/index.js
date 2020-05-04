@@ -162,8 +162,6 @@ const initializeApp = async () => {
 
   saveManager = new SaveManager()
 
-  await addClientEventListeners()
-
   mainWindow.webContents.session.on('will-download', (event, item) => downloadManager.manageDownload(item))
 
   mainWindow.webContents.send('PLAYER_USERNAME', store.get('player.username'))
@@ -216,6 +214,7 @@ const createWindow = () => {
       return showErrorAndExit(error, 'Error occurred during initialization that would prevent app from running correctly')
     }
 
+    await addClientEventListeners()
     mainWindow.show()
   })
 

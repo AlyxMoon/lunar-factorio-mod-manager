@@ -21,6 +21,7 @@ export const config = new Store({
   migrations: migrations.config,
   schema: configSchema,
   projectVersion: packageData.version,
+  watch: true,
 })
 
 export const onlineModsCache = new Store({
@@ -31,6 +32,7 @@ export const onlineModsCache = new Store({
   migrations: migrations.onlineModsCache,
   schema: schema.onlineModsCache,
   projectVersion: packageData.version,
+  watch: true,
 })
 
 // Workaround for an issue with app version 2.2.0 where migrations were being set incorrectly with the electron-store version of 5.1.1, causing migrations to only be run a single time until config was reset
