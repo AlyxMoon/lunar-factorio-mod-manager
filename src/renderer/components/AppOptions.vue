@@ -9,7 +9,10 @@
       :key="'path-' + path.variable"
       class="input-group"
     >
-      <label>{{ path.text }}</label>
+      <label>
+        <tooltip>{{ path.hint }}</tooltip>
+        {{ path.text }}
+      </label>
       <button @click="promptNewFactorioPath(path.variable)">
         Change
       </button>
@@ -85,15 +88,33 @@ import { remote } from 'electron'
 
 import { mapActions, mapState } from 'vuex'
 
+import Tooltip from '@/components/partials/Tooltip'
+
 export default {
   name: 'PageOptions',
-  components: {},
+  components: { Tooltip },
   data: () => ({
     pathOptions: [
-      { text: 'Factorio Exe Path', variable: 'factorioExe' },
-      { text: 'Mods Folder Path', variable: 'modDir' },
-      { text: 'PlayerData File Path', variable: 'playerDataFile' },
-      { text: 'Saves Folder Path', variable: 'saveDir' },
+      {
+        text: 'Factorio Exe Path',
+        variable: 'factorioExe',
+        hint: 'This is the Factorio executable. It is not required, without it you will be unable to start Factorio through the app.',
+      },
+      {
+        text: 'Mods Folder Path',
+        variable: 'modDir',
+        hint: 'This is where Factorio looks for mods (and contains the mod-list.json file). Without this the app will be unable to manage mods in any way.',
+      },
+      {
+        text: 'PlayerData File Path',
+        variable: 'playerDataFile',
+        hint: 'This is where the player-data.json is located, typically with the rest of the Factorio configuration/data files (mods, saves, config, ect.). It is not required. This is used to read the player username and auth token, which is needed to download mods from the online portal.',
+      },
+      {
+        text: 'Saves Folder Path',
+        variable: 'saveDir',
+        hint: 'This is where the saves folder is. It is not required, without it you will be unable to look at saves in the app and create profiles based on them.',
+      },
     ],
   }),
   computed: {
@@ -152,6 +173,10 @@ input {
   &:disabled {
     cursor: text;
   }
+}
+
+.input-group label {
+  flex-direction: row;
 }
 
 .paths-container {

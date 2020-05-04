@@ -36,7 +36,7 @@ const router = new Router({
     {
       path: '/profiles',
       name: 'PageProfiles',
-      component: Profiles,
+      component: FirstRun,
       alias: ['/', '*'],
     },
   ],
