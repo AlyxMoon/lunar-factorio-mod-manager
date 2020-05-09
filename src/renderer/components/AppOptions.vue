@@ -96,6 +96,11 @@ export default {
   data: () => ({
     pathOptions: [
       {
+        text: 'Factorio Data Path',
+        variable: 'factorioDataDir',
+        hint: 'This is the Factorio data directory. It is used to load the base data used in Factorio which lets the app know which version of Factorio is actively in use. This is needed to correctly manage mod versions.',
+      },
+      {
         text: 'Factorio Exe Path',
         variable: 'factorioExe',
         hint: 'This is the Factorio executable. It is not required, without it you will be unable to start Factorio through the app.',

@@ -68,15 +68,9 @@ const showErrorAndExit = (error, message) => {
 }
 
 const addClientEventListeners = async () => {
-  ipcMain.on('PROMPT_NEW_FACTORIO_PATH', async (event, pathName) => {
-    let path
-
-    if (pathName === 'factorioExe') path = await appManager.findFactorioPath(mainWindow)
-    if (pathName === 'modDir') path = await appManager.findFactorioModPath(mainWindow)
-    if (pathName === 'saveDir') path = await appManager.findFactorioSavesPath(mainWindow)
-    if (pathName === 'playerDataFile') path = await appManager.findFactorioPlayerData(mainWindow)
-
-    if (path) store.set(`paths.${pathName}`, path)
+  ipcMain.on('PROMPT_NEW_FACTORIO_PATH', async (event, type) => {
+    const path = await appManager.promptForPath(mainWindow, type)
+    if (path) store.set(`paths.${type}`, path)
   })
 
   ipcMain.on('ADD_MOD_TO_CURRENT_PROFILE', (event, mod) => {

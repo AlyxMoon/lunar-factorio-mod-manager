@@ -103,7 +103,7 @@ export default class AppManager {
     if (type === 'factorioDataDir') {
       options = {
         title: 'Find location of Factorio data folder',
-        properties: ['openFolder'],
+        properties: ['openDirectory'],
       }
     }
 
