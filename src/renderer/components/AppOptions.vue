@@ -10,7 +10,7 @@
       class="input-group"
     >
       <label>
-        <tooltip>{{ path.hint }}</tooltip>
+        <Tooltip>{{ path.hint }}</Tooltip>
         {{ path.text }}
       </label>
       <button @click="promptNewFactorioPath(path.variable)">

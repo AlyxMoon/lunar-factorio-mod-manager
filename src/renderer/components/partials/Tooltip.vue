@@ -75,12 +75,30 @@ $arrow-size: 20px;
     background-color: $background-primary-color;
     box-shadow: 0 0 3px 3px $background-primary-color;
     color: $text-light-color;
+    font-size: 16px;
+    font-weight: normal;
 
     &:before {
       content: "";
       display: block;
       position: absolute;
       z-index: 5;
+    }
+
+    &.left {
+      right: 30px;
+      top: -10px;
+
+      &:before {
+        right: -13px;
+        top: 0;
+
+        border: none {
+          left: $arrow-size solid $background-primary-color;
+          top: $arrow-size solid transparent;
+          bottom: $arrow-size solid transparent;
+        }
+      }
     }
 
     &.right {

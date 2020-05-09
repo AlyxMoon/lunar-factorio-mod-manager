@@ -36,19 +36,34 @@
     <div class="menu-section commands">
       <button
         class="btn"
+        :disabled="!canStartFactorio"
         @click="startFactorio()"
       >
         Start Factorio
+        <tooltip
+          v-if="!canStartFactorio"
+          position="left"
+        >
+          Factorio Exe has not been provided, so this is disabled.
+        </tooltip>
       </button>
     </div>
   </nav>
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
+
+import Tooltip from '@/components/partials/Tooltip'
 
 export default {
   name: 'Navbar',
+  components: {
+    Tooltip,
+  },
+  computed: {
+    ...mapGetters(['canStartFactorio']),
+  },
   methods: {
     ...mapActions(['startFactorio']),
   },
