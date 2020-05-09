@@ -27,48 +27,17 @@ export default class AppManager {
   async initiateFirstRun (mainWindow) {
     const paths = store.get('paths')
 
-    if (!paths.factorioExe) {
-      log.info('paths.factorioExe not found in config', { namespace: 'main.app_manager.init' })
-      const thePath = await this.findFactorioPath(mainWindow, true)
-      if (thePath) {
-        log.info(`paths.factorioExe was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
-        store.set('paths.factorioExe', thePath)
+    for (const type in pathGuesses) {
+      if (!paths[type]) {
+        log.info(`paths.${type} not found in config`, { namespace: 'main.app_manager.init' })
+        const thePath = await this.attemptToFindPath(type)
+        if (thePath) {
+          log.info(`paths.${type} was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
+          store.set(`paths.${type}`, thePath)
+        }
+      } else {
+        log.info(`Found paths.${type} in config`, { namespace: 'main.app_manager.init' })
       }
-    } else {
-      log.info('Found paths.factorioExe in config', { namespace: 'main.app_manager.init' })
-    }
-
-    if (!paths.modDir) {
-      log.info('paths.modDir not found in config', { namespace: 'main.app_manager.init' })
-      const thePath = await this.findFactorioModPath(mainWindow, true)
-      if (thePath) {
-        log.info(`paths.modDir was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
-        store.set('paths.modDir', thePath)
-      }
-    } else {
-      log.info('Found paths.modDir in config', { namespace: 'main.app_manager.init' })
-    }
-
-    if (!paths.saveDir) {
-      log.info('paths.saveDir not found in config', { namespace: 'main.app_manager.init' })
-      const thePath = await this.findFactorioSavesPath(mainWindow, true)
-      if (thePath) {
-        log.info(`paths.saveDir was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
-        store.set('paths.saveDir', thePath)
-      }
-    } else {
-      log.info('Found paths.saveDir in config', { namespace: 'main.app_manager.init' })
-    }
-
-    if (!paths.playerDataFile) {
-      log.info('paths.playerDataFile not found in config', { namespace: 'main.app_manager.init' })
-      const thePath = await this.findFactorioPlayerData(mainWindow, true)
-      if (thePath) {
-        log.info(`paths.playerDataFile was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
-        store.set('paths.playerDataFile', thePath)
-      }
-    } else {
-      log.info('Found paths.playerDataFile in config', { namespace: 'main.app_manager.init' })
     }
 
     mainWindow.webContents.send('CHANGE_PAGE', 'PageFirstRun')
@@ -85,199 +54,108 @@ export default class AppManager {
     log.debug('Leaving function', { namespace: 'main.app_manager.configureEventListeners' })
   }
 
-  async findFactorioPath (mainWindow, auto = false) {
-    log.debug('Entering function', { namespace: 'main.app_manager.findFactorioPath' })
+  async attemptToFindPath (type) {
+    log.debug('Entering function', { namespace: 'main.app_manager.attemptToFindPath' })
 
-    if (auto) {
-      const paths = pathGuesses.factorioExe
-
-      log.debug('Starting loop to automatically find paths.factorioExe', { namespace: 'main.app_manager.findFactorioPath' })
-      for (let i = 0, length = paths.length; i < length; i++) {
-        try {
-          if (fs.existsSync(paths[i])) {
-            log.info('paths.factorioExe found with automatic search', { namespace: 'main.app_manager.findFactorioPath' })
-            log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.findFactorioPath' })
-
-            return paths[i]
-          }
-        } catch (error) {
-          if (error.code !== 'ENOENT') {
-            log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioPath' })
-            return
-          }
-        }
-      }
-
+    if (!['factorioDataDir', 'factorioExe', 'modDir', 'playerDataFile', 'saveDir'].includes(type)) {
+      log.error(`Incorrect path type passed: ${type}`, { namespace: 'main.app_manager.attemptToFindPath' })
       return
     }
 
-    // ------------------------------
-    // Prompt if file was not found automatically
+    const paths = pathGuesses[type]
 
+    log.debug(`Starting loop to automatically find paths.${type}`, { namespace: 'main.app_manager.attemptToFindPath' })
+    for (let i = 0, length = paths.length; i < length; i++) {
+      try {
+        if (fs.existsSync(paths[i])) {
+          log.info(`paths.${type} found with automatic search`, { namespace: 'main.app_manager.attemptToFindPath' })
+          log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.attemptToFindPath' })
+
+          return paths[i]
+        }
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.attemptToFindPath' })
+          return
+        }
+      }
+    }
+
+    log.info(`Was not able to find paths.${type} with automatic search`, { namespace: 'main.app_manager.attemptToFindPath' })
+    log.debug(`Exiting function`, { namespace: 'main.app_manager.attemptToFindPath' })
+  }
+
+  async promptForPath (mainWindow, type) {
+    log.debug('Entering function', { namespace: 'main.app_manager.promptForPath' })
+
+    if (!['factorioDataDir', 'factorioExe', 'modDir', 'playerDataFile', 'saveDir'].includes(type)) {
+      log.error(`Incorrect path type passed: ${type}`, { namespace: 'main.app_manager.promptForPath' })
+      return
+    }
+
+    let options = {}
     const extensions = []
+
     if (os.platform() === 'win32') extensions.push('exe')
     if (os.platform() === 'linux') extensions.push('*')
     if (os.platform() === 'darwin') extensions.push('app')
 
-    const gamePath = await dialog.showOpenDialog(mainWindow, {
-      title: 'Find location of Factorio executable file',
-      properties: ['openFile'],
-      filters: [{
-        name: 'Factorio Executable',
-        extensions,
-      }],
-    })
+    if (type === 'factorioDataDir') {
+      options = {
+        title: 'Find location of Factorio data folder',
+        properties: ['openFolder'],
+      }
+    }
+
+    if (type === 'factorioExe') {
+      options = {
+        title: 'Find location of Factorio executable file',
+        properties: ['openFile'],
+        filters: [{
+          name: 'Factorio Executable',
+          extensions,
+        }],
+      }
+    }
+
+    if (type === 'modDir') {
+      options = {
+        title: 'Find location of Factorio mods directory',
+        properties: ['openDirectory'],
+      }
+    }
+
+    if (type === 'playerDataFile') {
+      options = {
+        title: 'Find location of player-data.json file',
+        properties: ['openFile'],
+        filters: [{
+          name: 'Factorio Player Data',
+          extensions: ['json'],
+        }],
+      }
+    }
+
+    if (type === 'saveDir') {
+      options = {
+        title: 'Find location of Factorio saves directory',
+        properties: ['openDirectory'],
+      }
+    }
+
+    const gamePath = await dialog.showOpenDialog(mainWindow, options)
 
     if (gamePath) {
       if (gamePath.canceled) {
-        log.info('User canceled dialog window', { namespace: 'main.app_manager.findFactorioPath' })
+        log.info('User canceled dialog window', { namespace: 'main.app_manager.promptForPath' })
       } else {
-        log.info('paths.factorioExe found with user prompt', { namespace: 'main.app_manager.findFactorioPath' })
-        log.debug(`Exiting function, retval: ${gamePath.filePaths[0]}`, { namespace: 'main.app_manager.findFactorioPath' })
+        log.info(`paths.${type} found with user prompt`, { namespace: 'main.app_manager.promptForPath' })
+        log.debug(`Exiting function, retval: ${gamePath.filePaths[0]}`, { namespace: 'main.app_manager.promptForPath' })
         return gamePath.filePaths[0]
       }
     }
 
-    log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioPath' })
-  }
-
-  async findFactorioModPath (mainWindow, auto = false) {
-    log.debug('Entering function', { namespace: 'main.app_manager.findFactorioModPath' })
-
-    if (auto) {
-      const paths = pathGuesses.modDir
-
-      for (let i = 0, length = paths.length; i < length; i++) {
-        try {
-          if (fs.existsSync(paths[i])) {
-            log.info('paths.modDir found with automatic search', { namespace: 'main.app_manager.findFactorioModPath' })
-            log.debug(`Exiting function, retval: ${path.join(paths[i], '..')}`, { namespace: 'main.app_manager.findFactorioModPath' })
-            return path.join(paths[i], '..')
-          }
-        } catch (error) {
-          if (error.code !== 'ENOENT') {
-            log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioModPath' })
-            return
-          }
-        }
-      }
-
-      return
-    }
-
-    // ------------------------------
-    // Prompt if we didn't find anything
-    const modlistPath = await dialog.showOpenDialog(mainWindow, {
-      title: 'Find location of Factorio mods directory',
-      properties: ['openDirectory'],
-    })
-
-    console.log('GOT THING', modlistPath)
-
-    if (modlistPath) {
-      if (modlistPath.canceled) {
-        log.info('User canceled dialog window', { namespace: 'main.app_manager.findFactorioModPath' })
-      } else {
-        log.info('paths.modDir found with user prompt', { namespace: 'main.app_manager.findFactorioModPath' })
-        log.debug(`Exiting function, retval: ${modlistPath.filePaths[0]}`, { namespace: 'main.app_manager.findFactorioModPath' })
-        return modlistPath.filePaths[0]
-      }
-    }
-
-    log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioModPath' })
-  }
-
-  async findFactorioSavesPath (mainWindow, auto = false) {
-    log.debug('Entering function', { namespace: 'main.app_manager.findFactorioSavesPath' })
-
-    if (auto) {
-      // Compile a list of what I guess are common paths
-      const paths = pathGuesses.saveDir
-
-      for (let i = 0, length = paths.length; i < length; i++) {
-        try {
-          if (fs.existsSync(paths[i])) {
-            log.info('paths.saveDir found with automatic search', { namespace: 'main.app_manager.findFactorioSavesPath' })
-            log.debug(`Exiting function, retval: ${path.join(paths[i])}`, { namespace: 'main.app_manager.findFactorioSavesPath' })
-
-            return path.join(paths[i])
-          }
-        } catch (error) {
-          if (error.code !== 'ENOENT') {
-            log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioSavesPath' })
-            return
-          }
-        }
-      }
-
-      return
-    }
-
-    // ------------------------------
-    // Prompt if we didn't find anything
-    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-      title: 'Find location of Factorio mods directory',
-      properties: ['openDirectory'],
-    })
-
-    if (!canceled || !filePaths.length) {
-      if (canceled) {
-        log.info('User canceled dialog window', { namespace: 'main.app_manager.findFactorioSavesPath' })
-      } else {
-        log.info('paths.saveDir found with user prompt', { namespace: 'main.app_manager.findFactorioSavesPath' })
-        log.debug(`Exiting function, retval: ${filePaths[0]}`, { namespace: 'main.app_manager.findFactorioSavesPath' })
-        return filePaths[0]
-      }
-    }
-
-    log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioSavesPath' })
-  }
-
-  async findFactorioPlayerData (mainWindow, auto = false) {
-    log.debug(`Entering function`, { namespace: 'main.app_manager.findFactorioPlayerData' })
-
-    if (auto) {
-      // Compile a list of what I guess are common paths
-      const paths = pathGuesses.playerDataFile
-
-      for (let i = 0, length = paths.length; i < length; i++) {
-        try {
-          if (fs.existsSync(paths[i])) {
-            log.info('paths.playerDataFile found with automatic search', { namespace: 'main.app_manager.findFactorioPlayerData' })
-            log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.findFactorioPlayerData' })
-            return paths[i]
-          }
-        } catch (error) {
-          if (error.code !== 'ENOENT') {
-            log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioPlayerData' })
-            return
-          }
-        }
-      }
-
-      return
-    }
-
-    const playerDataPath = await dialog.showOpenDialog(mainWindow, {
-      title: 'Find location of player-data.json file',
-      properties: ['openFile'],
-      filters: [{
-        name: 'Factorio Player Data',
-        extensions: ['json'],
-      }],
-    })
-
-    if (playerDataPath) {
-      if (playerDataPath.canceled) {
-        log.info('User canceled dialog window', { namespace: 'main.app_manager.findFactorioPlayerData' })
-      } else {
-        log.info('paths.playerDataFile found with user prompt', { namespace: 'main.app_manager.findFactorioPlayerData' })
-        log.debug(`Exiting function, retval: ${playerDataPath.filePaths[0]}`, { namespace: 'main.app_manager.findFactorioPlayerData' })
-        return playerDataPath.filePaths[0]
-      }
-    }
-
-    log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioPlayerData' })
+    log.debug(`Exiting function`, { namespace: 'main.app_manager.promptForPath' })
   }
 
   async retrievePlayerData (mainWindow) {
