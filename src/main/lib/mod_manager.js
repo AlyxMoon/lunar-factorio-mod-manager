@@ -3,7 +3,6 @@ import path from 'path'
 import { promisify } from 'util'
 import jsZip from 'jszip'
 import fetch from 'node-fetch'
-import os from 'os'
 
 import {
   config as store,
@@ -20,22 +19,18 @@ export default class ModManager {
     const modsPath = store.get('paths.modDir')
     if (!modsPath) {
       log.error('Path to Factorio mods was not set when trying to retrieve mods', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
-      throw new Error('Unable to get mods as the Factorio mods path has not been set.')
+      return
     }
 
-    const factorioPath = store.get('paths.factorioExe')
-    if (!factorioPath) {
+    const factoryDataDir = store.get('paths.factorioDataDir')
+    if (!factoryDataDir) {
       log.error('Path to the Factorio bin folder was not set when trying to retrieve mods', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
-      throw new Error('Unable to get base mod info as the Factorio path has not been set.')
     }
 
     const installedMods = []
 
     try {
-      const baseModPath = os.platform() === 'darwin'
-        ? path.join(factorioPath, '../../../Contents/data/base/info.json')
-        : path.join(factorioPath, '../../../data/base/info.json')
-
+      const baseModPath = path.join(factoryDataDir, '/base/info.json')
       const baseModData = await promisify(fs.readFile)(baseModPath, 'utf8')
 
       installedMods.push(JSON.parse(baseModData))
@@ -44,23 +39,26 @@ export default class ModManager {
       log.info('Factorio base mod has been parsed and stored in the app.', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
     } catch (error) {
       log.error(`Error when loading base mod data: ${error.message}`, { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
-      throw error
+      return
     }
 
     try {
       const filesInDirectory = await promisify(fs.readdir)(modsPath, 'utf8')
-      installedMods.push(...await Promise.all(filesInDirectory.filter(elem => elem.slice(-4) === '.zip').map(async (mod) => {
-        const buffer = await promisify(fs.readFile)(path.join(modsPath, mod))
-        const zip = await jsZip.loadAsync(buffer)
-        const modData = await zip.file(/info\.json/)[0].async('text')
-        return JSON.parse(modData)
-      })))
+      const modFiles = filesInDirectory.filter(elem => elem.slice(-4) === '.zip')
 
-      log.info(`Installed mods have been parsed. Mod count: ${installedMods.length - 1}`, { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
+      for (const file of modFiles) {
+        try {
+          installedMods.push(await this.getModDataFromZip(file))
+        } catch (error) {
+          log.error(`Error when parsing a mod file | mod: ${file} | error: ${error.message}`, { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
+        }
+      }
     } catch (error) {
       log.error(`Error when loading installed mods: ${error.message}`, { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
       throw error
     }
+
+    log.info(`Installed mods have been parsed. Mod count: ${installedMods.length - 1}`, { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
 
     store.set('mods.installed', installedMods)
     log.info('Installed mods have been stored in the app. Parsing dependencies next.', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
@@ -187,5 +185,26 @@ export default class ModManager {
 
     log.debug('Leaving function', { namespace: 'main.mod_manager.fetchOnlineModDetailedInfo' })
     return mods[index]
+  }
+
+  async getModDataFromZip (filepath) {
+    if (!filepath) return
+    const modsPath = store.get('paths.modDir')
+
+    let buffer, zip
+
+    try {
+      buffer = await promisify(fs.readFile)(path.join(modsPath, filepath))
+      zip = await jsZip.loadAsync(buffer)
+    } catch (error) {
+      throw new Error(`Could not read the zip file, it may be corrupted or exist, ${error.message}`)
+    }
+
+    const infoFile = await zip.file(/info\.json/)[0]
+    if (!infoFile) throw new Error('There was no info.json in the provided zip file')
+
+    const modData = await infoFile.async('text')
+
+    return JSON.parse(modData)
   }
 }
