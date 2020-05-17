@@ -55,6 +55,7 @@ export default {
 <style lang="scss" scoped>
 .container-wrapper {
   position: fixed;
+  z-index: 2;
   top: 0;
   bottom: 0;
   left: 0;
