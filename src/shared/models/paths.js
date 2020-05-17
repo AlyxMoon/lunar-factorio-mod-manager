@@ -2,16 +2,19 @@ export default {
   type: 'object',
   default: {},
   properties: {
-    factorio: {
+    factorioDataDir: {
       type: 'string',
     },
-    mods: {
+    factorioExe: {
       type: 'string',
     },
-    playerData: {
+    modDir: {
       type: 'string',
     },
-    saves: {
+    playerDataFile: {
+      type: 'string',
+    },
+    saveDir: {
       type: 'string',
     },
   },

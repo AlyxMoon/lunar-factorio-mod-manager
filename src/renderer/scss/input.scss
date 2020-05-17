@@ -84,6 +84,9 @@ form {
     background-color: $background-secondary-color;
     height: 34px;
     padding: 0 20px;
+
+    color: white;
+    font-weight: normal;
   }
 
   .input-group {
@@ -93,7 +96,6 @@ form {
     flex-wrap: wrap;
 
     border-top-right-radius: 4px;
-    overflow: hidden;
 
     &:not(:first-of-type) {
       margin-top: 10px;

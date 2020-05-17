@@ -125,7 +125,7 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 import PanelMenu from './partials/PanelMenu'
 import PanelContent from './partials/PanelContent'
 import PanelContainer from './partials/PanelContainer'
-import { svgSearch, svgX } from './partials/SVG'
+import { svgSearch, svgX } from './svg'
 
 export default {
   name: 'OnlineModsList',

@@ -1,7 +1,8 @@
 import path from 'path'
 import { createLogger, format, transports } from 'winston'
-import { app } from 'electron'
+import electron from 'electron'
 
+const app = (electron.app || electron.remote.app)
 const logPath = path.join(app.getPath('userData'), 'logs')
 
 const customFormat = format.printf(info => {

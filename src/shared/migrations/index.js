@@ -1,8 +1,10 @@
 import { copyFileSync, existsSync, mkdirSync, unlinkSync } from 'fs'
 import { join } from 'path'
-import { app } from 'electron'
+import electron from 'electron'
 
-import logger from '@lib/logger'
+import logger from '@shared/logger'
+
+const app = (electron.app || electron.remote.app)
 
 export const config = {
   '>=2.1.1': store => {
@@ -32,6 +34,27 @@ export const config = {
       store.set('options.onlinePollingInterval', 1)
 
       logger.info('Finished store migration >=2.1.1')
+    } catch (error) {
+      logger.error(`Error during migration: ${error.message}`)
+      throw error
+    }
+  },
+  '>=2.2.0': store => {
+    logger.info('Beginning store migration >=2.2.0')
+
+    try {
+      logger.info('updating path naming scheme')
+
+      const existingPaths = store.get('paths', {})
+      store.set('paths', {
+        factorioDataDir: '',
+        factorioExe: existingPaths.factorio || '',
+        modDir: existingPaths.mods || '',
+        playerDataFile: existingPaths.playerData || '',
+        saveDir: existingPaths.saves || '',
+      })
+
+      logger.info('Finished store migration >=2.2.0')
     } catch (error) {
       logger.error(`Error during migration: ${error.message}`)
       throw error

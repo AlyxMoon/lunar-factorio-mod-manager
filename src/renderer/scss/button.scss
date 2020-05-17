@@ -21,7 +21,7 @@ button, .btn {
   transition-duration: 0.2s;
   transition-timing-function: linear;
 
-  &:hover {
+  &:hover:not(:disabled):not(.disabled) {
     background-color: darken($highlight-color, 9);
     box-shadow: 0 0 7px 2px $element-shadow-color;
   }
@@ -57,7 +57,7 @@ button, .btn {
     box-shadow: none;
   }
 
-  &:disabled {
+  &:disabled, &.disabled {
     background-color: $background-secondary-color;
     border-color: rgba(0, 0, 0, 0);
     box-shadow: 0 0 2px 2px $element-shadow-color;

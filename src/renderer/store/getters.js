@@ -3,7 +3,7 @@ import { remote } from 'electron'
 import {
   isVersionHigher,
   parseModDependencies,
-} from 'src/shared/util'
+} from '@shared/util'
 
 const { app: { getVersion } } = remote
 
@@ -11,9 +11,17 @@ export const appVersion = (state) => {
   return getVersion()
 }
 
+export const canStartFactorio = (state) => {
+  return state.paths && state.paths.factorioExe
+}
+
+export const canLoadSaves = (state) => {
+  return state.paths && state.paths.saveDir
+}
+
 export const currentProfile = (state) => {
-  if (state.profiles && state.profiles.length > 0 && state.activeProfile >= 0) {
-    return state.profiles[state.activeProfile]
+  if (state.profiles && state.profiles.length > 0 && state.profileSelected >= 0) {
+    return state.profiles[state.profileSelected]
   }
 }
 
@@ -26,7 +34,7 @@ export const selectedSave = (state) => {
 }
 
 export const isModMissingDependenciesInActiveProfile = (state) => (modName) => {
-  const profile = state.profiles[state.activeProfile]
+  const profile = state.profiles[state.profileSelected]
   if (!profile) return
 
   const installedMods = state.installedMods

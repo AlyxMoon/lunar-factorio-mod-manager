@@ -34,3 +34,19 @@
     transform: translateX(0);
   }
 }
+
+.fade-right {
+  &-enter-active, &-leave-active {
+    transition: all 0.4s;
+  }
+
+  &-enter, &-leave-to {
+    opacity: 0;
+    transform: translateX(5px);
+  }
+
+  &-enter-to, &-leave {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
