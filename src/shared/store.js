@@ -1,9 +1,11 @@
 import Store from 'electron-store'
 
+import packageData from '@/../../package.json'
 import * as migrations from '@shared/migrations'
 import schema from '@shared/models'
 
 const configSchema = {
+  meta: schema.meta,
   mods: schema.mods,
   options: schema.options,
   profiles: schema.profiles,
@@ -18,6 +20,8 @@ export const config = new Store({
 
   migrations: migrations.config,
   schema: configSchema,
+  projectVersion: packageData.version,
+  watch: true,
 })
 
 export const onlineModsCache = new Store({
@@ -27,6 +31,13 @@ export const onlineModsCache = new Store({
 
   migrations: migrations.onlineModsCache,
   schema: schema.onlineModsCache,
+  projectVersion: packageData.version,
+  watch: true,
 })
+
+// Workaround for an issue with app version 2.2.0 where migrations were being set incorrectly with the electron-store version of 5.1.1, causing migrations to only be run a single time until config was reset
+if (config.get('__internal__.migrations.version') === '5.1.1') {
+  config.delete('__internal__.migrations')
+}
 
 export default config

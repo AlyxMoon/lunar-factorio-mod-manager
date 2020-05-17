@@ -100,7 +100,7 @@ export default {
   computed: {
     ...mapState({
       profiles: state => state.profiles,
-      activeProfileIndex: state => state.activeProfile,
+      activeProfileIndex: state => state.profileSelected,
       selectedMod: state => state.selectedMod || {},
     }),
     ...mapGetters(['currentProfile', 'isModMissingDependenciesInActiveProfile']),

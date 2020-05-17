@@ -6,70 +6,41 @@ import { spawn } from 'child_process'
 import { app, dialog, ipcMain } from 'electron'
 import fetch from 'node-fetch'
 
-import store from '@lib/store'
-import log from './logger'
+import store from '@shared/store'
+import log from '@shared/logger'
+import pathGuesses from '@/data/path-guesses'
 
 export default class AppManager {
   async init (mainWindow) {
     log.debug('Entered function', { namespace: 'main.app_manager.init' })
 
-    if (!store.get('paths.factorio')) {
-      log.info('paths.factorio not found in config', { namespace: 'main.app_manager.init' })
-      const thePath = await this.findFactorioPath(mainWindow)
-      if (thePath) {
-        log.info(`paths.factorio was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
-        store.set('paths.factorio', thePath)
-      } else {
-        log.error('paths.factorio could not be retrieved', { namespace: 'main.app_manager.init' })
-      }
+    if (!store.get('meta.firstRun')) {
+      await this.initiateFirstRun(mainWindow)
     } else {
-      log.info('Found paths.factorio in config', { namespace: 'main.app_manager.init' })
+      await this.retrievePlayerData(mainWindow)
+      await this.configureEventListeners()
     }
-
-    if (!store.get('paths.mods')) {
-      log.info('paths.mods not found in config', { namespace: 'main.app_manager.init' })
-      const thePath = await this.findFactorioModPath(mainWindow)
-      if (thePath) {
-        log.info(`paths.mods was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
-        store.set('paths.mods', thePath)
-      } else {
-        log.error('paths.mods could not be retrieved', { namespace: 'main.app_manager.init' })
-      }
-    } else {
-      log.info('Found paths.mods in config', { namespace: 'main.app_manager.init' })
-    }
-
-    if (!store.get('paths.saves')) {
-      log.info('paths.saves not found in config', { namespace: 'main.app_manager.init' })
-      const thePath = await this.findFactorioSavesPath(mainWindow)
-      if (thePath) {
-        log.info(`paths.saves was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
-        store.set('paths.saves', thePath)
-      } else {
-        log.error('paths.saves could not be retrieved', { namespace: 'main.app_manager.init' })
-      }
-    } else {
-      log.info('Found paths.saves in config', { namespace: 'main.app_manager.init' })
-    }
-
-    if (!store.get('paths.playerData')) {
-      log.info('paths.playerData not found in config', { namespace: 'main.app_manager.init' })
-      const thePath = await this.findFactorioPlayerData(mainWindow)
-      if (thePath) {
-        log.info(`paths.playerData was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
-        store.set('paths.playerData', thePath)
-      } else {
-        log.error('paths.playerData could not be retrieved', { namespace: 'main.app_manager.init' })
-      }
-    } else {
-      log.info('Found paths.playerData in config', { namespace: 'main.app_manager.init' })
-    }
-
-    await this.retrievePlayerData(mainWindow)
-
-    await this.configureEventListeners()
 
     log.debug('Leaving function', { namespace: 'main.app_manager.init' })
+  }
+
+  async initiateFirstRun (mainWindow) {
+    const paths = store.get('paths')
+
+    for (const type in pathGuesses) {
+      if (!paths[type]) {
+        log.info(`paths.${type} not found in config`, { namespace: 'main.app_manager.init' })
+        const thePath = await this.attemptToFindPath(type)
+        if (thePath) {
+          log.info(`paths.${type} was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
+          store.set(`paths.${type}`, thePath)
+        }
+      } else {
+        log.info(`Found paths.${type} in config`, { namespace: 'main.app_manager.init' })
+      }
+    }
+
+    mainWindow.webContents.send('CHANGE_PAGE', 'PageFirstRun')
   }
 
   async configureEventListeners () {
@@ -83,257 +54,108 @@ export default class AppManager {
     log.debug('Leaving function', { namespace: 'main.app_manager.configureEventListeners' })
   }
 
-  async findFactorioPath (mainWindow, forceManual = false) {
-    log.debug('Entering function', { namespace: 'main.app_manager.findFactorioPath' })
+  async attemptToFindPath (type) {
+    log.debug('Entering function', { namespace: 'main.app_manager.attemptToFindPath' })
 
-    if (!forceManual) {
-      // Compile a list of what I guess are common paths
-      const paths = []
-      switch (os.platform()) {
-        case 'win32':
-          paths.push(path.join('C:\\', 'Program Files', 'Factorio', 'bin', 'Win32', 'factorio.exe'))
-          paths.push(path.join('C:\\', 'Program Files', 'Factorio', 'bin', 'x64', 'factorio.exe'))
-          paths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'bin', 'Win32', 'factorio.exe'))
-          paths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'bin', 'x64', 'factorio.exe'))
-          paths.push(path.join('C:\\', 'Program Files', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'Win32', 'factorio.exe'))
-          paths.push(path.join('C:\\', 'Program Files', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'x64', 'factorio.exe'))
-          paths.push(path.join('C:\\', 'Program Files (x86)', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'Win32', 'factorio.exe'))
-          paths.push(path.join('C:\\', 'Program Files (x86)', 'Steam', 'SteamApps', 'common', 'Factorio', 'bin', 'x64', 'factorio.exe'))
-          break
-        case 'linux':
-          paths.push(path.join(app.getPath('home'), '.steam/steam/steamapps/common/Factorio/bin/x64/factorio'))
-          paths.push(path.join(app.getPath('home'), '.steam/steam/steamapps/common/Factorio/bin/i386/factorio'))
-          paths.push(path.join(app.getPath('home'), '.factorio', 'bin', 'x64', 'factorio'))
-          paths.push(path.join(app.getPath('home'), 'factorio', 'bin', 'i386', 'factorio'))
-          break
-        case 'darwin':
-          paths.push(path.join(app.getPath('home'), 'Library', 'Application Support', 'Steam', 'steamapps', 'common', 'Factorio', 'factorio.app', 'Contents', 'MacOS', 'factorio'))
-          break
-      }
+    if (!['factorioDataDir', 'factorioExe', 'modDir', 'playerDataFile', 'saveDir'].includes(type)) {
+      log.error(`Incorrect path type passed: ${type}`, { namespace: 'main.app_manager.attemptToFindPath' })
+      return
+    }
 
-      log.debug('Starting loop to automatically find paths.factorio', { namespace: 'main.app_manager.findFactorioPath' })
-      for (let i = 0, length = paths.length; i < length; i++) {
-        try {
-          if (fs.existsSync(paths[i])) {
-            log.info('paths.factorio found with automatic search', { namespace: 'main.app_manager.findFactorioPath' })
-            log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.findFactorioPath' })
-            return paths[i]
-          }
-        } catch (error) {
-          if (error.code !== 'ENOENT') {
-            log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioPath' })
-            return
-          }
+    const paths = pathGuesses[type]
+
+    log.debug(`Starting loop to automatically find paths.${type}`, { namespace: 'main.app_manager.attemptToFindPath' })
+    for (let i = 0, length = paths.length; i < length; i++) {
+      try {
+        if (fs.existsSync(paths[i])) {
+          log.info(`paths.${type} found with automatic search`, { namespace: 'main.app_manager.attemptToFindPath' })
+          log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.attemptToFindPath' })
+
+          return paths[i]
+        }
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.attemptToFindPath' })
+          return
         }
       }
     }
 
-    // ------------------------------
-    // Prompt if file was not found automatically
+    log.info(`Was not able to find paths.${type} with automatic search`, { namespace: 'main.app_manager.attemptToFindPath' })
+    log.debug(`Exiting function`, { namespace: 'main.app_manager.attemptToFindPath' })
+  }
 
+  async promptForPath (mainWindow, type) {
+    log.debug('Entering function', { namespace: 'main.app_manager.promptForPath' })
+
+    if (!['factorioDataDir', 'factorioExe', 'modDir', 'playerDataFile', 'saveDir'].includes(type)) {
+      log.error(`Incorrect path type passed: ${type}`, { namespace: 'main.app_manager.promptForPath' })
+      return
+    }
+
+    let options = {}
     const extensions = []
+
     if (os.platform() === 'win32') extensions.push('exe')
     if (os.platform() === 'linux') extensions.push('*')
     if (os.platform() === 'darwin') extensions.push('app')
 
-    const gamePath = await dialog.showOpenDialog(mainWindow, {
-      title: 'Find location of Factorio executable file',
-      properties: ['openFile'],
-      filters: [{
-        name: 'Factorio Executable',
-        extensions,
-      }],
-    })
+    if (type === 'factorioDataDir') {
+      options = {
+        title: 'Find location of Factorio data folder',
+        properties: ['openDirectory'],
+      }
+    }
+
+    if (type === 'factorioExe') {
+      options = {
+        title: 'Find location of Factorio executable file',
+        properties: ['openFile'],
+        filters: [{
+          name: 'Factorio Executable',
+          extensions,
+        }],
+      }
+    }
+
+    if (type === 'modDir') {
+      options = {
+        title: 'Find location of Factorio mods directory',
+        properties: ['openDirectory'],
+      }
+    }
+
+    if (type === 'playerDataFile') {
+      options = {
+        title: 'Find location of player-data.json file',
+        properties: ['openFile'],
+        filters: [{
+          name: 'Factorio Player Data',
+          extensions: ['json'],
+        }],
+      }
+    }
+
+    if (type === 'saveDir') {
+      options = {
+        title: 'Find location of Factorio saves directory',
+        properties: ['openDirectory'],
+      }
+    }
+
+    const gamePath = await dialog.showOpenDialog(mainWindow, options)
 
     if (gamePath) {
       if (gamePath.canceled) {
-        log.info('User canceled dialog window', { namespace: 'main.app_manager.findFactorioPath' })
+        log.info('User canceled dialog window', { namespace: 'main.app_manager.promptForPath' })
       } else {
-        log.info('paths.factorio found with user prompt', { namespace: 'main.app_manager.findFactorioPath' })
-        log.debug(`Exiting function, retval: ${gamePath.filePaths[0]}`, { namespace: 'main.app_manager.findFactorioPath' })
+        log.info(`paths.${type} found with user prompt`, { namespace: 'main.app_manager.promptForPath' })
+        log.debug(`Exiting function, retval: ${gamePath.filePaths[0]}`, { namespace: 'main.app_manager.promptForPath' })
         return gamePath.filePaths[0]
       }
     }
 
-    log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioPath' })
-  }
-
-  async findFactorioModPath (mainWindow, forceManual = false) {
-    log.debug('Entering function', { namespace: 'main.app_manager.findFactorioModPath' })
-
-    if (!forceManual) {
-      // Compile a list of what I guess are common paths
-      const paths = []
-      switch (os.platform()) {
-        case 'win32':
-          paths.push(path.join(app.getPath('appData'), 'Factorio', 'mods', 'mod-list.json'))
-          paths.push(path.join('C:\\', 'Program Files', 'Factorio', 'mods', 'mod-list.json'))
-          paths.push(path.join('C:\\', 'Program Files (x86)', 'Factorio', 'mods', 'mod-list.json'))
-          break
-        case 'linux':
-          paths.push(path.join(app.getPath('home'), '.factorio', 'mods', 'mod-list.json'))
-          paths.push(path.join(app.getPath('home'), 'factorio', 'mods', 'mod-list.json'))
-          break
-        case 'darwin':
-          paths.push(path.join(app.getPath('home'), 'Library', 'Application Support', 'factorio', 'mods', 'mod-list.json'))
-          break
-      }
-
-      for (let i = 0, length = paths.length; i < length; i++) {
-        try {
-          if (fs.existsSync(paths[i])) {
-            log.info('paths.mods found with automatic search', { namespace: 'main.app_manager.findFactorioModPath' })
-            log.debug(`Exiting function, retval: ${path.join(paths[i], '..')}`, { namespace: 'main.app_manager.findFactorioModPath' })
-            return path.join(paths[i], '..')
-          }
-        } catch (error) {
-          if (error.code !== 'ENOENT') {
-            log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioModPath' })
-            return
-          }
-        }
-      }
-    }
-
-    // ------------------------------
-    // Prompt if we didn't find anything
-    const modlistPath = await dialog.showOpenDialog(mainWindow, {
-      title: 'Find location of Factorio mods directory',
-      properties: ['openDirectory'],
-    })
-
-    if (modlistPath) {
-      if (modlistPath.canceled) {
-        log.info('User canceled dialog window', { namespace: 'main.app_manager.findFactorioModPath' })
-      } else {
-        log.info('paths.mods found with user prompt', { namespace: 'main.app_manager.findFactorioModPath' })
-        log.debug(`Exiting function, retval: ${modlistPath.filePaths[0]}`, { namespace: 'main.app_manager.findFactorioModPath' })
-        return modlistPath.filePaths[0]
-      }
-    }
-
-    log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioModPath' })
-  }
-
-  async findFactorioSavesPath (mainWindow, forceManual = false) {
-    log.debug('Entering function', { namespace: 'main.app_manager.findFactorioSavesPath' })
-
-    if (!forceManual) {
-      // Compile a list of what I guess are common paths
-      const paths = []
-      switch (os.platform()) {
-        case 'win32':
-          paths.push(
-            path.join(app.getPath('appData'), 'Factorio/saves'),
-            path.join('C:\\', 'Program Files/Factorio/saves'),
-            path.join('C:\\', 'Program Files (x86)/Factorio/saves'),
-          )
-          break
-        case 'linux':
-          paths.push(
-            path.join(app.getPath('home'), '.factorio/saves'),
-            path.join(app.getPath('home'), 'factorio/saves'),
-          )
-          break
-        case 'darwin':
-          paths.push(
-            path.join(app.getPath('home'), 'Library/Application Support/factorio/saves'),
-          )
-          break
-      }
-
-      for (let i = 0, length = paths.length; i < length; i++) {
-        try {
-          if (fs.existsSync(paths[i])) {
-            log.info('paths.saves found with automatic search', { namespace: 'main.app_manager.findFactorioSavesPath' })
-            log.debug(`Exiting function, retval: ${path.join(paths[i])}`, { namespace: 'main.app_manager.findFactorioSavesPath' })
-            return path.join(paths[i])
-          }
-        } catch (error) {
-          if (error.code !== 'ENOENT') {
-            log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioSavesPath' })
-            return
-          }
-        }
-      }
-    }
-
-    // ------------------------------
-    // Prompt if we didn't find anything
-    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-      title: 'Find location of Factorio mods directory',
-      properties: ['openDirectory'],
-    })
-
-    if (!canceled || !filePaths.length) {
-      if (canceled) {
-        log.info('User canceled dialog window', { namespace: 'main.app_manager.findFactorioSavesPath' })
-      } else {
-        log.info('paths.saves found with user prompt', { namespace: 'main.app_manager.findFactorioSavesPath' })
-        log.debug(`Exiting function, retval: ${filePaths[0]}`, { namespace: 'main.app_manager.findFactorioSavesPath' })
-        return filePaths[0]
-      }
-    }
-
-    log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioSavesPath' })
-  }
-
-  async findFactorioPlayerData (mainWindow, forceManual = false) {
-    log.debug(`Entering function`, { namespace: 'main.app_manager.findFactorioPlayerData' })
-
-    if (!forceManual) {
-      // Compile a list of what I guess are common paths
-      const paths = []
-      switch (os.platform()) {
-        case 'win32':
-          paths.push(path.join(app.getPath('appData'), 'Factorio', 'player-data.json'))
-          paths.push(path.join(app.getPath('appData'), 'Factorio', 'config', 'player-data.json'))
-          break
-        case 'linux':
-          paths.push(path.join(app.getPath('home'), '.factorio', 'player-data.json'))
-          paths.push(path.join(app.getPath('home'), 'factorio', 'player-data.json'))
-          break
-        case 'darwin':
-          paths.push(path.join(app.getPath('home'), 'Library', 'Application Support', 'factorio', 'player-data.json'))
-          break
-      }
-
-      for (let i = 0, length = paths.length; i < length; i++) {
-        try {
-          if (fs.existsSync(paths[i])) {
-            log.info('paths.playerData found with automatic search', { namespace: 'main.app_manager.findFactorioPlayerData' })
-            log.debug(`Exiting function, retval: ${paths[i]}`, { namespace: 'main.app_manager.findFactorioPlayerData' })
-            return paths[i]
-          }
-        } catch (error) {
-          if (error.code !== 'ENOENT') {
-            log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.findFactorioPlayerData' })
-            return
-          }
-        }
-      }
-    }
-
-    const playerDataPath = await dialog.showOpenDialog(mainWindow, {
-      title: 'Find location of player-data.json file',
-      properties: ['openFile'],
-      filters: [{
-        name: 'Factorio Player Data',
-        extensions: ['json'],
-      }],
-    })
-
-    if (playerDataPath) {
-      if (playerDataPath.canceled) {
-        log.info('User canceled dialog window', { namespace: 'main.app_manager.findFactorioPlayerData' })
-      } else {
-        log.info('paths.playerData found with user prompt', { namespace: 'main.app_manager.findFactorioPlayerData' })
-        log.debug(`Exiting function, retval: ${playerDataPath.filePaths[0]}`, { namespace: 'main.app_manager.findFactorioPlayerData' })
-        return playerDataPath.filePaths[0]
-      }
-    }
-
-    log.debug(`Exiting function`, { namespace: 'main.app_manager.findFactorioPlayerData' })
+    log.debug(`Exiting function`, { namespace: 'main.app_manager.promptForPath' })
   }
 
   async retrievePlayerData (mainWindow) {
@@ -343,9 +165,9 @@ export default class AppManager {
     if (!player.username || !player.token) {
       log.info('username/token has not been set yet, attempting to retrieve', { namespace: 'main.app_manager.retrievePlayerData' })
 
-      const playerDataPath = store.get('paths.playerData')
+      const playerDataPath = store.get('paths.playerDataFile')
       if (!playerDataPath) {
-        log.error('Unable to retrieve player data, paths.playerData not set', { namespace: 'main.app_manager.retrievePlayerData' })
+        log.error('Unable to retrieve player data, paths.playerDataFile not set', { namespace: 'main.app_manager.retrievePlayerData' })
         return
       }
 
@@ -406,7 +228,7 @@ export default class AppManager {
     }, null, 4)
 
     try {
-      fs.writeFileSync(path.join(store.get('paths.mods'), 'mod-list.json'), modListData)
+      fs.writeFileSync(path.join(store.get('paths.modDir'), 'mod-list.json'), modListData)
       log.info('Successfully updated mod-list.json file', { namespace: 'main.app_manager.updateModListJSON' })
     } catch (error) {
       log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.updateModListJSON' })
@@ -419,9 +241,9 @@ export default class AppManager {
   async startFactorio () {
     log.debug(`Entering function`, { namespace: 'main.app_manager.startFactorio' })
 
-    const factorioPath = store.get('paths.factorio')
+    const factorioPath = store.get('paths.factorioExe')
     if (!factorioPath) {
-      log.error('paths.factorio not in config, unable to start game', { namespace: 'main.app_manager.startFactorio' })
+      log.error('paths.factorioExe not in config, unable to start game', { namespace: 'main.app_manager.startFactorio' })
       return
     }
 

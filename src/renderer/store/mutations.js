@@ -1,13 +1,17 @@
-export const SET_PLAYER_USERNAME = (state, payload) => {
-  state.username = payload.username
+export const SET_APP_STATUS = (state, { firstTime }) => {
+  state.appStatus.firstTime = firstTime
 }
 
-export const SET_INSTALLED_MODS = (state, payload) => {
-  state.installedMods = payload.installedMods
+export const SET_PLAYER_USERNAME = (state, { username }) => {
+  state.username = username
 }
 
-export const SET_ONLINE_MODS = (state, payload) => {
-  state.onlineMods = payload.onlineMods
+export const SET_INSTALLED_MODS = (state, { installedMods }) => {
+  state.installedMods = installedMods
+}
+
+export const SET_ONLINE_MODS = (state, { onlineMods }) => {
+  state.onlineMods = onlineMods
 }
 
 export const SET_SAVES = (state, { saves = null } = {}) => {
@@ -15,12 +19,12 @@ export const SET_SAVES = (state, { saves = null } = {}) => {
   state.selectedSave = null
 }
 
-export const SET_ACTIVE_PROFILE = (state, payload) => {
-  state.activeProfile = payload.activeProfile
+export const SET_ACTIVE_PROFILE = (state, { profileSelected }) => {
+  state.profileSelected = profileSelected
 }
 
-export const SET_PROFILES = (state, payload) => {
-  state.profiles = payload.profiles
+export const SET_PROFILES = (state, { profiles }) => {
+  state.profiles = profiles
 }
 
 export const SET_CURRENT_ONLINE_MOD_FILTER = (state, payload) => {

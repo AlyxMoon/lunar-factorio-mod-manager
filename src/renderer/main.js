@@ -1,7 +1,5 @@
-import { ipcRenderer } from 'electron'
 import Vue from 'vue'
 import VueElectron from 'vue-electron'
-import { ADD_TOAST_MESSAGE } from 'vuex-toast'
 
 import App from './App'
 import router from './router'
@@ -26,65 +24,3 @@ new Vue({
   store,
   render: r => r(App),
 })
-
-ipcRenderer.on('CHANGE_VIEW', (event, data) => {
-  if (data.route) {
-    router.push(data.route)
-  }
-})
-
-ipcRenderer.on('ADD_TOAST', (event, data) => {
-  if (!data.text) return
-
-  const toastData = {
-    text: data.text,
-    type: data.type || 'success',
-    dismissAfter: data.dismissAfter || 8000,
-  }
-
-  store.dispatch(ADD_TOAST_MESSAGE, toastData)
-})
-
-ipcRenderer.on('PLAYER_USERNAME', (event, data) => {
-  store.commit('SET_PLAYER_USERNAME', { username: data })
-})
-
-ipcRenderer.on('INSTALLED_MODS', (event, data) => {
-  store.commit('SET_INSTALLED_MODS', { installedMods: data })
-  store.dispatch('selectInstalledMod', (store.state.selectedMod || { name: '' }).name)
-})
-
-ipcRenderer.on('ONLINE_MODS', (event, onlineMods) => {
-  store.commit('SET_ONLINE_MODS', { onlineMods })
-})
-
-ipcRenderer.on('FACTORIO_SAVES', (event, saves) => {
-  store.commit('SET_SAVES', { saves })
-})
-
-ipcRenderer.on('PROFILES_LIST', (event, profiles) => {
-  store.commit('SET_PROFILES', { profiles })
-})
-
-ipcRenderer.on('PROFILES_ACTIVE', (event, activeProfile) => {
-  store.commit('SET_ACTIVE_PROFILE', { activeProfile })
-})
-
-ipcRenderer.on('APP_OPTIONS', (event, options) => {
-  store.commit('UPDATE_OPTIONS', { options })
-})
-
-ipcRenderer.on('FACTORIO_PATHS', (event, paths) => {
-  store.commit('UPDATE_FACTORIO_PATHS', { paths })
-})
-
-if (isDev) {
-  // Normally won't need to call these events
-  // but during development if renderer code is reloaded then the app won't send info again and that's annoying
-  ipcRenderer.send('REQUEST_PLAYER_USERNAME')
-  ipcRenderer.send('REQUEST_INSTALLED_MODS')
-  ipcRenderer.send('REQUEST_ONLINE_MODS')
-  ipcRenderer.send('REQUEST_PROFILES')
-  ipcRenderer.send('REQUEST_OPTIONS')
-  ipcRenderer.send('REQUEST_FACTORIO_PATHS')
-}

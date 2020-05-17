@@ -8,10 +8,12 @@ import * as actions from './actions'
 import * as getters from './getters'
 import * as mutations from './mutations'
 
+import {
+  configureAppWatchers,
+  loadSavedState,
+} from './electron'
+
 const state = {
-  activeProfile: undefined,
-  installedMods: [],
-  onlineMods: [],
   saves: null,
   onlineModCategories: tags.map(tag => ({
     name: tag,
@@ -29,11 +31,9 @@ const state = {
   onlineModsPage: 0,
   onlineModsCurrentFilter: 'all',
   onlineModsCurrentSort: 'popular-most',
-  profiles: [],
   selectedMod: undefined,
   selectedOnlineMod: undefined,
   selectedSave: undefined,
-  username: '',
   onlineQuery: '',
   fetchingOnlineMod: false,
   modals: {
@@ -48,13 +48,19 @@ const state = {
     },
   },
   appLatestVersion: undefined,
-  paths: {},
-  options: {},
+
+  installedMods: undefined,
+  options: undefined,
+  paths: undefined,
+  profiles: undefined,
+  profileSelected: undefined,
+  username: undefined,
+  onlineMods: undefined,
 }
 
 Vue.use(Vuex)
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   actions,
   getters,
   mutations,
@@ -64,3 +70,8 @@ export default new Vuex.Store({
   },
   strict: process.env.NODE_ENV !== 'production',
 })
+
+loadSavedState(store)
+configureAppWatchers(store)
+
+export default store

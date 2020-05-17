@@ -45,10 +45,10 @@ const config = {
   resolve: {
     extensions: ['.js', '.json'],
     alias: {
-      '@': path.join(__dirname, '../src'),
-      '@src': path.join(__dirname, '../src'),
+      '@': path.join(__dirname, '../src/main'),
+      '@main': path.join(__dirname, '../src/main'),
+      '@renderer': path.join(__dirname, '../src/renderer'),
       '@shared': path.join(__dirname, '../src/shared'),
-      '@lib': path.join(__dirname, '../src/main/lib'),
     },
   },
   target: 'electron-main',

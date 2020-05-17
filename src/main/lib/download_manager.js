@@ -2,8 +2,8 @@ import fs from 'fs'
 import path from 'path'
 import { promisify } from 'util'
 
-import store from '@lib/store'
-import log from './logger'
+import store from '@shared/store'
+import log from '@shared/logger'
 
 export default class DownloadManager {
   constructor (webContents, modManager) {
@@ -47,7 +47,7 @@ export default class DownloadManager {
       title,
       link,
       existingModPath: existingMod
-        ? path.join(store.get('paths.mods'), `${existingMod.name}_${existingMod.version}.zip`)
+        ? path.join(store.get('paths.modDir'), `${existingMod.name}_${existingMod.version}.zip`)
         : '',
     })
     log.info(`Added download request to queue: ${name} v. ${version}`)
@@ -84,7 +84,7 @@ export default class DownloadManager {
   manageDownload (item) {
     log.debug('Entering function', { namespace: 'main.download_manager.manageDownload' })
 
-    const filePath = path.join(store.get('paths.mods'), item.getFilename())
+    const filePath = path.join(store.get('paths.modDir'), item.getFilename())
 
     item.setSavePath(filePath)
     item.once('done', async (event, state) => {
