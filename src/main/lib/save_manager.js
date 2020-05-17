@@ -13,16 +13,17 @@ export default class SaveManager {
     const savesPath = store.get('paths.saveDir')
     if (!savesPath) {
       log.error('Path to the saves folder was not set when trying to retrieve saves', { namespace: 'main.save_manager.retrieveFactorioSave' })
-      throw new Error('Unable to get saves info as the saves path has not been set.')
+      return
     }
 
     const saves = []
 
     try {
-      const savesInDirectory = await promisify(readdir)(savesPath, 'utf8')
-      saves.push(...await Promise.all(savesInDirectory
+      const savesInDirectory = (await promisify(readdir)(savesPath, 'utf8'))
         .filter(filename => filename.endsWith('.zip'))
-        .map(async (save) => {
+
+      await Promise.all(savesInDirectory.map(async (save) => {
+        try {
           const buffer = await promisify(readFile)(join(savesPath, save))
           const zip = await jsZip.loadAsync(buffer)
 
@@ -34,15 +35,23 @@ export default class SaveManager {
           const levelFile = await (await zip.file(/level\.dat/)[0]).async('nodebuffer')
           const { mods, scenario, version } = await this.parseLevelData(levelFile)
 
-          return {
+          saves.push({
             name: save.slice(0, save.indexOf('.zip')),
             preview: imageDataUrl,
             version,
             scenario,
             mods,
-          }
-        })
-      ))
+          })
+        } catch (error) {
+          log.error(`Could not read save file ${save}: ${error.message}`, { namespace: 'main.save_manager.retrieveFactorioSave' })
+        }
+      }))
+
+      saves.sort((a, b) => {
+        if (a.name < b.name) return -1
+        if (a.name > b.name) return 1
+        return 0
+      })
 
       log.info(`Saves have been parsed. Save count: ${saves.length}`, { namespace: 'main.save_manager.retrieveFactorioSave' })
     } catch (error) {
