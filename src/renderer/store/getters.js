@@ -15,6 +15,10 @@ export const canStartFactorio = (state) => {
   return state.paths && state.paths.factorioExe
 }
 
+export const canLoadSaves = (state) => {
+  return state.paths && state.paths.saveDir
+}
+
 export const currentProfile = (state) => {
   if (state.profiles && state.profiles.length > 0 && state.profileSelected >= 0) {
     return state.profiles[state.profileSelected]

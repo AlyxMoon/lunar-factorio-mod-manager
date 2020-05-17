@@ -7,24 +7,42 @@
       >
         Profiles
       </router-link>
+
       <router-link
+        v-if="canLoadSaves"
         to="/saves"
         class="btn"
       >
         Saves
       </router-link>
+
+      <div
+        v-else
+        class="btn disabled"
+      >
+        Saves
+        <tooltip
+          v-if="!canLoadSaves"
+          position="bottom"
+        >
+          The saves directory has not been provided, so this is disabled.
+        </tooltip>
+      </div>
+
       <router-link
         to="/portal"
         class="btn"
       >
         Mod Portal
       </router-link>
+
       <router-link
         to="/options"
         class="btn"
       >
         Options
       </router-link>
+
       <router-link
         to="/about"
         class="btn"
@@ -62,7 +80,7 @@ export default {
     Tooltip,
   },
   computed: {
-    ...mapGetters(['canStartFactorio']),
+    ...mapGetters(['canLoadSaves', 'canStartFactorio']),
   },
   methods: {
     ...mapActions(['startFactorio']),
@@ -72,6 +90,9 @@ export default {
 
 <style lang="scss" scoped>
 nav.navbar {
+  position: relative;
+  z-index: 2;
+
   height: $navbar-height-lg;
   width: 100%;
   padding: 5px;
@@ -126,9 +147,12 @@ nav.navbar {
     border-top-right-radius: 5px;
 
     user-select: none;
-    height: auto;
+    -webkit-user-drag: none;
 
-    &:hover {
+    height: auto;
+    margin: 0 1px;
+
+    &:hover:not(:disabled):not(.disabled) {
       border-color: $highlight-color;
       box-shadow: 0 0 3px 2px $highlight-color;
     }
@@ -140,7 +164,11 @@ nav.navbar {
 
       background-color: $background-secondary-color;
       color: $text-active-color;
+    }
 
+    &.disabled {
+      background-color: rgba($element-background-color, 0.5);
+      color: rgba($text-light-color, 0.5);
     }
   }
 }

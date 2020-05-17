@@ -63,7 +63,7 @@ $arrow-size: 20px;
 
   div {
     position: absolute;
-    z-index: 5;
+    z-index: 100;
 
     max-width: 90vw;
     width: 400px;
@@ -82,7 +82,7 @@ $arrow-size: 20px;
       content: "";
       display: block;
       position: absolute;
-      z-index: 5;
+      z-index: 100;
     }
 
     &.left {
@@ -113,6 +113,22 @@ $arrow-size: 20px;
           right: $arrow-size solid $background-primary-color;
           top: $arrow-size solid transparent;
           bottom: $arrow-size solid transparent;
+        }
+      }
+    }
+
+    &.bottom {
+      top: 30px;
+      left: -11px;
+
+      &:before {
+        top: -13px;
+        left: 0;
+
+        border: none {
+          bottom: $arrow-size solid $background-primary-color;
+          left: $arrow-size solid transparent;
+          right: $arrow-size solid transparent;
         }
       }
     }
