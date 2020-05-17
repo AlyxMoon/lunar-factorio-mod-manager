@@ -7,7 +7,7 @@ export default {
       type: 'boolean',
       default: true,
     },
-    // How long before last check of online mods before the app will check again. In milliseconds.
+    // How long before last check of online mods before the app will check again. In days.
     onlinePollingInterval: {
       type: 'number',
       default: 1,
