@@ -84,6 +84,7 @@ export default class ProfileManager {
     }
 
     log.debug('Exited function', { namespace: 'main.profile_manager.updateCurrentProfile' })
+    return profiles[active]
   }
 
   removeCurrentProfile () {
@@ -194,19 +195,22 @@ export default class ProfileManager {
   async createStarterProfiles () {
     log.debug('Entered function', { namespace: 'main.profile_manager.createStarterProfiles' })
 
-    const modsPath = store.get('paths.modDir')
-    if (!modsPath) {
+    const { modDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
+    if (!modDir) {
       log.error('modPath not set when creating profiles', { namespace: 'main.profile_manager.createStarterProfiles' })
-      throw new Error('Unable to create profiles as the Factorio mods path has not been set.')
+      return
     }
+
     const factorioVersion = store.get('mods.factorioVersion')
     if (!factorioVersion) {
       log.error('factorioVersion not set when creating profiles', { namespace: 'main.profile_manager.createStarterProfiles' })
-      throw new Error('Unable to create profiles as the Factorio version has not been set.')
+      return
     }
 
     const installedMods = store.get('mods.installed', [])
-    const { mods: modsList } = JSON.parse(await promisify(readFile)(join(modsPath, 'mod-list.json'), 'utf8'))
+    const { mods: modsList } = JSON.parse(
+      await promisify(readFile)(join(modDir, 'mod-list.json'), 'utf8')
+    )
 
     const enabledMods = modsList
       .filter(mod => mod.enabled)

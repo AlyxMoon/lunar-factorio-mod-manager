@@ -86,7 +86,7 @@
 import { join } from 'path'
 import { remote } from 'electron'
 
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 import Tooltip from '@/components/partials/Tooltip'
 
@@ -125,8 +125,11 @@ export default {
   computed: {
     ...mapState({
       options: 'options',
-      paths: 'paths',
     }),
+    ...mapGetters({
+      paths: 'currentEnvironmentPaths',
+    }),
+
     userDataPath () {
       return remote.app.getPath('userData')
     },

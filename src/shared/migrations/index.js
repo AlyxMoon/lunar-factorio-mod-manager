@@ -60,6 +60,37 @@ export const config = {
       throw error
     }
   },
+  '>=2.4.0': store => {
+    logger.info('Beginning store migration >=2.4.0')
+
+    if (!store.get('environments.list').length) {
+      const paths = store.get('paths')
+
+      store.set('environments', {
+        active: 0,
+        list: [{
+          name: 'default',
+          default: true,
+          paths,
+        }],
+      })
+
+      const profiles = store.get('profiles.list')
+      store.set('profiles.list', profiles.map(profile => ({
+        ...profile,
+        environment: 'default',
+      })))
+    }
+
+    store.delete('paths')
+
+    try {
+      logger.info('Finished store migration >=2.4.0')
+    } catch (error) {
+      logger.error(`Error during migration: ${error.message}`)
+      throw error
+    }
+  },
 }
 
 export const onlineModsCache = {}

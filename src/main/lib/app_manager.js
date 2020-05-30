@@ -25,21 +25,21 @@ export default class AppManager {
   }
 
   async initiateFirstRun (mainWindow) {
-    const paths = store.get('paths')
+    const environment = {
+      name: 'default',
+      default: true,
+      paths: {},
+    }
 
     for (const type in pathGuesses) {
-      if (!paths[type]) {
-        log.info(`paths.${type} not found in config`, { namespace: 'main.app_manager.init' })
-        const thePath = await this.attemptToFindPath(type)
-        if (thePath) {
-          log.info(`paths.${type} was retrieved, setting in config: ${thePath}`, { namespace: 'main.app_manager.init' })
-          store.set(`paths.${type}`, thePath)
-        }
-      } else {
-        log.info(`Found paths.${type} in config`, { namespace: 'main.app_manager.init' })
+      const thePath = await this.attemptToFindPath(type)
+      if (thePath) {
+        log.info(`paths.${type} was retrieved: ${thePath}`, { namespace: 'main.app_manager.init' })
+        environment.paths[type] = thePath
       }
     }
 
+    store.set('environments.list', [environment])
     mainWindow.webContents.send('CHANGE_PAGE', 'PageFirstRun')
   }
 
@@ -165,7 +165,7 @@ export default class AppManager {
     if (!player.username || !player.token) {
       log.info('username/token has not been set yet, attempting to retrieve', { namespace: 'main.app_manager.retrievePlayerData' })
 
-      const playerDataPath = store.get('paths.playerDataFile')
+      const playerDataPath = store.get(`environments.list.${store.get('environments.active')}`).paths
       if (!playerDataPath) {
         log.error('Unable to retrieve player data, paths.playerDataFile not set', { namespace: 'main.app_manager.retrievePlayerData' })
         return
@@ -195,6 +195,19 @@ export default class AppManager {
     }
 
     log.debug(`Exiting function`, { namespace: 'main.app_manager.retrievePlayerData' })
+  }
+
+  updateActiveEvironment ({ index, name }) {
+    if (index || index === 0) {
+      store.set('environments.active', index)
+    }
+
+    if (name) {
+      const environments = store.get('environments.list')
+      const index = environments.findIndex(env => env.name === name)
+
+      if (index > -1) store.set('environments.active', index)
+    }
   }
 
   async updateModListJSON () {
@@ -228,7 +241,14 @@ export default class AppManager {
     }, null, 4)
 
     try {
-      fs.writeFileSync(path.join(store.get('paths.modDir'), 'mod-list.json'), modListData)
+      const { modDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
+
+      if (!modDir) {
+        log.error('paths.modDir not in config, unable to update mod-list.json', { namespace: 'main.app_manager.updateModListJSON' })
+        return
+      }
+
+      fs.writeFileSync(path.join(modDir, 'mod-list.json'), modListData)
       log.info('Successfully updated mod-list.json file', { namespace: 'main.app_manager.updateModListJSON' })
     } catch (error) {
       log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.updateModListJSON' })
@@ -241,9 +261,10 @@ export default class AppManager {
   async startFactorio () {
     log.debug(`Entering function`, { namespace: 'main.app_manager.startFactorio' })
 
-    const factorioPath = store.get('paths.factorioExe')
-    if (!factorioPath) {
-      log.error('paths.factorioExe not in config, unable to start game', { namespace: 'main.app_manager.startFactorio' })
+    const { factorioExe } = store.get(`environments.list.${store.get('environments.active')}`).paths
+
+    if (!factorioExe) {
+      log.error('paths.factorioExe not in current environment, unable to start game', { namespace: 'main.app_manager.startFactorio' })
       return
     }
 
@@ -257,12 +278,12 @@ export default class AppManager {
           spawn('factorio.exe', [], {
             stdio: 'ignore',
             detached: true,
-            cwd: factorioPath.slice(0, factorioPath.indexOf('factorio.exe')),
+            cwd: factorioExe.slice(0, factorioExe.indexOf('factorio.exe')),
           }).unref()
           break
         case 'linux':
         case 'darwin':
-          spawn(factorioPath).unref()
+          spawn(factorioExe).unref()
           break
       }
     } catch (error) {

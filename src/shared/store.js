@@ -5,11 +5,11 @@ import * as migrations from '@shared/migrations'
 import schema from '@shared/models'
 
 const configSchema = {
+  environments: schema.environments,
   meta: schema.meta,
   mods: schema.mods,
   options: schema.options,
   profiles: schema.profiles,
-  paths: schema.paths,
   player: schema.player,
   window: schema.window,
 }

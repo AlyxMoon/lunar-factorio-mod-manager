@@ -11,12 +11,21 @@ export const appVersion = (state) => {
   return getVersion()
 }
 
-export const canStartFactorio = (state) => {
-  return state.paths && state.paths.factorioExe
+export const currentEnvironment = (state) => {
+  const { active, list } = state.environments
+  return list[active]
 }
 
-export const canLoadSaves = (state) => {
-  return state.paths && state.paths.saveDir
+export const currentEnvironmentPaths = (_, { currentEnvironment }) => {
+  return currentEnvironment.paths
+}
+
+export const canStartFactorio = (_, { currentEnvironment }) => {
+  return currentEnvironment.paths && currentEnvironment.paths.factorioExe
+}
+
+export const canLoadSaves = (_, { currentEnvironment }) => {
+  return currentEnvironment.paths && currentEnvironment.paths.saveDir
 }
 
 export const currentProfile = (state) => {

@@ -85,6 +85,20 @@ export const UPDATE_OPTIONS = (state, { options }) => {
   state.options = Object.assign({}, state.options, options)
 }
 
-export const UPDATE_FACTORIO_PATHS = (state, { paths }) => {
-  state.paths = Object.assign({}, state.paths, paths)
+export const UPDATE_ENVIRONMENTS = (state, params) => {
+  if (params.environments) {
+    state.environments = Object.assign({}, state.environments, params.environments)
+  }
+
+  if (params.active) {
+    state.environments.active = params.active
+  }
+
+  if (params.list) {
+    state.environments.list = params.list
+  }
+
+  if (params.environment) {
+    state.environments.list[state.environments.active] = params.environment
+  }
 }

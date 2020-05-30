@@ -10,21 +10,24 @@ export default class SaveManager {
   async retrieveFactorioSaves () {
     log.debug('Entered function', { namespace: 'main.save_manager.retrieveFactorioSave' })
 
-    const savesPath = store.get('paths.saveDir')
-    if (!savesPath) {
-      log.error('Path to the saves folder was not set when trying to retrieve saves', { namespace: 'main.save_manager.retrieveFactorioSave' })
+    const { saveDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
+    if (!saveDir) {
+      log.error(
+        'Path to the saves folder was not set when trying to retrieve saves',
+        { namespace: 'main.save_manager.retrieveFactorioSave' }
+      )
       return
     }
 
     const saves = []
 
     try {
-      const savesInDirectory = (await promisify(readdir)(savesPath, 'utf8'))
+      const savesInDirectory = (await promisify(readdir)(saveDir, 'utf8'))
         .filter(filename => filename.endsWith('.zip'))
 
       await Promise.all(savesInDirectory.map(async (save) => {
         try {
-          const buffer = await promisify(readFile)(join(savesPath, save))
+          const buffer = await promisify(readFile)(join(saveDir, save))
           const zip = await jsZip.loadAsync(buffer)
 
           const previewFile = await zip.file(/preview\.(jpg)|(png)/)[0]

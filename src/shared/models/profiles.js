@@ -13,6 +13,9 @@ export default {
           name: {
             type: 'string',
           },
+          environment: {
+            type: 'string',
+          },
           mods: {
             type: 'array',
             items: {

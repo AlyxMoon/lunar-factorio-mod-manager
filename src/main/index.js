@@ -70,7 +70,12 @@ const showErrorAndExit = (error, message) => {
 const addClientEventListeners = async () => {
   ipcMain.on('PROMPT_NEW_FACTORIO_PATH', async (event, type) => {
     const path = await appManager.promptForPath(mainWindow, type)
-    if (path) store.set(`paths.${type}`, path)
+
+    const { list: environments, active } = store.get('environments')
+    if (path) {
+      environments[active].paths[type] = path
+      store.set('environments.list', environments)
+    }
   })
 
   ipcMain.on('ADD_MOD_TO_CURRENT_PROFILE', (event, mod) => {
@@ -90,7 +95,8 @@ const addClientEventListeners = async () => {
   })
 
   ipcMain.on('UPDATE_CURRENT_PROFILE', (event, data) => {
-    profileManager.updateCurrentProfile(data)
+    const updated = profileManager.updateCurrentProfile(data)
+    appManager.updateActiveEvironment({ name: updated.environment })
   })
 
   ipcMain.on('REMOVE_CURRENT_PROFILE', (event) => {
@@ -124,10 +130,6 @@ const addClientEventListeners = async () => {
 
   ipcMain.on('UPDATE_OPTION', (event, { name, value }) => {
     store.set(`options.${name}`, value)
-  })
-
-  ipcMain.on('UPDATE_FACTORIO_PATH', (event, { name, value }) => {
-    store.set(`paths.${name}`, value)
   })
 }
 

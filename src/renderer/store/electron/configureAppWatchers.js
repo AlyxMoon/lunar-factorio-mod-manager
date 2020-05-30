@@ -33,24 +33,16 @@ const configureAppWatchers = (store) => {
     store.commit('UPDATE_OPTIONS', { options: data })
   })
 
-  config.onDidChange('paths', (data) => {
-    store.commit('UPDATE_FACTORIO_PATHS', { paths: data })
+  config.onDidChange('environments', (data) => {
+    store.commit('UPDATE_ENVIRONMENTS', { environments: data })
   })
 
-  config.onDidChange('paths.factorioDataDir', (data) => {
-    store.commit('UPDATE_FACTORIO_PATHS', { paths: { factorioDataDir: data } })
+  config.onDidChange('environments.active', (data) => {
+    store.commit('UPDATE_ENVIRONMENTS', { active: data })
   })
-  config.onDidChange('paths.factorioExe', (data) => {
-    store.commit('UPDATE_FACTORIO_PATHS', { paths: { factorioExe: data } })
-  })
-  config.onDidChange('paths.modDir', (data) => {
-    store.commit('UPDATE_FACTORIO_PATHS', { paths: { modDir: data } })
-  })
-  config.onDidChange('paths.playerDataFile', (data) => {
-    store.commit('UPDATE_FACTORIO_PATHS', { paths: { playerDataFile: data } })
-  })
-  config.onDidChange('paths.saveDir', (data) => {
-    store.commit('UPDATE_FACTORIO_PATHS', { paths: { saveDir: data } })
+
+  config.onDidChange('environments.list', (data) => {
+    store.commit('UPDATE_ENVIRONMENTS', { list: data })
   })
 
   config.onDidChange('player.username', (data) => {
@@ -59,6 +51,13 @@ const configureAppWatchers = (store) => {
 
   config.onDidChange('profiles.active', (data) => {
     store.commit('SET_ACTIVE_PROFILE', { profileSelected: data })
+
+    const name = store.state.profiles[store.state.profileSelected].environment
+    const environments = store.state.environments.list
+    if (environments && name) {
+      const index = environments.findIndex(env => env.name === name)
+      if (index > -1) config.set('environments.active', index)
+    }
   })
 
   config.onDidChange('profiles.list', (data) => {

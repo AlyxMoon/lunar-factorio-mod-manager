@@ -42,12 +42,26 @@ export default class DownloadManager {
       })
     }
 
+    const { modDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
+
+    if (!modDir) {
+      log.error(
+        'Cannot download mod as modDir was not found in the config',
+        { namespace: 'main.download_manager.addDownloadRequest' }
+      )
+      return this.webContent.send('ADD_TOAST', {
+        type: 'error',
+        dismissAfter: 8000,
+        text: 'Unable to download any mods as modDir was not found in the current environment config',
+      })
+    }
+
     this.downloadQueue.push({
       name,
       title,
       link,
       existingModPath: existingMod
-        ? path.join(store.get('paths.modDir'), `${existingMod.name}_${existingMod.version}.zip`)
+        ? path.join(modDir, `${existingMod.name}_${existingMod.version}.zip`)
         : '',
     })
     log.info(`Added download request to queue: ${name} v. ${version}`)
@@ -84,7 +98,16 @@ export default class DownloadManager {
   manageDownload (item) {
     log.debug('Entering function', { namespace: 'main.download_manager.manageDownload' })
 
-    const filePath = path.join(store.get('paths.modDir'), item.getFilename())
+    const { modDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
+    if (!modDir) {
+      log.error(
+        'Cannot download mod as modDir was not found in the config once download begun',
+        { namespace: 'main.download_manager.manageDownload' }
+      )
+      return item.cancel()
+    }
+
+    const filePath = path.join(modDir, item.getFilename())
 
     item.setSavePath(filePath)
     item.once('done', async (event, state) => {

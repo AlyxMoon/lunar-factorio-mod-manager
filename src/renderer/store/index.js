@@ -51,7 +51,7 @@ const state = {
 
   installedMods: undefined,
   options: undefined,
-  paths: undefined,
+  environments: undefined,
   profiles: undefined,
   profileSelected: undefined,
   username: undefined,

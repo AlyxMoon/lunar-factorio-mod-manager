@@ -16,21 +16,27 @@ export default class ModManager {
   async retrieveListOfInstalledMods () {
     log.debug('Entered function', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
 
-    const modsPath = store.get('paths.modDir')
-    if (!modsPath) {
-      log.error('Path to Factorio mods was not set when trying to retrieve mods', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
+    const { modDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
+    if (!modDir) {
+      log.error(
+        'Path to Factorio mods was not set when trying to retrieve mods',
+        { namespace: 'main.mod_manager.retrieveListOfInstalledMods' }
+      )
       return
     }
 
-    const factoryDataDir = store.get('paths.factorioDataDir')
-    if (!factoryDataDir) {
-      log.error('Path to the Factorio bin folder was not set when trying to retrieve mods', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
+    const { factorioDataDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
+    if (!factorioDataDir) {
+      log.error(
+        'Path to the Factorio bin folder was not set when trying to retrieve mods',
+        { namespace: 'main.mod_manager.retrieveListOfInstalledMods' }
+      )
     }
 
     const installedMods = []
 
     try {
-      const baseModPath = path.join(factoryDataDir, '/base/info.json')
+      const baseModPath = path.join(factorioDataDir, '/base/info.json')
       const baseModData = await promisify(fs.readFile)(baseModPath, 'utf8')
 
       installedMods.push(JSON.parse(baseModData))
@@ -43,7 +49,7 @@ export default class ModManager {
     }
 
     try {
-      const filesInDirectory = await promisify(fs.readdir)(modsPath, 'utf8')
+      const filesInDirectory = await promisify(fs.readdir)(modDir, 'utf8')
       const modFiles = filesInDirectory.filter(elem => elem.slice(-4) === '.zip')
 
       for (const file of modFiles) {
@@ -93,7 +99,8 @@ export default class ModManager {
     try {
       const mod = store.get('mods.installed', []).find(m => m.name === name)
       if (mod) {
-        const filePath = path.join(store.get('paths.modDir'), `${mod.name}_${mod.version}.zip`)
+        const { modDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
+        const filePath = path.join(modDir, `${mod.name}_${mod.version}.zip`)
         await promisify(fs.unlink)(filePath)
 
         store.set('mods.installed', store.get('mods.installed').filter(m => m.name !== mod.name))
@@ -189,12 +196,12 @@ export default class ModManager {
 
   async getModDataFromZip (filepath) {
     if (!filepath) return
-    const modsPath = store.get('paths.modDir')
+    const { modDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
 
     let buffer, zip
 
     try {
-      buffer = await promisify(fs.readFile)(path.join(modsPath, filepath))
+      buffer = await promisify(fs.readFile)(path.join(modDir, filepath))
       zip = await jsZip.loadAsync(buffer)
     } catch (error) {
       throw new Error(`Could not read the zip file, it may be corrupted or exist, ${error.message}`)
