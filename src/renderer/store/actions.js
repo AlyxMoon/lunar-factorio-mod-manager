@@ -175,12 +175,10 @@ export const updateOption = ({ commit }, { name, value }) => {
   ipcRenderer.send('UPDATE_OPTION', { name, value })
 }
 
-export const promptNewFactorioPath = (_, { type, save = true } = {}) => {
-  if (save) {
-    ipcRenderer.send('PROMPT_NEW_FACTORIO_PATH', { type, save })
-  } else {
-    return ipcRenderer.invoke('PROMPT_NEW_FACTORIO_PATH', { type, save })
-  }
+export const promptNewFactorioPath = ({ state }, { type, index, save = true } = {}) => {
+  if (!index && index !== 0) index = state.environments.active
+
+  return ipcRenderer.invoke('PROMPT_NEW_FACTORIO_PATH', { type, index, save })
 }
 
 export const finishFirstRun = () => {

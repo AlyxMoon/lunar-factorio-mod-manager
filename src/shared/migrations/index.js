@@ -78,7 +78,7 @@ export const config = {
       const profiles = store.get('profiles.list')
       store.set('profiles.list', profiles.map(profile => ({
         ...profile,
-        environment: 'default',
+        environment: 0,
       })))
     }
 

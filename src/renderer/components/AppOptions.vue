@@ -4,6 +4,33 @@
     @submit.prevent
   >
     <h2>Factorio Paths</h2>
+
+    <PanelMenu>
+      <template #menu-left>
+        <label>Edit Environment</label>
+        <select @change="active = $event.target.value; $event.target.blur()">
+          <option
+            v-for="(environment, index) in environments"
+            :key="index"
+            :selected="index === active"
+            :value="index"
+          >
+            {{ environment.name }}
+          </option>
+        </select>
+      </template>
+
+      <template #menu-right>
+        <button
+          class="btn green"
+          title="Add Environment"
+          @click="showModal({ name: 'ModalEnvironmentCreate' })"
+        >
+          <i class="fa fa-plus" />
+        </button>
+      </template>
+    </PanelMenu>
+
     <div
       v-for="path of pathOptions"
       :key="'path-' + path.variable"
@@ -13,12 +40,12 @@
         <Tooltip>{{ path.hint }}</Tooltip>
         {{ path.text }}
       </label>
-      <button @click="promptNewFactorioPath({ type: path.variable })">
+      <button @click="promptNewFactorioPath({ type: path.variable, index: active })">
         Change
       </button>
       <input
         type="text"
-        :value="paths[path.variable]"
+        :value="environments[active].paths[path.variable]"
         disabled
       >
     </div>
@@ -86,19 +113,24 @@
 import { join } from 'path'
 import { remote } from 'electron'
 
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapMutations, mapState } from 'vuex'
+
+import PanelMenu from '@/components/partials/PanelMenu'
 
 export default {
   name: 'PageOptions',
+  components: {
+    PanelMenu,
+  },
+  data: () => ({
+    active: 0,
+  }),
   computed: {
     ...mapState({
       options: 'options',
       pathOptions: 'pathOptions',
-      active: state => state.environments.active,
+      activeProfileEnvironment: state => state.environments.active,
       environments: state => state.environments.list,
-    }),
-    ...mapGetters({
-      paths: 'currentEnvironmentPaths',
     }),
 
     userDataPath () {
@@ -111,8 +143,16 @@ export default {
       return join(this.userDataPath, 'data')
     },
   },
+
+  created () {
+    this.active = this.activeProfileEnvironment
+  },
+
   methods: {
     ...mapActions(['promptNewFactorioPath', 'updateOption']),
+    ...mapMutations({
+      showModal: 'SHOW_MODAL',
+    }),
     openFolder (path) {
       remote.shell.openItem(path)
     },
