@@ -90,12 +90,12 @@ export const addMissingModDependenciesToActiveProfile = (context, modName) => {
     })
 }
 
-export const addProfile = async ({ dispatch }, options, checkReturn = false) => {
-  if (checkReturn) {
-    await ipcRenderer.invoke('ADD_PROFILE', options)
-  } else {
-    ipcRenderer.send('ADD_PROFILE', options)
+export const addProfile = async ({ dispatch, getters }, options) => {
+  if (!options.environment && options.environment !== 0) {
+    options.environment = getters.defaultEnvironmentIndex
   }
+
+  await ipcRenderer.invoke('ADD_PROFILE', options)
   dispatch(ADD_TOAST_MESSAGE, { text: `Created profile ${options.name}` })
 }
 

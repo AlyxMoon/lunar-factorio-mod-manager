@@ -19,6 +19,22 @@
         </label>
       </div>
 
+      <div>
+        <label>
+          Factorio Environment:
+          <select @change="environment = Number($event.target.value); $event.target.blur()">
+            <option
+              v-for="(env, index) in environments"
+              :key="index"
+              :selected="index === environment"
+              :value="index"
+            >
+              {{ env.name }}
+            </option>
+          </select>
+        </label>
+      </div>
+
       <button
         v-if="editing"
         class="btn mt-2"
@@ -58,23 +74,24 @@ import ModalContainer from './_ModalContainer'
 export default {
   name: 'ModalProfileCreateOrEdit',
   components: { ModalContainer },
-  data () {
-    return {
-      exporting: false,
-      importing: false,
-      name: '',
-      originalName: '',
-    }
-  },
+  data: () => ({
+    exporting: false,
+    importing: false,
+    name: '',
+    originalName: '',
+    environment: 0,
+  }),
   computed: {
     ...mapState({
       editing: state => state.modals.ModalProfileCreateOrEdit.mode === 'edit',
+      environments: state => state.environments.list,
     }),
   },
   watch: {
     editing: function (edit) {
       if (edit) {
         this.name = this.originalName = this.$store.getters.currentProfile.name
+        this.environment = this.$store.getters.currentProfile.environment
       }
     },
   },
@@ -91,9 +108,9 @@ export default {
     },
     handleConfirm () {
       if (this.editing) {
-        this.updateCurrentProfile({ name: this.name })
+        this.updateCurrentProfile({ name: this.name, environment: this.environment })
       } else {
-        this.addProfile({ name: this.name })
+        this.addProfile({ name: this.name, environment: this.environment })
       }
     },
     async handleExport () {

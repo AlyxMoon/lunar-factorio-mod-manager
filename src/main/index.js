@@ -90,12 +90,8 @@ const addClientEventListeners = async () => {
     profileManager.removeModFromCurrentProfile(mod)
   })
 
-  ipcMain.on('ADD_PROFILE', ({ reply }, { name, mods } = {}) => {
-    profileManager.addProfile({ name, mods })
-  })
-
-  ipcMain.handle('ADD_PROFILE', async ({ reply }, { name, mods } = {}) => {
-    return profileManager.addProfile({ name, mods })
+  ipcMain.handle('ADD_PROFILE', async ({ reply }, options = {}) => {
+    return profileManager.addProfile(options)
   })
 
   ipcMain.on('UPDATE_CURRENT_PROFILE', (event, data) => {

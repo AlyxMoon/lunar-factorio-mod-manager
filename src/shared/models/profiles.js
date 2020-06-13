@@ -14,7 +14,7 @@ export default {
             type: 'string',
           },
           environment: {
-            type: 'string',
+            type: 'number',
           },
           mods: {
             type: 'array',

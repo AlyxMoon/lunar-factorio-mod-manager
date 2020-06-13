@@ -16,24 +16,24 @@
       </template>
       <template v-slot:menu-right>
         <button
-          @click="showModal({ name: 'ModalProfileCreateOrEdit', options: { mode: 'edit'} })"
           class="btn"
           title="Edit Profile"
+          @click="showModal({ name: 'ModalProfileCreateOrEdit', options: { mode: 'edit'} })"
         >
           <i class="fa fa-edit" />
         </button>
         <button
-          @click="showModal({ name: 'ModalProfileCreateOrEdit', option: 'create' })"
           class="btn green"
           title="Add Profile"
+          @click="showModal({ name: 'ModalProfileCreateOrEdit', option: 'create' })"
         >
           <i class="fa fa-plus" />
         </button>
         <button
-          @click="showModal({ name: 'ModalProfileDelete' })"
           :disabled="!profiles || profiles.length === 1"
           class="btn red"
           title="Delete Profile"
+          @click="showModal({ name: 'ModalProfileDelete' })"
         >
           <i class="fa fa-trash-alt" />
         </button>
@@ -52,13 +52,14 @@
         <tbody>
           <tr
             v-for="mod in currentProfile.mods"
+            :key="mod.name"
             :class="{ selected: mod.name === selectedMod.name }"
           >
             <td class="cell-check">
               <button
-                @click="removeModFromCurrentProfile(mod)"
                 :disabled="mod.name === 'base'"
                 class="btn red"
+                @click="removeModFromCurrentProfile(mod)"
               >
                 <i class="fa fa-minus" />
               </button>
@@ -66,9 +67,9 @@
             <td @click="selectInstalledMod(mod.name)">
               <button
                 v-if="isModMissingDependenciesInActiveProfile(mod.name)"
-                @click="addMissingModDependenciesToActiveProfile(mod.name)"
                 class="btn small"
                 title="A required dependency is not included in the profile, click here to add any missing dependencies"
+                @click="addMissingModDependenciesToActiveProfile(mod.name)"
               >
                 <i class="fa fa-exclamation-circle" />
               </button>

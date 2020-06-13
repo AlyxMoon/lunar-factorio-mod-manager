@@ -43,12 +43,17 @@ export default class ProfileManager {
     log.debug('Exited function', { namespace: 'main.profile_manager.configureEventListeners' })
   }
 
-  addProfile ({ name = 'New Profile', mods } = {}) {
+  addProfile ({ name = 'New Profile', mods, environment } = {}) {
     log.debug('Entered function', { namespace: 'main.profile_manager.addProfile' })
+
+    if (!environment || environment !== 0) {
+      environment = store.get('environments.list').findIndex(environment => environment.default)
+    }
 
     const profiles = store.get('profiles.list', [])
     profiles.push({
       name,
+      environment,
       mods: mods
         ? mods.map(({ name, title, version }) => ({ name, title, version }))
         : [{ name: 'base', title: 'Base Mod', version: store.get('mods.factorioVersion') }],
@@ -231,15 +236,16 @@ export default class ProfileManager {
   async exportProfile (replyChannel, profileIndex) {
     log.debug('Entered function', { namespace: 'main.profile_manager.exportProfile' })
 
-    const p = (!profileIndex && profileIndex !== 0)
+    const index = (!profileIndex && profileIndex !== 0)
       ? store.get('profiles.active')
       : profileIndex
-    const profile = store.get(`profiles.list.${p}`)
+    const profile = store.get(`profiles.list.${index}`)
 
     if (!profile) {
-      log.info(`Index for profile to save was invalid or there was another issue. Index: ${p}`, { namespace: 'main.profile_manager.exportProfile' })
+      log.info(`Index for profile to save was invalid or there was another issue. Index: ${index}`, { namespace: 'main.profile_manager.exportProfile' })
       return
     }
+    delete profile.environment
 
     const { canceled, filePath } = await dialog.showSaveDialog({
       title: 'Export profile',
@@ -289,6 +295,7 @@ export default class ProfileManager {
       const profile = JSON.parse(await promisify(readFile)(filePaths[0]))
       if (!this.isValidProfile(profile)) throw new Error('profile data was invalid')
 
+      delete profile.environment
       this.addProfile(profile)
 
       replyChannel.send('ADD_TOAST', { text: 'Successfully imported profile' })
