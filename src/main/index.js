@@ -68,6 +68,10 @@ const showErrorAndExit = (error, message) => {
 }
 
 const addClientEventListeners = async () => {
+  store.onDidChange('environments.active', () => {
+    appManager.retrievePlayerData(mainWindow, true)
+  })
+
   ipcMain.handle('PROMPT_NEW_FACTORIO_PATH', async (event, { type, index, save = true } = {}) => {
     const path = await appManager.promptForPath(mainWindow, type)
 

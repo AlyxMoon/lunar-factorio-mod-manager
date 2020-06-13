@@ -50,8 +50,15 @@ export const deleteMod = (context, name) => {
   context.commit('SET_SELECTED_MOD', { selectedMod: undefined })
 }
 
-export const setActiveProfile = (context, index) => {
+export const setActiveProfile = ({ getters, state }, index) => {
+  const existingProfile = getters.currentProfile
+  const newProfile = state.profiles[index]
+
   config.set('profiles.active', Number(index))
+
+  if (newProfile.environment !== existingProfile.environment) {
+    config.set('environments.active', newProfile.environment)
+  }
 }
 
 export const addModToCurrentProfile = (context, mod) => {

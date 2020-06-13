@@ -158,14 +158,19 @@ export default class AppManager {
     log.debug(`Exiting function`, { namespace: 'main.app_manager.promptForPath' })
   }
 
-  async retrievePlayerData (mainWindow) {
+  async retrievePlayerData (mainWindow, force = false) {
     log.debug(`Entering function`, { namespace: 'main.app_manager.retrievePlayerData' })
 
     const player = store.get('player')
-    if (!player.username || !player.token) {
-      log.info('username/token has not been set yet, attempting to retrieve', { namespace: 'main.app_manager.retrievePlayerData' })
+    if (!player.username || !player.token || force) {
+      if (force) {
+        log.info('username/token is being forced to refresh', { namespace: 'main.app_manager.retrievePlayerData' })
+      } else {
+        log.info('username/token has not been set yet, attempting to retrieve', { namespace: 'main.app_manager.retrievePlayerData' })
+      }
 
-      const playerDataPath = store.get(`environments.list.${store.get('environments.active')}`).paths
+      const activeEnvironment = store.get(`environments.list.${store.get('environments.active')}`)
+      const playerDataPath = activeEnvironment.paths.playerDataFile
       if (!playerDataPath) {
         log.error('Unable to retrieve player data, paths.playerDataFile not set', { namespace: 'main.app_manager.retrievePlayerData' })
         return
