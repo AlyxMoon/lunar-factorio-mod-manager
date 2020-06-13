@@ -11,6 +11,10 @@ export const appVersion = (state) => {
   return getVersion()
 }
 
+export const defaultEnvironment = (state) => {
+  return state.environments.list.find(environment => environment.default)
+}
+
 export const currentEnvironment = (state) => {
   const { active, list } = state.environments
   return list[active]

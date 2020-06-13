@@ -150,6 +150,7 @@ export default {
   margin: 0 -10px;
 
   overflow-y: auto;
+  @include custom-scrollbar;
 }
 
 .modal-footer {

@@ -68,14 +68,18 @@ const showErrorAndExit = (error, message) => {
 }
 
 const addClientEventListeners = async () => {
-  ipcMain.on('PROMPT_NEW_FACTORIO_PATH', async (event, type) => {
+  ipcMain.handle('PROMPT_NEW_FACTORIO_PATH', async (event, { type, save = true } = {}) => {
     const path = await appManager.promptForPath(mainWindow, type)
 
     const { list: environments, active } = store.get('environments')
     if (path) {
-      environments[active].paths[type] = path
-      store.set('environments.list', environments)
+      if (save) {
+        environments[active].paths[type] = path
+        store.set('environments.list', environments)
+      }
     }
+
+    return path
   })
 
   ipcMain.on('ADD_MOD_TO_CURRENT_PROFILE', (event, mod) => {

@@ -72,13 +72,8 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 
-import Tooltip from '@/components/partials/Tooltip'
-
 export default {
   name: 'Navbar',
-  components: {
-    Tooltip,
-  },
   computed: {
     ...mapGetters(['canLoadSaves', 'canStartFactorio']),
   },

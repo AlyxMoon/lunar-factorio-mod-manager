@@ -5,9 +5,9 @@
     <Navbar />
 
     <component
+      :is="comp"
       v-for="comp of modals"
       :key="comp.name"
-      :is="comp"
     />
 
     <RouterView class="content" />

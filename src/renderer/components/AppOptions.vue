@@ -13,7 +13,7 @@
         <Tooltip>{{ path.hint }}</Tooltip>
         {{ path.text }}
       </label>
-      <button @click="promptNewFactorioPath(path.variable)">
+      <button @click="promptNewFactorioPath({ type: path.variable })">
         Change
       </button>
       <input
@@ -88,43 +88,14 @@ import { remote } from 'electron'
 
 import { mapActions, mapGetters, mapState } from 'vuex'
 
-import Tooltip from '@/components/partials/Tooltip'
-
 export default {
   name: 'PageOptions',
-  components: { Tooltip },
-  data: () => ({
-    pathOptions: [
-      {
-        text: 'Factorio Data Path',
-        variable: 'factorioDataDir',
-        hint: 'This is the Factorio data directory. It is used to load the base data used in Factorio which lets the app know which version of Factorio is actively in use. This is needed to correctly manage mod versions.',
-      },
-      {
-        text: 'Factorio Exe Path',
-        variable: 'factorioExe',
-        hint: 'This is the Factorio executable. It is not required, without it you will be unable to start Factorio through the app.',
-      },
-      {
-        text: 'Mods Folder Path',
-        variable: 'modDir',
-        hint: 'This is where Factorio looks for mods (and contains the mod-list.json file). Without this the app will be unable to manage mods in any way.',
-      },
-      {
-        text: 'PlayerData File Path',
-        variable: 'playerDataFile',
-        hint: 'This is where the player-data.json is located, typically with the rest of the Factorio configuration/data files (mods, saves, config, ect.). It is not required. This is used to read the player username and auth token, which is needed to download mods from the online portal.',
-      },
-      {
-        text: 'Saves Folder Path',
-        variable: 'saveDir',
-        hint: 'This is where the saves folder is. It is not required, without it you will be unable to look at saves in the app and create profiles based on them.',
-      },
-    ],
-  }),
   computed: {
     ...mapState({
       options: 'options',
+      pathOptions: 'pathOptions',
+      active: state => state.environments.active,
+      environments: state => state.environments.list,
     }),
     ...mapGetters({
       paths: 'currentEnvironmentPaths',

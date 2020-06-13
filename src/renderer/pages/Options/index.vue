@@ -1,6 +1,8 @@
 <template>
   <div class="page-options">
     <PanelContainer>
+      <OptionMenu />
+
       <PanelContent>
         <AppOptions />
       </PanelContent>
@@ -13,6 +15,7 @@ import PanelContainer from '@/components/partials/PanelContainer'
 import PanelContent from '@/components/partials/PanelContent'
 
 import AppOptions from '@/components/AppOptions'
+import OptionMenu from './OptionMenu'
 
 export default {
   name: 'PageOptions',
@@ -20,6 +23,7 @@ export default {
     PanelContainer,
     PanelContent,
     AppOptions,
+    OptionMenu,
   },
 }
 </script>
