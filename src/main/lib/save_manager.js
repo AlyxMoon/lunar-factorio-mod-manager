@@ -67,6 +67,7 @@ export default class SaveManager {
 
     const mods = []
     let modsStartPos = 0
+    let scenarioLengthPos = 0
 
     const vMajor = levelData.readUIntBE(1, 1)
     const vMinor = levelData.readUIntBE(2, 1)
@@ -74,25 +75,31 @@ export default class SaveManager {
     const version = `${vMajor}.${vMinor}.${vPatch}`
 
     if (vMinor === 16) {
-      // Can't test format of this right now but save files for v0.16 are for sure different
-      return { version, scenario: '', mods: [] }
+      modsStartPos = 38
+      scenarioLengthPos = 9
     }
-    if (vMinor === 17) {
+    if (vMinor === 17 || vMinor === 18) {
       modsStartPos = 39
+      scenarioLengthPos = 10
     }
 
-    const lenScenario = levelData.readUIntBE(10, 1)
-    const scenario = levelData.toString('utf-8', 11, 11 + lenScenario)
+    const lenScenario = levelData.readUIntBE(scenarioLengthPos, 1)
+    const scenario = levelData.toString('utf-8', scenarioLengthPos + 1, scenarioLengthPos + 1 + lenScenario)
 
-    const modCount = levelData.readUIntBE(38, 1)
+    const modCount = levelData.readUIntBE(modsStartPos - 1, 1)
 
-    for (let i = modCount, pos = modsStartPos; i > 0; i--) {
+    for (
+      let i = modCount, pos = modsStartPos;
+      i > 0;
+      i--
+    ) {
       const length = levelData.readUIntBE(pos, 1)
 
       const modName = levelData.toString('utf-8', pos + 1, pos + length + 1)
       const vMajor = levelData.readUIntBE(pos + length + 1, 1)
       const vMinor = levelData.readUIntBE(pos + length + 2, 1)
       const vPatch = levelData.readUIntBE(pos + length + 3, 1)
+
       mods.push({
         name: modName,
         version: `${vMajor}.${vMinor}.${vPatch}`,
