@@ -66,39 +66,58 @@ export default class SaveManager {
     /* eslint-disable no-unused-vars */
 
     const mods = []
-    let modsStartPos = 0
-    let scenarioLengthPos = 0
+    let versionOffset = 0
 
     const vMajor = levelData.readUIntBE(1, 1)
     const vMinor = levelData.readUIntBE(2, 1)
     const vPatch = levelData.readUIntBE(4, 1)
     const version = `${vMajor}.${vMinor}.${vPatch}`
 
-    if (vMinor === 16) {
-      modsStartPos = 38
-      scenarioLengthPos = 9
-    }
     if (vMinor === 17 || vMinor === 18) {
-      modsStartPos = 39
-      scenarioLengthPos = 10
+      versionOffset = 1
     }
 
-    const lenScenario = levelData.readUIntBE(scenarioLengthPos, 1)
-    const scenario = levelData.toString('utf-8', scenarioLengthPos + 1, scenarioLengthPos + 1 + lenScenario)
+    const lenScenario = levelData.readUIntBE(9 + versionOffset, 1)
+    const lenBaseModName = levelData.readUIntBE(10 + versionOffset + lenScenario, 1)
+    const scenario = levelData.toString('utf-8', 10 + versionOffset, 10 + versionOffset + lenScenario)
 
-    const modCount = levelData.readUIntBE(modsStartPos - 1, 1)
+    const modCount = levelData.readUIntBE(25 + lenScenario + lenBaseModName + versionOffset, 1)
 
     for (
-      let i = modCount, pos = modsStartPos;
+      let i = modCount, pos = 26 + lenScenario + lenBaseModName + versionOffset;
       i > 0;
       i--
     ) {
       const length = levelData.readUIntBE(pos, 1)
 
       const modName = levelData.toString('utf-8', pos + 1, pos + length + 1)
-      const vMajor = levelData.readUIntBE(pos + length + 1, 1)
-      const vMinor = levelData.readUIntBE(pos + length + 2, 1)
-      const vPatch = levelData.readUIntBE(pos + length + 3, 1)
+
+      let vMajor = levelData.readUIntBE(pos + length + 1, 1)
+      if (vMajor === 255) {
+        vMajor = (
+          levelData.readUIntBE(pos + length + 4, 1) +
+          (levelData.readUIntBE(pos + length + 5, 1) << 8)
+        )
+        pos += 2
+      }
+
+      let vMinor = levelData.readUIntBE(pos + length + 2, 1)
+      if (vMinor === 255) {
+        vMinor = (
+          levelData.readUIntBE(pos + length + 4, 1) +
+          (levelData.readUIntBE(pos + length + 5, 1) << 8)
+        )
+        pos += 2
+      }
+
+      let vPatch = levelData.readUIntBE(pos + length + 3, 1)
+      if (vPatch === 255) {
+        vPatch = (
+          levelData.readUIntBE(pos + length + 4, 1) +
+          (levelData.readUIntBE(pos + length + 5, 1) << 8)
+        )
+        pos += 2
+      }
 
       mods.push({
         name: modName,
