@@ -215,52 +215,88 @@ export default class AppManager {
     }
   }
 
-  async updateModListJSON () {
-    log.debug(`Entering function`, { namespace: 'main.app_manager.updateModListJSON' })
-    log.info('Beginning to run updateModListJSON', { namespace: 'main.app_manager.updateModListJSON' })
-    log.profile('TIME updateModListJSON')
+  async updateActiveModDirectory () {
+    log.debug(`Entering function`, { namespace: 'main.app_manager.updateActiveModDirectory' })
+    log.info('Beginning to run updateActiveModDirectory', { namespace: 'main.app_manager.updateActiveModDirectory' })
+    log.profile('TIME updateActiveModDirectory')
 
     const profileIndex = store.get('profiles.active')
     if (!profileIndex && profileIndex !== 0) {
-      log.error(`profiles.active wasn't set in config. Weird. Not changing mod-list.json`, { namespace: 'main.app_manager.updateModListJSON' })
+      log.error(`profiles.active wasn't set in config. Weird. Not changing mod-list.json`, { namespace: 'main.app_manager.updateActiveModDirectory' })
       return
     }
 
     const profile = store.get('profiles.list', [])[profileIndex]
     if (!profile) {
-      log.error(`profile wasn't in config. Weird. Not changing mod-list.json`, { namespace: 'main.app_manager.updateModListJSON' })
+      log.error(`profile wasn't in config. Weird. Not changing mod-list.json`, { namespace: 'main.app_manager.updateActiveModDirectory' })
       return
     }
 
     const installedMods = store.get('mods.installed')
     if (!installedMods || installedMods.length === 0) {
-      log.error(`no installed mods were in config. That shouldn't happen. Not changing mod-list.json`, { namespace: 'main.app_manager.updateModListJSON' })
+      log.error(`no installed mods were in config. That shouldn't happen. Not changing mod-list.json`, { namespace: 'main.app_manager.updateActiveModDirectory' })
+      return
+    }
+
+    const centralModDir = path.join(app.getPath('userData'), 'data/mods')
+    const { modDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
+
+    if (!modDir) {
+      log.error('paths.modDir not in config, unable to update mod-list.json', { namespace: 'main.app_manager.updateActiveModDirectory' })
       return
     }
 
     const modListData = JSON.stringify({
-      mods: installedMods.map(mod => ({
+      mods: profile.mods.map(mod => ({
         name: mod.name,
-        enabled: profile.mods.some(m => m.name === mod.name),
+        enabled: true,
       })),
     }, null, 4)
 
     try {
-      const { modDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
+      const filesInDirectory = (await promisify(fs.readdir)(modDir, 'utf8'))
+        .filter(elem => elem.slice(-4) === '.zip')
 
-      if (!modDir) {
-        log.error('paths.modDir not in config, unable to update mod-list.json', { namespace: 'main.app_manager.updateModListJSON' })
-        return
+      const filesToRemove = []
+      const filesToMove = []
+
+      for (const file of filesInDirectory) {
+        const index = profile.mods.indexOf(({ name, version }) => {
+          return `${name}_${version}.zip` === file
+        })
+
+        if (index === -1) {
+          filesToRemove.push(path.join(modDir, file))
+        }
       }
 
-      fs.writeFileSync(path.join(modDir, 'mod-list.json'), modListData)
-      log.info('Successfully updated mod-list.json file', { namespace: 'main.app_manager.updateModListJSON' })
+      for (const mod of profile.mods) {
+        const filepath = `${mod.name}_${mod.version}.zip`
+        if (!filesInDirectory.some(file => file === filepath)) {
+          filesToMove.push(filepath)
+        }
+      }
+
+      await Promise.all([
+        promisify(fs.writeFile)(path.join(modDir, 'mod-list.json'), modListData),
+        ...filesToRemove.map(file => promisify(fs.unlink)(file)),
+        ...filesToMove.map(file => {
+          const source = path.join(centralModDir, file)
+          const dest = path.join(modDir, file)
+
+          return fs.existsSync(source)
+            ? promisify(fs.copyFile)(source, dest)
+            : null
+        }),
+      ])
+
+      log.info('Successfully updated mod-list.json file and set mods in directory', { namespace: 'main.app_manager.updateActiveModDirectory' })
     } catch (error) {
-      log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.updateModListJSON' })
+      log.error(`${error.code} ${error.message}`, { namespace: 'main.app_manager.updateActiveModDirectory' })
     }
 
-    log.profile('TIME updateModListJSON')
-    log.debug(`Exiting function`, { namespace: 'main.app_manager.updateModListJSON' })
+    log.profile('TIME updateActiveModDirectory')
+    log.debug(`Exiting function`, { namespace: 'main.app_manager.updateActiveModDirectory' })
   }
 
   async startFactorio () {
@@ -273,8 +309,8 @@ export default class AppManager {
       return
     }
 
-    log.info('Calling updateModListJSON() before starting Factorio', { namespace: 'main.app_manager.startFactorio' })
-    this.updateModListJSON()
+    log.info('Calling updateActiveModDirectory() before starting Factorio', { namespace: 'main.app_manager.startFactorio' })
+    await this.updateActiveModDirectory()
 
     log.info('Attempting to spawn Factorio process', { namespace: 'main.app_manager.startFactorio' })
     try {
