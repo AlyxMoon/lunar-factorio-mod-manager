@@ -145,7 +145,7 @@ export default {
   },
 
   created () {
-    this.active = this.activeProfileEnvironment
+    this.active = this.activeProfileEnvironment || 0
   },
 
   methods: {

@@ -39,6 +39,7 @@ export default {
   properties: {
     active: {
       type: 'number',
+      default: 0,
       minimum: 0,
     },
     list: {

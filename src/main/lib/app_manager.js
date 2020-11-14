@@ -39,7 +39,7 @@ export default class AppManager {
       }
     }
 
-    store.set('environments.list', [environment])
+    store.set('environments', [environment])
     mainWindow.webContents.send('CHANGE_PAGE', 'PageFirstRun')
   }
 
