@@ -49,6 +49,10 @@ const configureAppWatchers = (store) => {
     store.commit('SET_PLAYER_USERNAME', { username: data })
   })
 
+  config.onDidChange('profiles.list', (data) => {
+    store.commit('SET_PROFILES', { profiles: data })
+  })
+
   config.onDidChange('profiles.active', (data) => {
     store.commit('SET_ACTIVE_PROFILE', { profileSelected: data })
 
@@ -58,10 +62,6 @@ const configureAppWatchers = (store) => {
       const index = environments.findIndex(env => env.name === name)
       if (index > -1) config.set('environments.active', index)
     }
-  })
-
-  config.onDidChange('profiles.list', (data) => {
-    store.commit('SET_PROFILES', { profiles: data })
   })
 
   onlineModsCache.onDidChange('mods', (data) => {

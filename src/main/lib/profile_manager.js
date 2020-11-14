@@ -59,10 +59,8 @@ export default class ProfileManager {
         : [{ name: 'base', title: 'Base Mod', version: store.get('mods.factorioVersion') }],
     })
 
-    store.set({
-      'profiles.list': profiles,
-      'profiles.active': profiles.length - 1,
-    })
+    store.set('profiles.list', profiles)
+    store.set('profiles.active', profiles.length - 1)
 
     log.info(`New profile added successfully, new profile count: ${profiles.length}`, { namespace: 'main.profile_manager.addProfile' })
 
