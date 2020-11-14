@@ -3,6 +3,7 @@ import path from 'path'
 import { promisify } from 'util'
 import jsZip from 'jszip'
 import fetch from 'node-fetch'
+import { app } from 'electron'
 
 import {
   config as store,
@@ -53,6 +54,8 @@ export default class ModManager {
       const modFiles = filesInDirectory.filter(elem => elem.slice(-4) === '.zip')
 
       for (const file of modFiles) {
+        this.syncModsWithCentralModFolder(file)
+
         try {
           installedMods.push(await this.getModDataFromZip(file))
         } catch (error) {
@@ -91,6 +94,23 @@ export default class ModManager {
     }
 
     log.debug('Leaving function', { namespace: 'main.mod_manager.parseInstalledModDependencies' })
+  }
+
+  async syncModsWithCentralModFolder (filepath) {
+    const centralModFolderPath = path.join(app.getPath('userData'), 'data/mods')
+    if (!fs.existsSync(centralModFolderPath)) {
+      fs.mkdirSync(centralModFolderPath)
+    }
+
+    const index = store.get('environments.active')
+    const { modDir } = store.get(`environments.list.${index}`).paths
+
+    const source = path.join(modDir, filepath)
+    const dest = path.join(centralModFolderPath, filepath)
+
+    if (!fs.existsSync(dest)) {
+      await promisify(fs.copyFile)(source, dest)
+    }
   }
 
   async deleteMod (name) {
