@@ -70,6 +70,7 @@ const showErrorAndExit = (error, message) => {
 const addClientEventListeners = async () => {
   store.onDidChange('environments.active', () => {
     appManager.retrievePlayerData(mainWindow, true)
+    modManager.retrieveListOfModsInFactorioDir()
   })
 
   ipcMain.handle('PROMPT_NEW_FACTORIO_PATH', async (event, { type, index, save = true } = {}) => {
@@ -152,7 +153,7 @@ const initializeApp = async () => {
   }
 
   modManager = new ModManager()
-  await modManager.retrieveListOfInstalledMods()
+  await modManager.retrieveListOfModsInFactorioDir()
 
   profileManager = new ProfileManager()
   await profileManager.init()

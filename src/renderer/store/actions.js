@@ -57,7 +57,7 @@ export const setActiveProfile = ({ getters, state }, index) => {
   config.set('profiles.active', Number(index))
 
   if (newProfile.environment !== existingProfile.environment) {
-    config.set('environments.active', newProfile.environment)
+    config.set('environments.active', newProfile.environment || 0)
   }
 }
 

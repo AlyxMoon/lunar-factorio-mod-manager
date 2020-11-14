@@ -141,7 +141,7 @@ export default class DownloadManager {
         } else {
           log.info('Mod download finished, all downloads are finished. Refreshing the internal state.', { namespace: 'main.download_manager.manageDownload' })
           this.downloadInProgress = false
-          this.modManager.retrieveListOfInstalledMods()
+          this.modManager.retrieveListOfModsInFactorioDir()
         }
       } else {
         log.error(`Download failed: ${state}`, { namespace: 'main.download_manager.manageDownload' })

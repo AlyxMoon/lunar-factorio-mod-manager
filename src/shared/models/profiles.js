@@ -15,6 +15,7 @@ export default {
           },
           environment: {
             type: 'number',
+            default: 0,
           },
           mods: {
             type: 'array',

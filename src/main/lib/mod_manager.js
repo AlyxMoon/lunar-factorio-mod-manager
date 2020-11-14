@@ -14,23 +14,45 @@ import log from '@shared/logger'
 import { parseModDependencies } from '@shared/util'
 
 export default class ModManager {
-  async retrieveListOfInstalledMods () {
-    log.debug('Entered function', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
+  async retrieveListOfModsInFactorioDir () {
+    log.debug('Entered function', { namespace: 'main.mod_manager.retrieveListOfModsInFactorioDir' })
 
     const { modDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
     if (!modDir) {
       log.error(
         'Path to Factorio mods was not set when trying to retrieve mods',
-        { namespace: 'main.mod_manager.retrieveListOfInstalledMods' }
+        { namespace: 'main.mod_manager.retrieveListOfModsInFactorioDir' }
       )
       return
     }
 
+    try {
+      const filesInDirectory = await promisify(fs.readdir)(modDir, 'utf8')
+      const modFiles = filesInDirectory.filter(elem => elem.slice(-4) === '.zip')
+
+      for (const file of modFiles) {
+        this.syncModsWithCentralModFolder(file)
+      }
+    } catch (error) {
+      log.error(`Error when loading installed mods: ${error.message}`, { namespace: 'main.mod_manager.retrieveListOfModsInFactorioDir' })
+      throw error
+    }
+
+    log.debug('Leaving function', { namespace: 'main.mod_manager.retrieveListOfModsInFactorioDir' })
+
+    this.retrieveListOfInstalledMods()
+  }
+
+  async retrieveListOfInstalledMods () {
+    log.debug('Entering function', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
+
+    const centralModDir = path.join(app.getPath('userData'), 'data/mods')
     const { factorioDataDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
+
     if (!factorioDataDir) {
       log.error(
         'Path to the Factorio bin folder was not set when trying to retrieve mods',
-        { namespace: 'main.mod_manager.retrieveListOfInstalledMods' }
+        { namespace: 'main.mod_manager.retrieveListOfModsInFactorioDir' }
       )
     }
 
@@ -49,22 +71,15 @@ export default class ModManager {
       return
     }
 
-    try {
-      const filesInDirectory = await promisify(fs.readdir)(modDir, 'utf8')
-      const modFiles = filesInDirectory.filter(elem => elem.slice(-4) === '.zip')
+    const filesInDirectory = await promisify(fs.readdir)(centralModDir, 'utf8')
 
-      for (const file of modFiles) {
-        this.syncModsWithCentralModFolder(file)
-
-        try {
-          installedMods.push(await this.getModDataFromZip(file))
-        } catch (error) {
-          log.error(`Error when parsing a mod file | mod: ${file} | error: ${error.message}`, { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
-        }
+    for (const file of filesInDirectory) {
+      try {
+        const filepath = path.join(centralModDir, file)
+        installedMods.push(await this.getModDataFromZip(filepath))
+      } catch (error) {
+        log.error(`Error when parsing a mod file | mod: ${file} | error: ${error.message}`, { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
       }
-    } catch (error) {
-      log.error(`Error when loading installed mods: ${error.message}`, { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
-      throw error
     }
 
     log.info(`Installed mods have been parsed. Mod count: ${installedMods.length - 1}`, { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
@@ -73,7 +88,7 @@ export default class ModManager {
     log.info('Installed mods have been stored in the app. Parsing dependencies next.', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
     this.parseInstalledModDependencies()
 
-    log.debug('Leaving function', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
+    log.debug('Exiting function', { namespace: 'main.mod_manager.retrieveListOfInstalledMods' })
   }
 
   parseInstalledModDependencies () {
@@ -97,8 +112,12 @@ export default class ModManager {
   }
 
   async syncModsWithCentralModFolder (filepath) {
+    log.debug('Entering function', { namespace: 'main.mod_manager.syncModsWithCentralModFolder' })
+
     const centralModFolderPath = path.join(app.getPath('userData'), 'data/mods')
     if (!fs.existsSync(centralModFolderPath)) {
+      log.info('Central mod folder not created yet. Doing that now.', { namespace: 'main.mod_manager.syncModsWithCentralModFolder' })
+
       fs.mkdirSync(centralModFolderPath)
     }
 
@@ -109,8 +128,12 @@ export default class ModManager {
     const dest = path.join(centralModFolderPath, filepath)
 
     if (!fs.existsSync(dest)) {
+      log.info(`Copying a mod over to the central mod directory: ${filepath}`, { namespace: 'main.mod_manager.syncModsWithCentralModFolder' })
+
       await promisify(fs.copyFile)(source, dest)
     }
+
+    log.debug('Exiting function', { namespace: 'main.mod_manager.syncModsWithCentralModFolder' })
   }
 
   async deleteMod (name) {
@@ -216,12 +239,11 @@ export default class ModManager {
 
   async getModDataFromZip (filepath) {
     if (!filepath) return
-    const { modDir } = store.get(`environments.list.${store.get('environments.active')}`).paths
 
     let buffer, zip
 
     try {
-      buffer = await promisify(fs.readFile)(path.join(modDir, filepath))
+      buffer = await promisify(fs.readFile)(filepath)
       zip = await jsZip.loadAsync(buffer)
     } catch (error) {
       throw new Error(`Could not read the zip file, it may be corrupted or exist, ${error.message}`)
