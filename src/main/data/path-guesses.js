@@ -64,7 +64,7 @@ if (currentPlatform === 'linux') {
     join(homeDir, './factorio/mods'),
   ])
 
-  paths.pathDir.push(...[
+  paths.playerDataFile.push(...[
     join(homeDir, '.factorio/player-data.json'),
     join(homeDir, '.factorio/config/player-data.json'),
   ])
