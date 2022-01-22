@@ -79,7 +79,7 @@
   "dependencies": {
     "electron-store": "^5.1.1",
     "jszip": "^3.7.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.1.1",
     "vue": "^2.6.10",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.1.2",
